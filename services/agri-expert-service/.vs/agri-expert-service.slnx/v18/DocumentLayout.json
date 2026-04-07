@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\FPT\\Semester_8\\PRN232\\PRN232_BioPestControl_Code\\services\\agri-expert-service\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5B829A5D-418A-6C1F-3C91-809DBCB311C7}|agri-expert-service\\agri-expert-service.csproj|d:\\fpt\\semester_8\\prn232\\prn232_biopestcontrol_code\\services\\agri-expert-service\\agri-expert-service\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B829A5D-418A-6C1F-3C91-809DBCB311C7}|agri-expert-service\\agri-expert-service.csproj|solutionrelative:agri-expert-service\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 15,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,6 +75,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "D:\\FPT\\Semester_8\\PRN232\\PRN232_BioPestControl_Code\\services\\agri-expert-service\\agri-expert-service\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "agri-expert-service\\Controllers\\WeatherForecastController.cs",
+              "ToolTip": "D:\\FPT\\Semester_8\\PRN232\\PRN232_BioPestControl_Code\\services\\agri-expert-service\\agri-expert-service\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "agri-expert-service\\Controllers\\WeatherForecastController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T08:59:50.603Z",
+              "EditorCaption": ""
             }
           ]
         },

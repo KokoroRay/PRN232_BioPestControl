@@ -1,76 +1,75 @@
-    name: Build and Push 8 Services
+name: Build and Push 8 Services
 
-    on:
-    push:
-        branches:
-        - main
-    workflow_dispatch:
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-    jobs:
-    build-and-push:
-        runs-on: self-hosted
-        env:
-        REGISTRY: 10.0.0.3:5000
-        IMAGE_TAG: ${{ github.sha }}
-        steps:
-        - name: Checkout Code
-            uses: actions/checkout@v4
+jobs:
+  build-and-push:
+    runs-on: self-hosted
+    env:
+      REGISTRY: 10.0.0.3:5000
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-        - name: Build and Push Services
-            shell: bash
-            run: |
-            set -euo pipefail
+      - name: Build and Push Services
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            SERVICES=(
-                "agri-expert-service"
-                "catalog-service"
-                "engagement-service"
-                "identity-service"
-                "inventory-service"
-                "ordering-service"
-                "payment-service"
-                "trading-service"
-            )
+          SERVICES=(
+            "agri-expert-service"
+            "catalog-service"
+            "engagement-service"
+            "identity-service"
+            "inventory-service"
+            "ordering-service"
+            "payment-service"
+            "trading-service"
+          )
 
-            for SVC in "${SERVICES[@]}"; do
-                # Prefer services/<name>, fallback to project-root/<name>
-                if [ -f "services/${SVC}/Dockerfile" ]; then
-                CONTEXT="services/${SVC}"
-                elif [ -f "${SVC}/Dockerfile" ]; then
-                CONTEXT="${SVC}"
-                else
-                echo "Dockerfile not found for ${SVC} in services/${SVC} or ${SVC}"
-                exit 1
-                fi
+          for SVC in "${SERVICES[@]}"; do
+            if [ -f "services/${SVC}/Dockerfile" ]; then
+              CONTEXT="services/${SVC}"
+            elif [ -f "${SVC}/Dockerfile" ]; then
+              CONTEXT="${SVC}"
+            else
+              echo "Dockerfile not found for ${SVC} in services/${SVC} or ${SVC}"
+              exit 1
+            fi
 
-                echo "--- Building ${SVC} ---"
-                docker build -t "${REGISTRY}/${SVC}:${IMAGE_TAG}" "${CONTEXT}"
+            echo "--- Building ${SVC} ---"
+            docker build -t "${REGISTRY}/${SVC}:${IMAGE_TAG}" "${CONTEXT}"
 
-                echo "--- Pushing ${SVC} ---"
-                docker push "${REGISTRY}/${SVC}:${IMAGE_TAG}"
-            done
+            echo "--- Pushing ${SVC} ---"
+            docker push "${REGISTRY}/${SVC}:${IMAGE_TAG}"
+          done
 
-        - name: Deploy to K3s
-            shell: bash
-            run: |
-            set -euo pipefail
+      - name: Deploy to K3s
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            echo "--- Applying Manifests ---"
-            kubectl apply -f k8s/namespace.yaml
-            kubectl apply -f k8s/
+          echo "--- Applying Manifests ---"
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/
 
-            SERVICES=(
-                "agri-expert-service"
-                "catalog-service"
-                "engagement-service"
-                "identity-service"
-                "inventory-service"
-                "ordering-service"
-                "payment-service"
-                "trading-service"
-            )
+          SERVICES=(
+            "agri-expert-service"
+            "catalog-service"
+            "engagement-service"
+            "identity-service"
+            "inventory-service"
+            "ordering-service"
+            "payment-service"
+            "trading-service"
+          )
 
-            for SVC in "${SERVICES[@]}"; do
-                kubectl set image deployment/"${SVC}" "${SVC}"="${REGISTRY}/${SVC}:${IMAGE_TAG}" -n biopest
-                kubectl rollout status deployment/"${SVC}" -n biopest --timeout=180s
-            done
+          for SVC in "${SERVICES[@]}"; do
+            kubectl set image deployment/"${SVC}" "${SVC}"="${REGISTRY}/${SVC}:${IMAGE_TAG}" -n biopest
+            kubectl rollout status deployment/"${SVC}" -n biopest --timeout=180s
+          done

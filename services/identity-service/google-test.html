@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google Login - Identity Service</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 40px;
+            width: 600px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        h1 {
+            font-size: 22px;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+        #g_id_signin {
+            margin-bottom: 16px;
+        }
+        .token-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            color: #22d3ee;
+            word-break: break-all;
+            min-height: 60px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+        .btn-copy {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #94a3b8;
+        }
+        .btn-copy:hover { background: #1e293b; border-color: #3b82f6; color: #3b82f6; }
+        .response-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            min-height: 80px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .response-box.success { border-color: #22c55e; color: #86efac; }
+        .response-box.error   { border-color: #ef4444; color: #fca5a5; }
+        .response-box.pending { color: #94a3b8; }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .badge-green { background: #166534; color: #86efac; }
+        .badge-red   { background: #7f1d1d; color: #fca5a5; }
+        .badge-gray  { background: #1e293b; color: #94a3b8; }
+        .url-display {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #f59e0b;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test Google Login</h1>
+        <p class="subtitle">Identity Service — <code>POST /api/Auth/google-login</code></p>
+
+        <!-- Bước 1: Đăng nhập Google -->
+        <div class="section">
+            <div class="section-title">Bước 1 — Đăng nhập bằng Google để lấy ID Token</div>
+            <div id="g_id_signin"></div>
+        </div>
+
+        <!-- ID Token -->
+        <div class="section">
+            <div class="section-title">ID Token nhận được từ Google</div>
+            <div class="token-box" id="idTokenDisplay">Chưa có token — Hãy đăng nhập Google ở trên...</div>
+            <button class="btn btn-copy" onclick="copyToken()">📋 Copy Token</button>
+        </div>
+
+        <!-- Bước 2: Gọi API -->
+        <div class="section">
+            <div class="section-title">Bước 2 — Gọi API</div>
+            <div class="url-display">POST http://localhost:5240/api/Auth/google-login</div>
+            <button class="btn" id="callApiBtn" onclick="callApi()" disabled>🚀 Gửi lên API</button>
+        </div>
+
+        <!-- Kết quả -->
+        <div class="section">
+            <div class="section-title">
+                Kết quả API
+                <span id="statusBadge" class="status-badge badge-gray">Chờ...</span>
+            </div>
+            <div class="response-box pending" id="responseBox">Chưa có kết quả...</div>
+        </div>
+    </div>
+
+    <!-- Google Sign-In SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        const CLIENT_ID = '2040302279-84hbkip8oc8l1c52hgq6nvvvut09p9ik.apps.googleusercontent.com';
+        const API_URL   = 'http://localhost:5240/api/Auth/google-login';
+
+        let idToken = null;
+
+        // Khởi tạo Google Sign-In khi SDK load xong
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleGoogleResponse
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById('g_id_signin'),
+                {
+                    theme: 'filled_black',
+                    size: 'large',
+                    text: 'signin_with',
+                    shape: 'rectangular',
+                    width: 300
+                }
+            );
+        };
+
+        // Callback khi đăng nhập Google thành công
+        function handleGoogleResponse(response) {
+            idToken = response.credential;
+            document.getElementById('idTokenDisplay').textContent = idToken;
+            document.getElementById('callApiBtn').disabled = false;
+        }
+
+        // Copy token vào clipboard
+        function copyToken() {
+            if (!idToken) return alert('Chưa có token!');
+            navigator.clipboard.writeText(idToken).then(() => alert('Đã copy token!'));
+        }
+
+        // Gọi API với ID Token
+        async function callApi() {
+            if (!idToken) return;
+
+            const responseBox   = document.getElementById('responseBox');
+            const statusBadge   = document.getElementById('statusBadge');
+
+            responseBox.textContent = 'Đang gọi API...';
+            responseBox.className   = 'response-box pending';
+            statusBadge.textContent = 'Đang gửi...';
+            statusBadge.className   = 'status-badge badge-gray';
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken: idToken })
+                });
+
+                const data = await res.json();
+                const pretty = JSON.stringify(data, null, 2);
+
+                if (res.ok) {
+                    responseBox.textContent = pretty;
+                    responseBox.className   = 'response-box success';
+                    statusBadge.textContent = `✅ ${res.status} OK`;
+                    statusBadge.className   = 'status-badge badge-green';
+                } else {
+                    responseBox.textContent = pretty;
+                    responseBox.className   = 'response-box error';
+                    statusBadge.textContent = `❌ ${res.status}`;
+                    statusBadge.className   = 'status-badge badge-red';
+                }
+            } catch (err) {
+                responseBox.textContent = `Lỗi kết nối: ${err.message}\n\nHãy chắc chắn identity-service đang chạy tại:\n${API_URL}`;
+                responseBox.className   = 'response-box error';
+                statusBadge.textContent = '❌ Network Error';
+                statusBadge.className   = 'status-badge badge-red';
+            }
+        }
+    </script>
+</body>
+</html>

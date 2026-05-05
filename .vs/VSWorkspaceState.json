@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\services",
+    "\\services\\agri-expert-service",
+    "\\services\\payment-service"
+  ],
+  "SelectedNode": "\\services\\payment-service\\payment-service",
+  "PreviewInSolutionExplorer": false
+}

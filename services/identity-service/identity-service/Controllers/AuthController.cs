@@ -44,10 +44,14 @@ namespace identity_service.Controllers
                     }
                     existingUser.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
-                    return Ok(new { Message = "Đã cập nhật mật khẩu thành công cho tài khoản của bạn." });
+                    return StatusCode(201, new ApiResponse<object>
+                    {
+                        Success = true,
+                        Message = "Đã cập nhật mật khẩu thành công cho tài khoản của bạn."
+                    });
                 }
 
-                return BadRequest(new { Message = "Email đã tồn tại." });
+                return BadRequest(new ApiResponse<object> { Success = false, Message = "Email đã tồn tại." });
             }
 
             // Tạo thông tin người dùng mới
@@ -63,7 +67,11 @@ namespace identity_service.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "Đăng ký thành công" });
+            return StatusCode(201, new ApiResponse<object>
+            {
+                Success = true,
+                Message = "Đăng ký thành công"
+            });
         }
 
         // [POST] api/auth/login - API Đăng nhập truyền thống
@@ -76,32 +84,37 @@ namespace identity_service.Controllers
             // Nếu không tìm thấy user, hoặc user này (chỉ đăng nhập bằng google) không có mật khẩu (PasswordHash)
             if (user == null || string.IsNullOrEmpty(user.PasswordHash))
             {
-                return Unauthorized(new { Message = "Email hoặc mật khẩu không chính xác." });
+                return Unauthorized(new ApiResponse<object> { Success = false, Message = "Email hoặc mật khẩu không chính xác." });
             }
 
             // Điểm bổ sung 1: Kiểm tra tài khoản có bị khóa không
             if (!user.IsActive)
             {
-                return BadRequest(new { Message = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin." });
+                return StatusCode(403, new ApiResponse<object> { Success = false, Message = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin." });
             }
 
             // Kiểm tra xem mật khẩu người dùng nhập có khớp với mã Hash trong CSDL không
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return Unauthorized(new { Message = "Email hoặc mật khẩu không chính xác." });
+                return Unauthorized(new ApiResponse<object> { Success = false, Message = "Email hoặc mật khẩu không chính xác." });
             }
 
             // Mật khẩu đúng, tiến hành tạo JWT Token
             var token = _jwtTokenService.GenerateToken(user);
 
             // Trả về thông tin và Token cho Client
-            return Ok(new AuthResponse
+            return Ok(new ApiResponse<AuthResponse>
             {
-                Token = token,
-                Email = user.Email,
-                FullName = user.FullName,
-                Role = user.Role,
-                AvatarUrl = user.AvatarUrl
+                Success = true,
+                Message = "Đăng nhập thành công",
+                Data = new AuthResponse
+                {
+                    Token = token,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Role = user.Role,
+                    AvatarUrl = user.AvatarUrl
+                }
             });
         }
 
@@ -122,7 +135,7 @@ namespace identity_service.Controllers
             }
             catch (InvalidJwtException)
             {
-                return BadRequest(new { Message = "Token Google không hợp lệ." });
+                return BadRequest(new ApiResponse<object> { Success = false, Message = "Token Google không hợp lệ." });
             }
 
             // Tìm xem email này đã đăng ký trong hệ thống chưa
@@ -163,19 +176,24 @@ namespace identity_service.Controllers
             // Điểm bổ sung 1: Kiểm tra tài khoản có bị khóa không (dù đăng nhập qua Google)
             if (!user.IsActive)
             {
-                return BadRequest(new { Message = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin." });
+                return StatusCode(403, new ApiResponse<object> { Success = false, Message = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin." });
             }
 
             // Tạo JWT Token nội bộ của hệ thống sau khi đã đăng nhập bằng Google hợp lệ
             var token = _jwtTokenService.GenerateToken(user);
 
-            return Ok(new AuthResponse
+            return Ok(new ApiResponse<AuthResponse>
             {
-                Token = token,
-                Email = user.Email,
-                FullName = user.FullName,
-                Role = user.Role,
-                AvatarUrl = user.AvatarUrl
+                Success = true,
+                Message = "Đăng nhập Google thành công",
+                Data = new AuthResponse
+                {
+                    Token = token,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Role = user.Role,
+                    AvatarUrl = user.AvatarUrl
+                }
             });
         }
     }

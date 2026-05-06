@@ -22,6 +22,7 @@
 **/*.env
 deploy/env/*.env
 
+**/.vs
 # Keep sample env files in repo
 !.env.example
 !**/.env.example

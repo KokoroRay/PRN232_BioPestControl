@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 using identity_service.Data;
+using identity_service.DTOs;
 using identity_service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -94,6 +98,34 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// ============================================================
+// Global Exception Handler — Bắt mọi lỗi không mong muốn
+// Trả về 500 dưới dạng ApiResponse thay vì lộ stack trace
+// ============================================================
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode  = (int)HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var errorMessage = app.Environment.IsDevelopment()
+            ? errorFeature?.Error.Message ?? "Lỗi không xác định"   // Dev: hiện message cụ thể
+            : "Đã xảy ra lỗi phía server. Vui lòng thử lại sau.";   // Prod: ẩn chi tiết lỗi
+
+        var response = new ApiResponse<object>
+        {
+            Success = false,
+            Message = errorMessage
+        };
+
+        await context.Response.WriteAsync(
+            JsonSerializer.Serialize(response, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })
+        );
+    });
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

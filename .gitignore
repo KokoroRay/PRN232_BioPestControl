@@ -1,0 +1,34 @@
+# ------------------------------
+# .NET build artifacts
+# ------------------------------
+**/bin/
+**/obj/
+**/TestResults/
+
+# IDE / local tool files
+**/.vs/
+**/.vscode/
+**/*.user
+**/*.suo
+**/*.cache
+
+# ------------------------------
+# Environment & local secrets
+# ------------------------------
+.env
+.env.*
+**/.env
+**/.env.*
+**/*.env
+deploy/env/*.env
+
+# Keep sample env files in repo
+!.env.example
+!**/.env.example
+
+# Local-only ASP.NET config
+**/appsettings.Local.json
+**/appsettings.*.local.json
+
+# Optional local compose override
+**/docker-compose.override.yml

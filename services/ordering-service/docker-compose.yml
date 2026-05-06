@@ -1,0 +1,12 @@
+services:
+  ordering-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Đảm bảo KHÔNG có dòng 'target: build' ở đây
+    image: ordering-service:latest
+    container_name: ordering-service
+    ports:
+      - "8081:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

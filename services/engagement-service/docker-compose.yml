@@ -1,0 +1,12 @@
+services:
+  engagement-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Đảm bảo KHÔNG có dòng 'target: build' ở đây
+    image: engagement-service:latest
+    container_name: engagement-service
+    ports:
+      - "8081:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

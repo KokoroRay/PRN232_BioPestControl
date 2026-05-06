@@ -1,6 +1,0 @@
-@agri_expert_service_HostAddress = http://localhost:5050
-
-GET {{agri_expert_service_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

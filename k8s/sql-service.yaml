@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: sql-server-db
-  namespace: biopest
-spec:
-  type: ExternalName
-  externalName: 10.0.0.4.nip.io

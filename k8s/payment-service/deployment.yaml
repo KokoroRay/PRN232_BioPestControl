@@ -19,9 +19,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: Development
+          envFrom:
+            - configMapRef:
+                name: payment-service-env
           resources:
             requests:
               cpu: 100m

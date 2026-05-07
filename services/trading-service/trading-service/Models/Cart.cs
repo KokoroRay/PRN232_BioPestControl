@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ordering_service.Models
+namespace trading_service.Models
 {
     // Bảng Cart: mỗi Customer có DUY NHẤT một giỏ hàng
     public class Cart

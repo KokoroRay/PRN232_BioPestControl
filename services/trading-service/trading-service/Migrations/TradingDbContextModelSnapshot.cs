@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ordering_service.Data;
+using trading_service.Data;
 
 #nullable disable
 
-namespace ordering_service.Migrations
+namespace trading_service.Migrations
 {
-    [DbContext(typeof(OrderingDbContext))]
-    [Migration("20260506064520_ManageCart")]
-    partial class ManageCart
+    [DbContext(typeof(TradingDbContext))]
+    partial class TradingDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +22,7 @@ namespace ordering_service.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ordering_service.Models.Cart", b =>
+            modelBuilder.Entity("trading_service.Models.Cart", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +45,7 @@ namespace ordering_service.Migrations
                     b.ToTable("Carts");
                 });
 
-            modelBuilder.Entity("ordering_service.Models.CartItem", b =>
+            modelBuilder.Entity("trading_service.Models.CartItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,15 +80,14 @@ namespace ordering_service.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CartId", "ProductId")
-                        .IsUnique();
+                    b.HasIndex("CartId");
 
                     b.ToTable("CartItems");
                 });
 
-            modelBuilder.Entity("ordering_service.Models.CartItem", b =>
+            modelBuilder.Entity("trading_service.Models.CartItem", b =>
                 {
-                    b.HasOne("ordering_service.Models.Cart", "Cart")
+                    b.HasOne("trading_service.Models.Cart", "Cart")
                         .WithMany("Items")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -100,7 +96,7 @@ namespace ordering_service.Migrations
                     b.Navigation("Cart");
                 });
 
-            modelBuilder.Entity("ordering_service.Models.Cart", b =>
+            modelBuilder.Entity("trading_service.Models.Cart", b =>
                 {
                     b.Navigation("Items");
                 });

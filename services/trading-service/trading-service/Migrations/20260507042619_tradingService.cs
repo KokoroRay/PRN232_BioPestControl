@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace ordering_service.Migrations
+namespace trading_service.Migrations
 {
     /// <inheritdoc />
-    public partial class ManageCart : Migration
+    public partial class tradingService : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

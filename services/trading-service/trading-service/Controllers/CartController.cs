@@ -2,20 +2,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
-using ordering_service.Data;
-using ordering_service.DTOs;
-using ordering_service.Models;
+using trading_service.Data;
+using trading_service.DTOs;
+using trading_service.Models;
 
-namespace ordering_service.Controllers
+namespace trading_service.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Customer,Admin")] // Chỉ Customer và Admin mới truy cập được
     public class CartController : ControllerBase
     {
-        private readonly OrderingDbContext _context;
+        private readonly TradingDbContext _context;
 
-        public CartController(OrderingDbContext context)
+        public CartController(TradingDbContext context)
         {
             _context = context;
         }

@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ordering_service.Migrations
+namespace trading_service.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCart : Migration
+    public partial class InitialCartSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,10 +51,9 @@ namespace ordering_service.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartItems_CartId_ProductId",
+                name: "IX_CartItems_CartId",
                 table: "CartItems",
-                columns: new[] { "CartId", "ProductId" },
-                unique: true);
+                column: "CartId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Carts_CustomerId",

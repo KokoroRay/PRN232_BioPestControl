@@ -7,32 +7,25 @@ namespace ordering_service.Data
     {
         public OrderingDbContext(DbContextOptions<OrderingDbContext> options) : base(options) { }
 
-        // Bảng giỏ hàng
-        public DbSet<Cart> Carts { get; set; }
-
-        // Bảng dòng sản phẩm trong giỏ
-        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Cart>(entity =>
+            modelBuilder.Entity<Order>(entity =>
             {
-                // Mỗi Customer chỉ có đúng 1 giỏ hàng — index unique trên CustomerId
-                entity.HasIndex(c => c.CustomerId).IsUnique();
-
-                // Cascade delete: khi xóa Cart thì xóa toàn bộ CartItem của nó
-                entity.HasMany(c => c.Items)
-                      .WithOne(i => i.Cart)
-                      .HasForeignKey(i => i.CartId)
+                entity.HasMany(o => o.OrderItems)
+                      .WithOne(i => i.Order)
+                      .HasForeignKey(i => i.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<CartItem>(entity =>
+            modelBuilder.Entity<OrderItem>(entity =>
             {
-                // Mỗi sản phẩm chỉ xuất hiện 1 lần trong cùng một giỏ
-                entity.HasIndex(i => new { i.CartId, i.ProductId }).IsUnique();
+                // Index for faster statistics queries
+                entity.HasIndex(i => i.ProductId);
             });
         }
     }

@@ -51,7 +51,25 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ── Controllers ───────────────────────────────────────────────
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(e => e.Value.Errors.Count > 0)
+                .SelectMany(e => e.Value.Errors.Select(x => x.ErrorMessage))
+                .ToList();
+
+            var result = new ApiResponse<object>
+            {
+                Success = false,
+                Message = "Dữ liệu không hợp lệ: " + string.Join("; ", errors)
+            };
+
+            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(result);
+        };
+    });
 
 // ── Swagger ───────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();

@@ -13,6 +13,9 @@ services:
           - /api/auth
           - /api/admin/staffs
           - /api/admin/permissions
+          - /api/admin/customers
+          - /api/staff/customers
+          - /api/profile
         strip_path: false
 
   # ----------------------------------------------------

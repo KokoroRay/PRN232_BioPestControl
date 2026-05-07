@@ -66,6 +66,42 @@ namespace identity_service.Repositories.Implements
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<(List<User> Items, int TotalCount)> GetPagedCustomersAsync(DTOs.Requests.CustomerSearchRequest request)
+        {
+            var query = _context.Users.Where(u => u.Role == "Customer").AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            {
+                var kw = request.Keyword.Trim().ToLower();
+                query = query.Where(u =>
+                    u.Email.ToLower().Contains(kw) ||
+                    (u.FullName != null && u.FullName.ToLower().Contains(kw)));
+            }
+
+            if (request.IsActive.HasValue)
+            {
+                query = query.Where(u => u.IsActive == request.IsActive.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            query = request.SortBy.ToLower() switch
+            {
+                "email" => request.SortDesc ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+                "fullname" => request.SortDesc ? query.OrderByDescending(u => u.FullName) : query.OrderBy(u => u.FullName),
+                _ => request.SortDesc ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt)
+            };
+
+            var pageSize = Math.Clamp(request.PageSize, 1, 100);
+            var page = Math.Max(request.Page, 1);
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public Task UpdateAsync(User user)
         {
             _context.Users.Update(user);

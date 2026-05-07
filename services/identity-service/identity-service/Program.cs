@@ -65,6 +65,7 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 // Setup Authentication (JWT): Cấu hình cơ chế xác thực bằng JWT (JSON Web Token)
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

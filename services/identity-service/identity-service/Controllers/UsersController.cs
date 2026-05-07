@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using identity_service.Data;
 using identity_service.DTOs;
+using identity_service.DTOs.Requests;
+using identity_service.DTOs.Responses;
 
 namespace identity_service.Controllers
 {

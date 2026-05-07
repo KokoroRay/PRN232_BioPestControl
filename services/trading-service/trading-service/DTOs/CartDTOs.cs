@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ordering_service.DTOs
+namespace trading_service.DTOs
 {
     // DTO trả về thông tin toàn bộ giỏ hàng
     public class CartDto

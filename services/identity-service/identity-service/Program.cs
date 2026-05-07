@@ -12,6 +12,8 @@ using System.Text.Json;
 using System.Text.Json;
 using identity_service.Data;
 using identity_service.DTOs;
+using identity_service.DTOs.Requests;
+using identity_service.DTOs.Responses;
 using identity_service.Repositories.Interfaces;
 using identity_service.Repositories.Implements;
 using identity_service.Services.Interfaces;

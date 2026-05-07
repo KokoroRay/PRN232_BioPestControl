@@ -33,3 +33,8 @@ deploy/env/*.env
 
 # Optional local compose override
 **/docker-compose.override.yml
+
+# Claw Code files
+.claw/
+.clawd-todos.json
+.claw.json

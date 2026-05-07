@@ -1,17 +1,16 @@
-using identity_service.DTOs.Requests;
-using identity_service.DTOs.Responses;
+using agri_expert_service.DTOs.Requests;
+using agri_expert_service.DTOs.Responses;
 
-namespace identity_service.Services.Interfaces
+namespace agri_expert_service.Services.Interfaces
 {
-    public interface IStaffService
+    public interface IChemicalService
     {
-        Task<ServiceResult<PagedResult<StaffDto>>> GetPagedAsync(StaffSearchRequest request);
-        Task<ServiceResult<StaffDto>> GetByIdAsync(Guid staffId);
-        Task<ServiceResult<StaffDto>> CreateAsync(CreateStaffRequest request, Guid adminId);
-        Task<ServiceResult<StaffDto>> UpdateAsync(Guid staffId, UpdateStaffRequest request, Guid adminId);
-        Task<ServiceResult<object>> DeleteAsync(Guid staffId);
-        Task<ServiceResult<object>> UpdateStatusAsync(Guid staffId, UpdateStaffStatusRequest request, Guid adminId);
-        Task<ServiceResult<StaffDto>> UpdatePermissionsAsync(Guid staffId, UpdateStaffPermissionsRequest request, Guid adminId);
+        Task<ServiceResult<PagedResult<ChemicalDto>>> GetPagedAsync(ChemicalSearchRequest request);
+        Task<ServiceResult<ChemicalDto>> GetByIdAsync(int id);
+        Task<ServiceResult<List<string>>> GetGroupsAsync();
+        Task<ServiceResult<ChemicalDto>> CreateAsync(CreateChemicalRequest request);
+        Task<ServiceResult<ChemicalDto>> UpdateAsync(int id, UpdateChemicalRequest request);
+        Task<ServiceResult<object>> DeleteAsync(int id);
     }
 
     public class ServiceResult<T>

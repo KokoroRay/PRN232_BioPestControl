@@ -1,9 +1,8 @@
-using identity_service.DTOs;
+using identity_service.DTOs.Requests;
 using identity_service.Models;
 
 namespace identity_service.Repositories.Interfaces
 {
-    // Interface định nghĩa các thao tác dữ liệu cho Staff.
     public interface IStaffRepository
     {
         Task<(List<Staff> Items, int TotalCount)> GetPagedAsync(StaffSearchRequest request);

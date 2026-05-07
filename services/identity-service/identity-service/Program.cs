@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using identity_service.Data;
 using identity_service.DTOs;
+using identity_service.Repositories;
 using identity_service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +49,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Setup custom services: Đăng ký JwtTokenService vào hệ thống (Dependency Injection) để sử dụng trong các Controller
 builder.Services.AddScoped<JwtTokenService>();
 
+// ── Staff Management + IAM ──────────────────────────────────────────────────
+// Repositories
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+
+// Services
+builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+
 // Setup Authentication (JWT): Cấu hình cơ chế xác thực bằng JWT (JSON Web Token)
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["Key"];
@@ -71,7 +83,11 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,        // Kiểm tra chữ ký bảo mật (chống giả mạo Token)
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+        // Chỉ định claim nào trong JWT sẽ được dùng cho Role và Name
+        // Mặc định .NET map sai khi dùng chuẩn JWT "role" → phải khai báo rõ
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = JwtRegisteredClaimNames.Sub
     };
 });
 

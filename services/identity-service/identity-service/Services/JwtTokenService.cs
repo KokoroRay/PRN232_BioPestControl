@@ -26,9 +26,13 @@ namespace identity_service.Services
             // 3. Khai báo các thông tin (Claims) sẽ được gói vào bên trong Token
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Subject (ID người dùng)
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),       // Email người dùng
-                new Claim(ClaimTypes.Role, user.Role),                      // Phân quyền người dùng (VD: Admin, Customer)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),  // Subject (ID người dùng)
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),        // Email người dùng
+                // Thêm cả hai dạng role claim:
+                // - "role": chuẩn JWT, được JWT Bearer middleware đọc trực tiếp
+                // - ClaimTypes.Role: chuẩn .NET, dùng cho User.IsInRole() / [Authorize(Roles)]
+                new Claim("role", user.Role),
+                new Claim(ClaimTypes.Role, user.Role),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // ID duy nhất của token (chống replay attack)
             };
 

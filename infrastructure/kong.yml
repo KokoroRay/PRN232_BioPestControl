@@ -1,0 +1,57 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  # ----------------------------------------------------
+  # 1. Identity Service
+  # ----------------------------------------------------
+  - name: identity-service
+    url: http://host.docker.internal:5240
+    routes:
+      - name: identity-routes
+        paths:
+          - /api/auth
+          - /api/admin/staffs
+          - /api/admin/permissions
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 2. Agri-Expert Service
+  # ----------------------------------------------------
+  - name: agri-expert-service
+    url: http://host.docker.internal:5050
+    routes:
+      - name: agri-expert-routes
+        paths:
+          - /api/chemicals
+          - /api/staff/chemicals
+          - /api/admin/chemicals
+        strip_path: false
+    # Mặc định .NET nhận token nhưng bạn cũng có thể cấu hình jwt plugin tại gateway nếu muốn chặn ngay từ gateway.
+    # Trong trường hợp này, các service .NET đã có logic validate token (AddJwtBearer) rồi,
+    # nên Gateway chỉ cần đóng vai trò proxy routing là đủ.
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+      exposed_headers:
+        - Authorization
+      credentials: true
+      max_age: 3600

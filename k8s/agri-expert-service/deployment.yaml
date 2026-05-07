@@ -19,16 +19,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: Development
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-secret
-                  key: password
-            - name: ConnectionStrings__DefaultConnection
-              value: Server=sql-server-db;Database=BioPestControl;User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=True
+          envFrom:
+            - configMapRef:
+                name: agri-expert-service-env
           resources:
             requests:
               cpu: 100m

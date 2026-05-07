@@ -19,9 +19,20 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: identity-service-env
           env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: Development
+            - name: AzureSql__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: connectionString
+            - name: JwtSettings__Key
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: jwtKey
           resources:
             requests:
               cpu: 100m

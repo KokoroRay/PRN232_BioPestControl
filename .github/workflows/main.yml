@@ -56,7 +56,6 @@ jobs:
 
           echo "--- Applying Manifests ---"
           kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/
 
           SERVICES=(
             "agri-expert-service"
@@ -68,6 +67,15 @@ jobs:
             "payment-service"
             "trading-service"
           )
+
+          for SVC in "${SERVICES[@]}"; do
+            kubectl create configmap "${SVC}-env" \
+              --from-env-file="deploy/env/${SVC}.env" \
+              -n biopest \
+              --dry-run=client -o yaml | kubectl apply -f -
+          done
+
+          kubectl apply -f k8s/
 
           for SVC in "${SERVICES[@]}"; do
             kubectl set image deployment/"${SVC}" "${SVC}"="${REGISTRY}/${SVC}:${IMAGE_TAG}" -n biopest

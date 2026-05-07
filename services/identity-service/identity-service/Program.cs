@@ -12,8 +12,10 @@ using System.Text.Json;
 using System.Text.Json;
 using identity_service.Data;
 using identity_service.DTOs;
-using identity_service.Repositories;
-using identity_service.Services;
+using identity_service.Repositories.Interfaces;
+using identity_service.Repositories.Implements;
+using identity_service.Services.Interfaces;
+using identity_service.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 

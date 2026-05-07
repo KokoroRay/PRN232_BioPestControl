@@ -1,7 +1,7 @@
 using identity_service.DTOs;
 using identity_service.Models;
 
-namespace identity_service.Repositories
+namespace identity_service.Repositories.Interfaces
 {
     // Interface định nghĩa các thao tác dữ liệu cho Staff.
     public interface IStaffRepository

@@ -1,7 +1,8 @@
 using identity_service.DTOs;
-using identity_service.Repositories;
+using identity_service.Repositories.Interfaces;
+using identity_service.Services.Interfaces;
 
-namespace identity_service.Services
+namespace identity_service.Services.Implements
 {
     /// <summary>
     /// Triển khai IPermissionService.

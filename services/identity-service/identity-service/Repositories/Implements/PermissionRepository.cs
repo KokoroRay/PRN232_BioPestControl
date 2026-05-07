@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using identity_service.Data;
 using identity_service.Models;
+using identity_service.Repositories.Interfaces;
 
-namespace identity_service.Repositories
+namespace identity_service.Repositories.Implements
 {
     public class PermissionRepository : IPermissionRepository
     {

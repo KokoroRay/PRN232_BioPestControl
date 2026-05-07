@@ -1,6 +1,6 @@
 using identity_service.DTOs;
 
-namespace identity_service.Services
+namespace identity_service.Services.Interfaces
 {
     public interface IPermissionService
     {

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using identity_service.DTOs;
-using identity_service.Services;
+using identity_service.Services.Interfaces;
 
 namespace identity_service.Controllers.Admin
 {

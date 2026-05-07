@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using identity_service.Models;
 
-namespace identity_service.Services
+namespace identity_service.Services.Implements
 {
     public class JwtTokenService
     {

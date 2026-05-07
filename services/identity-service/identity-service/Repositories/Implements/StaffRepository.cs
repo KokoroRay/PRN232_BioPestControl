@@ -2,8 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using identity_service.Data;
 using identity_service.DTOs;
 using identity_service.Models;
+using identity_service.Repositories.Interfaces;
 
-namespace identity_service.Repositories
+namespace identity_service.Repositories.Implements
 {
     /// <summary>
     /// Triển khai IStaffRepository sử dụng Entity Framework Core.

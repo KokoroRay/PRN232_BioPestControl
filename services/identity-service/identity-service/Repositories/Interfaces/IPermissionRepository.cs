@@ -1,6 +1,6 @@
 using identity_service.Models;
 
-namespace identity_service.Repositories
+namespace identity_service.Repositories.Interfaces
 {
     public interface IPermissionRepository
     {

@@ -1,9 +1,13 @@
 using identity_service.DTOs;
 using identity_service.Models;
-using identity_service.Repositories;
+using identity_service.Repositories.Interfaces;
+using identity_service.Services.Interfaces;
 
-namespace identity_service.Services
+namespace identity_service.Services.Implements
 {
+    /// <summary>
+    /// Triển khai IStaffService — xử lý toàn bộ nghiệp vụ Staff Management + IAM.
+    /// </summary>
     public class StaffService : IStaffService
     {
         private readonly IStaffRepository _staffRepo;
@@ -87,13 +91,10 @@ namespace identity_service.Services
             // 4. Tạo Staff entity liên kết với User
             var staff = new Staff
             {
-                User               = user,                  // EF sẽ tự gán UserId sau khi SaveChanges
-                Department         = request.Department?.Trim(),
-                JobTitle           = request.JobTitle?.Trim(),
-                Notes              = request.Notes?.Trim(),
-                IsFullAccess       = request.IsFullAccess,
-                CreatedByAdminId   = adminId,
-                CreatedAt          = DateTime.UtcNow
+                User             = user,
+                IsFullAccess     = request.IsFullAccess,
+                CreatedByAdminId = adminId,
+                CreatedAt        = DateTime.UtcNow
             };
 
             await _staffRepo.AddAsync(staff);
@@ -150,11 +151,7 @@ namespace identity_service.Services
 
             user.UpdatedAt = DateTime.UtcNow;
 
-            // ── Cập nhật thông tin Staff ──
-            if (request.Department != null) staff.Department = request.Department.Trim();
-            if (request.JobTitle   != null) staff.JobTitle   = request.JobTitle.Trim();
-            if (request.Notes      != null) staff.Notes      = request.Notes.Trim();
-
+            // ── Cập nhật Staff ──
             staff.IsFullAccess     = request.IsFullAccess;
             staff.UpdatedByAdminId = adminId;
             staff.UpdatedAt        = DateTime.UtcNow;
@@ -291,35 +288,32 @@ namespace identity_service.Services
         {
             return new StaffDto
             {
-                Id                 = s.Id,
-                UserId             = s.UserId,
-                Email              = s.User.Email,
-                FullName           = s.User.FullName,
-                AvatarUrl          = s.User.AvatarUrl,
-                PhoneNumber        = s.User.PhoneNumber,
-                IsActive           = s.User.IsActive,
-                Department         = s.Department,
-                JobTitle           = s.JobTitle,
-                Notes              = s.Notes,
-                IsFullAccess       = s.IsFullAccess,
-                CreatedByAdminId   = s.CreatedByAdminId,
-                UpdatedByAdminId   = s.UpdatedByAdminId,
-                CreatedAt          = s.CreatedAt,
-                UpdatedAt          = s.UpdatedAt,
-                Permissions        = s.StaffPermissions
+                Id               = s.Id,
+                UserId           = s.UserId,
+                Email            = s.User.Email,
+                FullName         = s.User.FullName,
+                AvatarUrl        = s.User.AvatarUrl,
+                PhoneNumber      = s.User.PhoneNumber,
+                IsActive         = s.User.IsActive,
+                IsFullAccess     = s.IsFullAccess,
+                CreatedByAdminId = s.CreatedByAdminId,
+                UpdatedByAdminId = s.UpdatedByAdminId,
+                CreatedAt        = s.CreatedAt,
+                UpdatedAt        = s.UpdatedAt,
+                Permissions      = s.StaffPermissions
                     .Where(sp => sp.Permission != null)
                     .OrderBy(sp => sp.Permission.GroupCode)
                     .ThenBy(sp => sp.Permission.DisplayOrder)
                     .Select(sp => new PermissionDto
                     {
-                        Id          = sp.Permission.Id,
-                        Code        = sp.Permission.Code,
-                        DisplayName = sp.Permission.DisplayName,
-                        Description = sp.Permission.Description,
-                        GroupCode   = sp.Permission.GroupCode,
-                        GroupName   = sp.Permission.GroupName,
+                        Id           = sp.Permission.Id,
+                        Code         = sp.Permission.Code,
+                        DisplayName  = sp.Permission.DisplayName,
+                        Description  = sp.Permission.Description,
+                        GroupCode    = sp.Permission.GroupCode,
+                        GroupName    = sp.Permission.GroupName,
                         DisplayOrder = sp.Permission.DisplayOrder,
-                        IsActive    = sp.Permission.IsActive
+                        IsActive     = sp.Permission.IsActive
                     }).ToList()
             };
         }
@@ -334,8 +328,7 @@ namespace identity_service.Services
                 Email           = s.User.Email,
                 FullName        = s.User.FullName,
                 AvatarUrl       = s.User.AvatarUrl,
-                Department      = s.Department,
-                JobTitle        = s.JobTitle,
+                PhoneNumber     = s.User.PhoneNumber,
                 IsActive        = s.User.IsActive,
                 IsFullAccess    = s.IsFullAccess,
                 PermissionCount = s.StaffPermissions.Count,

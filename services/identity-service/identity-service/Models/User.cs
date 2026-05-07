@@ -44,5 +44,11 @@ namespace identity_service.Models
 
         // Thời gian cập nhật thông tin lần cuối
         public DateTime? UpdatedAt { get; set; }
+        // Mã OTP dùng để reset mật khẩu (ví dụ: 6 số)
+        [MaxLength(6)]
+        public string? ResetPasswordOtp { get; set; }
+
+        // Thời gian hết hạn của mã OTP reset mật khẩu
+        public DateTime? ResetPasswordExpiry { get; set; }
     }
 }

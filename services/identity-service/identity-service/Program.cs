@@ -56,13 +56,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<JwtTokenService>();
 
 // ── Staff Management + IAM ──────────────────────────────────────────────────
-// Repositories
-builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+// DI Registration
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-
-// Services
-builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 
 // Setup Authentication (JWT): Cấu hình cơ chế xác thực bằng JWT (JSON Web Token)
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

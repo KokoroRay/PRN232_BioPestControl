@@ -58,8 +58,8 @@ builder.Services.AddControllers()
         options.InvalidModelStateResponseFactory = context =>
         {
             var errors = context.ModelState
-                .Where(e => e.Value.Errors.Count > 0)
-                .SelectMany(e => e.Value.Errors.Select(x => x.ErrorMessage))
+                .Where(e => e.Value != null && e.Value.Errors.Count > 0)
+                .SelectMany(e => e.Value!.Errors.Select(x => x.ErrorMessage))
                 .ToList();
 
             var result = new ApiResponse<object>

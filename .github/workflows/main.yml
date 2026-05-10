@@ -18,6 +18,15 @@ jobs:
 
       - name: Build and Push Services
         shell: bash
+        env:
+          AGRI_EXPERT_DB_CONNECTION: ${{ secrets.AGRI_EXPERT_DB_CONNECTION }}
+          CATALOG_DB_CONNECTION: ${{ secrets.CATALOG_DB_CONNECTION }}
+          ENGAGEMENT_DB_CONNECTION: ${{ secrets.ENGAGEMENT_DB_CONNECTION }}
+          IDENTITY_DB_CONNECTION: ${{ secrets.IDENTITY_DB_CONNECTION }}
+          INVENTORY_DB_CONNECTION: ${{ secrets.INVENTORY_DB_CONNECTION }}
+          ORDERING_DB_CONNECTION: ${{ secrets.ORDERING_DB_CONNECTION }}
+          PAYMENT_DB_CONNECTION: ${{ secrets.PAYMENT_DB_CONNECTION }}
+          TRADING_DB_CONNECTION: ${{ secrets.TRADING_DB_CONNECTION }}
         run: |
           set -euo pipefail
 
@@ -33,6 +42,16 @@ jobs:
           )
 
           for SVC in "${SERVICES[@]}"; do
+            SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
+            PREFIX="${SVC_UPPER%_SERVICE}"
+            ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
+            DB_CONN="${!ENV_VAR_NAME:-}"
+            
+            if [ -z "$DB_CONN" ]; then
+              echo "--- Skipping build for ${SVC} because ${ENV_VAR_NAME} is empty ---"
+              continue
+            fi
+
             if [ -f "services/${SVC}/Dockerfile" ]; then
               CONTEXT="services/${SVC}"
             elif [ -f "${SVC}/Dockerfile" ]; then
@@ -51,6 +70,24 @@ jobs:
 
       - name: Deploy to K3s
         shell: bash
+        env:
+          AGRI_EXPERT_DB_CONNECTION: ${{ secrets.AGRI_EXPERT_DB_CONNECTION }}
+          CATALOG_DB_CONNECTION: ${{ secrets.CATALOG_DB_CONNECTION }}
+          ENGAGEMENT_DB_CONNECTION: ${{ secrets.ENGAGEMENT_DB_CONNECTION }}
+          IDENTITY_DB_CONNECTION: ${{ secrets.IDENTITY_DB_CONNECTION }}
+          INVENTORY_DB_CONNECTION: ${{ secrets.INVENTORY_DB_CONNECTION }}
+          ORDERING_DB_CONNECTION: ${{ secrets.ORDERING_DB_CONNECTION }}
+          PAYMENT_DB_CONNECTION: ${{ secrets.PAYMENT_DB_CONNECTION }}
+          TRADING_DB_CONNECTION: ${{ secrets.TRADING_DB_CONNECTION }}
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+          JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         run: |
           set -euo pipefail
 
@@ -69,15 +106,37 @@ jobs:
           )
 
           for SVC in "${SERVICES[@]}"; do
+            SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
+            PREFIX="${SVC_UPPER%_SERVICE}"
+            ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
+            
+            # Dùng bash indirect expansion để lấy giá trị biến động
+            DB_CONN="${!ENV_VAR_NAME:-}"
+            
+            if [ -z "$DB_CONN" ]; then
+              echo "--- Skipping deploy for ${SVC} because ${ENV_VAR_NAME} is empty ---"
+              continue
+            fi
+            
             kubectl create configmap "${SVC}-env" \
-              --from-env-file="deploy/env/${SVC}.env" \
+              --from-literal=ConnectionStrings__DefaultConnection="${DB_CONN}" \
+              --from-literal=JwtSettings__Issuer="${JWT_ISSUER}" \
+              --from-literal=JwtSettings__Audience="${JWT_AUDIENCE}" \
+              --from-literal=JwtSettings__Key="${JWT_KEY}" \
+              --from-literal=SmtpSettings__Host="${SMTP_HOST}" \
+              --from-literal=SmtpSettings__Username="${SMTP_USERNAME}" \
+              --from-literal=SmtpSettings__Password="${SMTP_PASSWORD}" \
+              --from-literal=SmtpSettings__FromEmail="${SMTP_FROM_EMAIL}" \
+              --from-literal=SmtpSettings__FromName="${SMTP_FROM_NAME}" \
+              --from-literal=GoogleOptions__ClientId="${GOOGLE_CLIENT_ID}" \
+              --from-literal=IdentityServiceUrl="http://identity-service" \
               -n biopest \
               --dry-run=client -o yaml | kubectl apply -f -
-          done
-
-          kubectl apply -f k8s/
-
-          for SVC in "${SERVICES[@]}"; do
+              
+            if [ -d "k8s/${SVC}" ]; then
+              kubectl apply -f "k8s/${SVC}/"
+            fi
+            
             kubectl set image deployment/"${SVC}" "${SVC}"="${REGISTRY}/${SVC}:${IMAGE_TAG}" -n biopest
             kubectl rollout status deployment/"${SVC}" -n biopest --timeout=180s
           done

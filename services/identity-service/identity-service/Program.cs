@@ -21,6 +21,10 @@ using identity_service.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load .env file
+DotNetEnv.Env.Load();
+DotNetEnv.Env.TraversePath().Load();
+
 // Setup CORS: Cho phép frontend/test page gọi API
 builder.Services.AddCors(options =>
 {

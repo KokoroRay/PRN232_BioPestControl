@@ -18,6 +18,10 @@ using agri_expert_service.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load .env file
+DotNetEnv.Env.Load();
+DotNetEnv.Env.TraversePath().Load();
+
 // ── CORS ──────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {

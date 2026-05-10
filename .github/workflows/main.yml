@@ -43,7 +43,7 @@ jobs:
             fi
 
             echo "--- Building ${SVC} ---"
-            docker build -t "${REGISTRY}/${SVC}:${IMAGE_TAG}" "${CONTEXT}"
+            docker build --network=host -t "${REGISTRY}/${SVC}:${IMAGE_TAG}" "${CONTEXT}"
 
             echo "--- Pushing ${SVC} ---"
             docker push "${REGISTRY}/${SVC}:${IMAGE_TAG}"

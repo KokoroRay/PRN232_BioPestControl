@@ -13,6 +13,12 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
+{
+    // Cấu hình BaseAddress của IdentityService qua config hoặc hardcode
+    var identityServiceUrl = builder.Configuration["IdentityServiceUrl"] ?? "http://localhost:5001";
+    client.BaseAddress = new Uri(identityServiceUrl);
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

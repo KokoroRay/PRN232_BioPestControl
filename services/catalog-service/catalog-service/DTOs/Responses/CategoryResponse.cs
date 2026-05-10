@@ -6,6 +6,8 @@ namespace catalog_service.DTOs.Responses
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public int? CreatedByAdminId { get; set; }
+        public string? CreatedByAdminName { get; set; }
         public int? ManagedByStaffId { get; set; }
+        public string? ManagedByStaffName { get; set; }
     }
 }

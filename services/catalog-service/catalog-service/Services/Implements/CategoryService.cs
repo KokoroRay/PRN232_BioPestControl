@@ -12,29 +12,41 @@ namespace catalog_service.Services.Implements
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _repository;
+        private readonly IIdentityServiceClient _identityServiceClient;
 
-        public CategoryService(ICategoryRepository repository)
+        public CategoryService(ICategoryRepository repository, IIdentityServiceClient identityServiceClient)
         {
             _repository = repository;
+            _identityServiceClient = identityServiceClient;
         }
 
         public async Task<IEnumerable<CategoryResponse>> GetAllAsync()
         {
             var categories = await _repository.GetAllAsync();
-            return categories.Select(c => MapToResponse(c));
+            var responses = new List<CategoryResponse>();
+            foreach (var c in categories)
+            {
+                responses.Add(await MapToResponseAsync(c));
+            }
+            return responses;
         }
 
         public async Task<IEnumerable<CategoryResponse>> SearchByNameAsync(string name)
         {
             var categories = await _repository.SearchByNameAsync(name);
-            return categories.Select(c => MapToResponse(c));
+            var responses = new List<CategoryResponse>();
+            foreach (var c in categories)
+            {
+                responses.Add(await MapToResponseAsync(c));
+            }
+            return responses;
         }
 
         public async Task<CategoryResponse?> GetByIdAsync(int id)
         {
             var category = await _repository.GetByIdAsync(id);
             if (category == null) return null;
-            return MapToResponse(category);
+            return await MapToResponseAsync(category);
         }
 
         public async Task<CategoryResponse> AddAsync(CreateCategoryRequest request)
@@ -47,7 +59,7 @@ namespace catalog_service.Services.Implements
             };
 
             var addedCategory = await _repository.AddAsync(category);
-            return MapToResponse(addedCategory);
+            return await MapToResponseAsync(addedCategory);
         }
 
         public async Task<bool> UpdateAsync(int id, UpdateCategoryRequest request)
@@ -72,15 +84,25 @@ namespace catalog_service.Services.Implements
             return true;
         }
 
-        private CategoryResponse MapToResponse(Category category)
+        private async Task<CategoryResponse> MapToResponseAsync(Category category)
         {
+            string? adminName = category.CreatedByAdminId.HasValue 
+                ? await _identityServiceClient.GetUserNameAsync(category.CreatedByAdminId.Value) 
+                : null;
+                
+            string? staffName = category.ManagedByStaffId.HasValue 
+                ? await _identityServiceClient.GetUserNameAsync(category.ManagedByStaffId.Value) 
+                : null;
+
             return new CategoryResponse
             {
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 CreatedByAdminId = category.CreatedByAdminId,
-                ManagedByStaffId = category.ManagedByStaffId
+                CreatedByAdminName = adminName,
+                ManagedByStaffId = category.ManagedByStaffId,
+                ManagedByStaffName = staffName
             };
         }
     }

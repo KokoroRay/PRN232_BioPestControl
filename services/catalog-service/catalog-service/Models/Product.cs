@@ -69,8 +69,7 @@ namespace BioPestControl.DAL.Entities
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; } = null!;
         
-        public virtual Admin? CreatedByAdmin { get; set; }
-        public virtual Staff? ManagedByStaff { get; set; }
+        
 
         public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
         public virtual ICollection<ProductChemical> ProductChemicals { get; set; } = new List<ProductChemical>();

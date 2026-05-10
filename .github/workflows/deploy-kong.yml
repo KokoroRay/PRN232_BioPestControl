@@ -1,0 +1,41 @@
+name: Deploy Kong Gateway to VM1
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/gateway/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-kong:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Parse Kong Config
+        run: |
+          docker run --rm -v ${{ github.workspace }}/infrastructure/gateway/kong.yml:/kong.yml kong:3.6 kong config parse /kong.yml
+
+      - name: Copy Files to VM1
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM1_HOST }}
+          username: ${{ secrets.VM1_USERNAME }}
+          key: ${{ secrets.VM1_SSH_KEY }}
+          source: "infrastructure/gateway/docker-compose.yml,infrastructure/gateway/kong.yml"
+          target: "/app/gateway"
+          strip_components: 2
+
+      - name: Deploy to VM1
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM1_HOST }}
+          username: ${{ secrets.VM1_USERNAME }}
+          key: ${{ secrets.VM1_SSH_KEY }}
+          script: |
+            cd /app/gateway
+            docker-compose pull
+            docker-compose up -d

@@ -1,6 +1,47 @@
 @engagement_service_HostAddress = http://localhost:5286
+@customerToken = your-jwt-Customer-role-customer_id
+@staffToken = your-jwt-Staff-role-StaffId
+@adminToken = your-jwt-Admin
 
-GET {{engagement_service_HostAddress}}/weatherforecast/
+### Feedbacks theo sản phẩm (Guest / public)
+GET {{engagement_service_HostAddress}}/api/feedbacks?productId=1&page=1&pageSize=5&rating=
 Accept: application/json
+
+### Chi tiết feedback
+GET {{engagement_service_HostAddress}}/api/feedbacks/1
+Accept: application/json
+
+### Staff/Admin — quản lý danh sách
+GET {{engagement_service_HostAddress}}/api/feedbacks/manage?productId=&customerId=&rating=&hasReply=
+Authorization: Bearer {{staffToken}}
+Accept: application/json
+
+### Tạo feedback (Customer)
+POST {{engagement_service_HostAddress}}/api/feedbacks
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "orderId": 1,
+  "customerId": 0,
+  "rating": 5,
+  "comment": "Rất tốt",
+  "imageUrls": [],
+  "tagsIds": []
+}
+
+### Trả lời feedback (Staff/Admin)
+POST {{engagement_service_HostAddress}}/api/feedbacks/1/replies
+Authorization: Bearer {{staffToken}}
+Content-Type: application/json
+
+{
+  "reply": "Cảm ơn bạn đã đánh giá."
+}
+
+### Xóa (Admin)
+DELETE {{engagement_service_HostAddress}}/api/feedbacks/1
+Authorization: Bearer {{adminToken}}
 
 ###

@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using trading_service.Data;
-using trading_service.DTOs;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using trading_service.Data;
+using trading_service.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +29,11 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ── JWT Authentication ────────────────────────────────────────
+// ── JWT Authentication (phải trùng Issuer / Audience / Key với identity-service) ──
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["Key"];
+if (string.IsNullOrWhiteSpace(secretKey))
+    throw new InvalidOperationException("JwtSettings:Key is not configured.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -45,8 +50,10 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer              = jwtSettings["Issuer"],
         ValidAudience            = jwtSettings["Audience"],
-        IssuerSigningKey         = new SymmetricSecurityKey(
-                                       Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+        IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        // Khớp cách identity-service phát hành claim (JwtTokenService)
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = JwtRegisteredClaimNames.Sub
     };
 });
 

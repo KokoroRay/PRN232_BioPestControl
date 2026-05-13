@@ -1,5 +1,6 @@
 using inventory_service.Data;
 using inventory_service.DTOs.Responses;
+using inventory_service.Kafka;
 using inventory_service.Repositories.Implements;
 using inventory_service.Repositories.Interfaces;
 using inventory_service.Services.Implements;
@@ -21,6 +22,9 @@ builder.Services.AddDbContext<InventoryDbContext>(options =>
 
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+// ── Kafka Consumer (Background Service) ──────────────────────
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 // Setup CORS: Cho phép frontend/test page gọi API
 builder.Services.AddCors(options =>

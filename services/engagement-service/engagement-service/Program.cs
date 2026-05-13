@@ -87,7 +87,15 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Engagement Service API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Engagement Service API",
+        Version = "v1",
+        Description =
+            "Nhóm **Đánh giá** trong Swagger UI tách theo đối tượng: " +
+            "**01 Công khai** (GET, không JWT); **02 Khách hàng** (POST/PUT, Customer; Admin có thể thay mặt); " +
+            "**03 Nhân viên & Quản trị** (GET /manage, POST /replies, Staff hoặc Admin); **04 Chỉ Admin** (DELETE)."
+    });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -95,7 +103,9 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT từ identity-service (roles: Customer, Staff, Admin)"
+        Description =
+            "JWT từ identity-service. Role: **Customer** — tạo/sửa đánh giá của mình; **Staff** — danh sách quản lý + trả lời; " +
+            "**Admin** — cùng Staff cho /manage và /replies; thêm tạo/sửa hộ khách và xóa đánh giá."
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {

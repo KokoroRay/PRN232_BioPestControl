@@ -11,8 +11,7 @@ using engagement_service.Services;
 namespace engagement_service.Controllers
 {
     /// <summary>
-    /// REST: /api/feedbacks — Guest đọc; Customer tạo/sửa bản thân; Staff trả lời; Admin xóa (khớp logic monolith).
-    /// Ghi chú tích hợp JWT, order-service, CORS: xem INTEGRATION.md trong project.
+    /// REST: /api/feedbacks. Swagger gom theo vai trò: Công khai, Khách hàng, Nhân viên &amp; Quản trị, Chỉ Admin.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -28,6 +27,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>GET /api/feedbacks — Đánh giá theo sản phẩm (public).</summary>
+        [Tags("Đánh giá — 01 Công khai (không cần JWT)")]
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetByProduct(
@@ -70,6 +70,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>GET /api/feedbacks/manage — Staff/Admin: danh sách lọc (giống trang Staff monolith).</summary>
+        [Tags("Đánh giá — 03 Nhân viên & Quản trị (JWT: Staff hoặc Admin)")]
         [HttpGet("manage")]
         [Authorize(Roles = "Staff,Admin")]
         public async Task<IActionResult> GetManage(
@@ -108,6 +109,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>GET /api/feedbacks/{id}</summary>
+        [Tags("Đánh giá — 01 Công khai (không cần JWT)")]
         [HttpGet("{id:int}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
@@ -125,6 +127,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>POST /api/feedbacks — Customer (hoặc Admin hộ khách).</summary>
+        [Tags("Đánh giá — 02 Khách hàng (JWT: Customer; Admin có thể gửi hộ với CustomerId)")]
         [HttpPost]
         [Authorize(Roles = "Customer,Admin")]
         public async Task<IActionResult> Create([FromBody] CreateFeedbackRequest request, CancellationToken cancellationToken)
@@ -199,6 +202,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>PUT /api/feedbacks/{id} — Chủ sở hữu hoặc Admin.</summary>
+        [Tags("Đánh giá — 02 Khách hàng (JWT: Customer; Admin có thể sửa hộ)")]
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Customer,Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateFeedbackRequest request, CancellationToken cancellationToken)
@@ -240,6 +244,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>DELETE /api/feedbacks/{id} — Admin.</summary>
+        [Tags("Đánh giá — 04 Chỉ Admin (JWT: Admin)")]
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
@@ -254,6 +259,7 @@ namespace engagement_service.Controllers
         }
 
         /// <summary>POST /api/feedbacks/{id}/replies — Staff/Admin (monolith ReplyFeedbackAsync).</summary>
+        [Tags("Đánh giá — 03 Nhân viên & Quản trị (JWT: Staff hoặc Admin)")]
         [HttpPost("{id:int}/replies")]
         [Authorize(Roles = "Staff,Admin")]
         public async Task<IActionResult> Reply(int id, [FromBody] ReplyFeedbackRequest request, CancellationToken cancellationToken)

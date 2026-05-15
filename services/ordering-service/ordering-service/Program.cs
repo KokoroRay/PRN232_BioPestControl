@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ordering_service.Data;
 using ordering_service.DTOs;
+using ordering_service.Kafka;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -14,6 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 // ── Database ──────────────────────────────────────────────────
 builder.Services.AddDbContext<OrderingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ── Kafka Producer ────────────────────────────────────────────
+builder.Services.AddSingleton<IOrderEventProducer, OrderEventProducer>();
 
 // ── CORS ──────────────────────────────────────────────────────
 builder.Services.AddCors(options =>

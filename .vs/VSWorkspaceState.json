@@ -3,8 +3,14 @@
     "",
     "\\services",
     "\\services\\agri-expert-service",
-    "\\services\\payment-service"
+    "\\services\\agri-expert-service\\agri-expert-service",
+    "\\services\\catalog-service",
+    "\\services\\catalog-service\\catalog-service",
+    "\\services\\catalog-service\\catalog-service\\Models",
+    "\\services\\catalog-service\\catalog-service\\Repositories",
+    "\\services\\catalog-service\\catalog-service\\Repositories\\Implements",
+    "\\services\\catalog-service\\catalog-service\\Repositories\\Interfaces"
   ],
-  "SelectedNode": "\\services\\payment-service\\payment-service",
+  "SelectedNode": "\\services\\agri-expert-service\\agri-expert-service\\appsettings.json",
   "PreviewInSolutionExplorer": false
 }

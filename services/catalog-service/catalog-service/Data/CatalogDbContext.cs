@@ -10,6 +10,7 @@ namespace catalog_service.Data
         }
 
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +22,15 @@ namespace catalog_service.Data
                 new Category { Id = 3, Name = "Thuốc trừ cỏ" },
                 new Category { Id = 4, Name = "Thuốc trừ sâu" }
             );
+
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasIndex(p => p.SKU).IsUnique();
+                entity.HasOne(p => p.Category)
+                      .WithMany()
+                      .HasForeignKey(p => p.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

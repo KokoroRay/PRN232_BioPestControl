@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   UserRoundCog,
   Users,
-  FlaskConical,
+  Leaf,
   Settings,
   MessageSquare,
 } from 'lucide-react';
@@ -33,7 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role = 'admin' }) => {
       <div className="sidebar-header">
         <div className="brand-container">
           <div className="brand-icon">
-            <FlaskConical size={24} />
+            <Leaf size={24} strokeWidth={2.25} fill="currentColor" />
           </div>
           <div>
             <span className="brand-name">BioPestControl</span>

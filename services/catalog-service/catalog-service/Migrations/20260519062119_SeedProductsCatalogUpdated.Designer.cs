@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using inventory_service.Data;
+using catalog_service.Data;
 
 #nullable disable
 
-namespace inventory_service.Migrations
+namespace catalog_service.Migrations
 {
-    [DbContext(typeof(InventoryDbContext))]
-    partial class InventoryDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(CatalogDbContext))]
+    [Migration("20260519062119_SeedProductsCatalogUpdated")]
+    partial class SeedProductsCatalogUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace inventory_service.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("inventory_service.Models.Product", b =>
+            modelBuilder.Entity("catalog_service.Models.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,17 +33,80 @@ namespace inventory_service.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreatedByAdminId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("ManagedByStaffId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Phân bón và hóa chất"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Thuốc trừ bệnh"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Thuốc trừ cỏ"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Thuốc trừ sâu"
+                        });
+                });
+
+            modelBuilder.Entity("catalog_service.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ChemicalProfileId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedByAdminId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<int>("LowStockThreshold")
+                    b.Property<int?>("ManagedByStaffId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -53,17 +119,19 @@ namespace inventory_service.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("int");
-
                     b.Property<string>("Unit")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("SKU")
                         .IsUnique();
@@ -74,982 +142,969 @@ namespace inventory_service.Migrations
                         new
                         {
                             Id = 1,
+                            CategoryId = 1,
+                            ChemicalProfileId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Bo và Kẽm...",
+                            Description = "Bo và Kẽm là các yếu tố vi lượng thiết yếu cho cây trồng...",
                             IsActive = false,
-                            LowStockThreshold = 10,
                             Name = "Vi lượng-BOROZINC",
                             SKU = "sp0001",
-                            StockQuantity = 50
+                            UnitPrice = 180000m
                         },
                         new
                         {
                             Id = 2,
+                            CategoryId = 1,
+                            ChemicalProfileId = 26,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ sâu...",
+                            Description = "Thuốc trừ sâu sinh học, 100% nguồn gốc từ thực vật...",
                             IsActive = false,
-                            LowStockThreshold = 10,
                             Name = "TT-ANONIN 1EC",
                             SKU = "sp0002",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 3,
+                            CategoryId = 1,
+                            ChemicalProfileId = 23,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Công thức mới...",
+                            Description = "Công thức mới với khả năng tác động mạnh...",
                             IsActive = false,
-                            LowStockThreshold = 10,
                             Name = "TT SNAILTA GOLD 750WP",
                             SKU = "sp0003",
-                            StockQuantity = 49
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 4,
+                            CategoryId = 1,
+                            ChemicalProfileId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp ra hoa...",
+                            Description = "Giúp ra hoa sớm, đồng loạt...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TANO_606",
                             SKU = "sp0004",
-                            StockQuantity = 50
+                            UnitPrice = 130000m
                         },
                         new
                         {
                             Id = 5,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp cây...",
+                            Description = "Giúp cây trồng phát triển nhanh, khỏe...",
                             IsActive = false,
-                            LowStockThreshold = 5,
                             Name = "TANO_601",
                             SKU = "sp0005",
-                            StockQuantity = 10
+                            UnitPrice = 120000m
                         },
                         new
                         {
                             Id = 6,
+                            CategoryId = 1,
+                            ChemicalProfileId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Sunphat...",
+                            Description = "Sunphat Kẽm là muối Kẽm vô cơ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SUNPHAT_KẼM",
                             SKU = "sp0006",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 7,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Tăng độ cứng...",
+                            Description = "Tăng độ cứng cây, chống chịu sâu bệnh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SPC - NPK",
                             SKU = "sp0007",
-                            StockQuantity = 50
+                            UnitPrice = 200000m
                         },
                         new
                         {
                             Id = 8,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "TT BIOBECA...",
+                            Description = "TT BIOBECA 0.1SP giúp giữ xanh lá đòng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TT BIOBECA 0.1SP",
                             SKU = "sp0008",
-                            StockQuantity = 50
+                            UnitPrice = 190000m
                         },
                         new
                         {
                             Id = 9,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Kích thích...",
+                            Description = "Kích thích phát triển bộ rễ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SPC_MKP",
                             SKU = "sp0009",
-                            StockQuantity = 50
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 10,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Hạn chế...",
+                            Description = "Hạn chế chiều cao cây...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SPC_KALI_SILIC",
                             SKU = "sp0010",
-                            StockQuantity = 50
+                            UnitPrice = 250000m
                         },
                         new
                         {
                             Id = 11,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "SAMINO...",
+                            Description = "SAMINO 5.1 SL là chất kích thích sinh học...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAMINO_51SL",
                             SKU = "sp0011",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 12,
+                            CategoryId = 1,
+                            ChemicalProfileId = 4,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "SAIGON...",
+                            Description = "SAIGON - P1 giúp tăng cường đẻ nhánh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAIGON_P115WP",
                             SKU = "sp0012",
-                            StockQuantity = 50
+                            UnitPrice = 260000m
                         },
                         new
                         {
                             Id = 13,
+                            CategoryId = 1,
+                            ChemicalProfileId = 3,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "SAGOLATEX...",
+                            Description = "SAGOLATEX 2.5 PA là thuốc kích thích...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGOLATEX",
                             SKU = "sp0013",
-                            StockQuantity = 50
+                            UnitPrice = 190000m
                         },
                         new
                         {
                             Id = 14,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp...",
+                            Description = "Giúp thuốc BVTV loang trải đều...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGO SÓNG THẦN",
                             SKU = "sp0014",
-                            StockQuantity = 50
+                            UnitPrice = 195000m
                         },
                         new
                         {
                             Id = 15,
+                            CategoryId = 1,
+                            ChemicalProfileId = 17,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "SAGO...",
+                            Description = "SAGO ĐỒNG được sử dụng để pha chế...",
                             IsActive = false,
-                            LowStockThreshold = 10,
                             Name = "SAGO ĐỒNG",
                             SKU = "sp0015",
-                            StockQuantity = 50
+                            UnitPrice = 250000m
                         },
                         new
                         {
                             Id = 16,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Đang cập nhật",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGO SIÊU HẤP",
                             SKU = "sp0016",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 17,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Tăng khả năng...",
+                            Description = "Tăng khả năng bám dính...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGO BÁM DÍNH",
                             SKU = "sp0017",
-                            StockQuantity = 0
+                            UnitPrice = 300000m
                         },
                         new
                         {
                             Id = 18,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp phát triển...",
+                            Description = "Giúp phát triển bộ rễ khỏe...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "PLASTIMULA 1SL",
                             SKU = "sp0018",
-                            StockQuantity = 30
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 19,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp phá vỡ...",
+                            Description = "Giúp phá vỡ trạng thái ngủ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGO AXIT",
                             SKU = "sp0019",
-                            StockQuantity = 50
+                            UnitPrice = 180000m
                         },
                         new
                         {
                             Id = 20,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp đất...",
+                            Description = "Giúp đất tơi xốp, giàu mùn...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ORGANIC NOKAYO",
                             SKU = "sp0020",
-                            StockQuantity = 50
+                            UnitPrice = 170000m
                         },
                         new
                         {
                             Id = 21,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Bổ sung...",
+                            Description = "Bổ sung hữu cơ cho đất bạc màu...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ORGANIC YUKIMOTO",
                             SKU = "sp0021",
-                            StockQuantity = 50
+                            UnitPrice = 180000m
                         },
                         new
                         {
                             Id = 22,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Cung cấp...",
+                            Description = "Cung cấp dinh dưỡng cân đối...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK HÀN VIỆT 20 20 15 TE",
                             SKU = "sp0022",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 23,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thúc đẩy...",
+                            Description = "Thúc đẩy cây trồng phát triển đồng đều...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK HÀN VIỆT 15-15-15",
                             SKU = "sp0023",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 24,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "FERTIGONIA...",
+                            Description = "FERTIGONIA là phân bón đa năng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK FERTIGONIA",
                             SKU = "sp0024",
-                            StockQuantity = 47
+                            UnitPrice = 310000m
                         },
                         new
                         {
                             Id = 25,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Natrazyme...",
+                            Description = "Natrazyme bổ sung đầy đủ và cân đối...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NATRAZYME",
                             SKU = "sp0025",
-                            StockQuantity = 50
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 26,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Cung cấp...",
+                            Description = "Cung cấp dinh dưỡng cân đối...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK 16-16-8-13S",
                             SKU = "sp0026",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 27,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Tăng sức...",
+                            Description = "Tăng sức chống chịu cho cây trồng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SOP",
                             SKU = "sp0027",
-                            StockQuantity = 50
+                            UnitPrice = 240000m
                         },
                         new
                         {
                             Id = 28,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phân bón...",
+                            Description = "Phân bón hỗn hợp NPK...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK 17-7-17 + TE",
                             SKU = "sp0028",
-                            StockQuantity = 50
+                            UnitPrice = 200000m
                         },
                         new
                         {
                             Id = 29,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phân NPK...",
+                            Description = "Phân NPK sản xuất bằng công nghệ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK 16-16-8 + TE",
                             SKU = "sp0029",
-                            StockQuantity = 50
+                            UnitPrice = 190000m
                         },
                         new
                         {
                             Id = 30,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Cung cấp...",
+                            Description = "Cung cấp đồng thời Đạm – Lân – Kali...",
                             IsActive = true,
-                            LowStockThreshold = 5,
                             Name = "NPK TÂN THÀNH 25-25-5",
                             SKU = "sp0030",
-                            StockQuantity = 10
+                            UnitPrice = 310000m
                         },
                         new
                         {
                             Id = 31,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phân đa...",
+                            Description = "Phân đa dinh dưỡng tổng hợp...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NPK TÂN THÀNH 20-20-15 TE",
                             SKU = "sp0031",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 32,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc sinh...",
+                            Description = "Thuốc sinh học giúp tăng năng suất lúa...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "LACASOTO 4SP",
                             SKU = "sp0032",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 33,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Polyphenol...",
+                            Description = "Polyphenol giúp cây trồng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "CHUBECA",
                             SKU = "sp0033",
-                            StockQuantity = 50
+                            UnitPrice = 170000m
                         },
                         new
                         {
                             Id = 34,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Cung cấp...",
+                            Description = "Cung cấp dinh dưỡng thiết yếu...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "DAP TÂN THÀNH",
                             SKU = "sp0034",
-                            StockQuantity = 50
+                            UnitPrice = 160000m
                         },
                         new
                         {
                             Id = 35,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Cải tạo...",
+                            Description = "Cải tạo đất, tăng độ tơi xốp...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ATRAZIN",
                             SKU = "sp0035",
-                            StockQuantity = 50
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 36,
+                            CategoryId = 1,
+                            ChemicalProfileId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Kẽm và Boron...",
+                            Description = "Kẽm và Boron có vai trò thiết yếu...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "KẼM BORON",
                             SKU = "sp0036",
-                            StockQuantity = 50
+                            UnitPrice = 200000m
                         },
                         new
                         {
                             Id = 37,
+                            CategoryId = 1,
+                            ChemicalProfileId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Bo và Kẽm...",
+                            Description = "Bo và Kẽm có vai trò thiết yếu...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ANIMAT",
                             SKU = "sp0037",
-                            StockQuantity = 50
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 38,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp kích...",
+                            Description = "Giúp kích thích phát triển bộ rễ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SPC - MKP",
                             SKU = "sp0038",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 39,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Chocaso...",
+                            Description = "Chocaso là thuốc tăng trưởng sinh học...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "CHOCASO",
                             SKU = "sp0039",
-                            StockQuantity = 46
+                            UnitPrice = 300000m
                         },
                         new
                         {
                             Id = 40,
+                            CategoryId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phân NPK...",
+                            Description = "Phân NPK sản xuất theo công nghệ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "NKP TE",
                             SKU = "sp0040",
-                            StockQuantity = 50
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 41,
+                            CategoryId = 2,
+                            ChemicalProfileId = 12,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ nấm tiếp xúc...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ZINEB BUL 80WP",
                             SKU = "sp0041",
-                            StockQuantity = 50
+                            UnitPrice = 170000m
                         },
                         new
                         {
                             Id = 42,
+                            CategoryId = 2,
+                            ChemicalProfileId = 12,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ nấm tác dụng tiếp xúc...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ZIN 80 WP",
                             SKU = "sp0042",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 43,
+                            CategoryId = 2,
+                            ChemicalProfileId = 15,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "XINAZO...",
+                            Description = "XINAZO 250 SC là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "XINAZO",
                             SKU = "sp0043",
-                            StockQuantity = 50
+                            UnitPrice = 200000m
                         },
                         new
                         {
                             Id = 44,
+                            CategoryId = 2,
+                            ChemicalProfileId = 14,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "VANICIDE...",
+                            Description = "VANICIDE là thuốc trừ bệnh sinh học...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "VANICIDE",
                             SKU = "sp0044",
-                            StockQuantity = 50
+                            UnitPrice = 175000m
                         },
                         new
                         {
                             Id = 45,
+                            CategoryId = 2,
+                            ChemicalProfileId = 14,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc...",
+                            Description = "Thuốc có tác dụng nội hấp mạnh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "UNITIL",
                             SKU = "sp0045",
-                            StockQuantity = 50
+                            UnitPrice = 260000m
                         },
                         new
                         {
                             Id = 46,
+                            CategoryId = 2,
+                            ChemicalProfileId = 16,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc đặc...",
+                            Description = "Thuốc đặc trị vi khuẩn...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "BASU 250WP",
                             SKU = "sp0046",
-                            StockQuantity = 50
+                            UnitPrice = 150000m
                         },
                         new
                         {
                             Id = 47,
+                            CategoryId = 1,
+                            ChemicalProfileId = 15,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Công thức...",
+                            Description = "Công thức mới đặc trị bệnh đạo ôn...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "KEEP 300SC",
                             SKU = "sp0047",
-                            StockQuantity = 20
+                            UnitPrice = 175000m
                         },
                         new
                         {
                             Id = 48,
+                            CategoryId = 2,
+                            ChemicalProfileId = 16,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc...",
+                            Description = "Thuốc đặc trị bệnh cháy bìa lá...",
                             IsActive = false,
-                            LowStockThreshold = 10,
                             Name = "ATANIL",
                             SKU = "sp0048",
-                            StockQuantity = 0
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 49,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc...",
+                            Description = "Thuốc có tác dụng tiếp xúc và nội hấp...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "BIOMYCIN",
                             SKU = "sp0049",
-                            StockQuantity = 50
+                            UnitPrice = 185000m
                         },
                         new
                         {
                             Id = 50,
+                            CategoryId = 4,
+                            ChemicalProfileId = 5,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ sâu Regent là sản phẩm đặc trị...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "Regent",
                             SKU = "sp0050",
-                            StockQuantity = 50
+                            UnitPrice = 199000m
                         },
                         new
                         {
                             Id = 51,
+                            CategoryId = 2,
+                            ChemicalProfileId = 11,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Trizole...",
+                            Description = "Trizole 400 SC là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TRIZOLE 400SC",
                             SKU = "sp0051",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 52,
+                            CategoryId = 2,
+                            ChemicalProfileId = 11,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Trizole...",
+                            Description = "Trizole 75WP là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TRIZOLE 75WP",
                             SKU = "sp0052",
-                            StockQuantity = 50
+                            UnitPrice = 260000m
                         },
                         new
                         {
                             Id = 53,
+                            CategoryId = 2,
+                            ChemicalProfileId = 11,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Trizole...",
+                            Description = "Trizole 75 DO là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TRIZOLE 75 DO",
                             SKU = "sp0053",
-                            StockQuantity = 50
+                            UnitPrice = 240000m
                         },
                         new
                         {
                             Id = 54,
+                            CategoryId = 2,
+                            ChemicalProfileId = 11,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "TRI...",
+                            Description = "TRI 75WG là thuốc trừ bệnh lưu dẫn...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TRI 75WG",
                             SKU = "sp0054",
-                            StockQuantity = 50
+                            UnitPrice = 240000m
                         },
                         new
                         {
                             Id = 55,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "TREPPACH...",
+                            Description = "TREPPACH BUL là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "TREPPACH BUL",
                             SKU = "sp0055",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 56,
+                            CategoryId = 2,
+                            ChemicalProfileId = 15,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "SAIPORA...",
+                            Description = "SAIPORA là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAIPORA",
                             SKU = "sp0056",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 57,
+                            CategoryId = 2,
+                            ChemicalProfileId = 15,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "SAGOPERFECT...",
+                            Description = "SAGOPERFECT 320 là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGOPERFECT 320",
                             SKU = "sp0057",
-                            StockQuantity = 0
+                            UnitPrice = 270000m
                         },
                         new
                         {
                             Id = 58,
+                            CategoryId = 2,
+                            ChemicalProfileId = 15,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Diệt...",
+                            Description = "Diệt mầm bệnh nhanh chóng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAGOGRAIN 300EC",
                             SKU = "sp0058",
-                            StockQuantity = 50
+                            UnitPrice = 310000m
                         },
                         new
                         {
                             Id = 59,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "ROTEVA...",
+                            Description = "ROTEVA 30SC giúp trị bệnh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ROTEVA 30SC",
                             SKU = "sp0059",
-                            StockQuantity = 50
+                            UnitPrice = 150000m
                         },
                         new
                         {
                             Id = 60,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc...",
+                            Description = "Thuốc có tác dụng phòng và trị bệnh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "PYROLAX 250EC",
                             SKU = "sp0060",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 61,
+                            CategoryId = 2,
+                            ChemicalProfileId = 17,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc phòng...",
+                            Description = "Thuốc phòng trị hiệu quả...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "OTICIN 47.5WP",
                             SKU = "sp0061",
-                            StockQuantity = 50
+                            UnitPrice = 240000m
                         },
                         new
                         {
                             Id = 62,
+                            CategoryId = 2,
+                            ChemicalProfileId = 12,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc phòng...",
+                            Description = "Thuốc phòng trị hiệu quả...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "MEXYL MZ",
                             SKU = "sp0062",
-                            StockQuantity = 50
+                            UnitPrice = 140000m
                         },
                         new
                         {
                             Id = 63,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc có...",
+                            Description = "Thuốc có tác dụng phòng trị...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "LUSTER 250SC",
                             SKU = "sp0063",
-                            StockQuantity = 50
+                            UnitPrice = 250000m
                         },
                         new
                         {
                             Id = 64,
+                            CategoryId = 2,
+                            ChemicalProfileId = 15,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Giúp...",
+                            Description = "Giúp diệt nấm bệnh nhanh chóng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "LUNASA 80",
                             SKU = "sp0064",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 65,
+                            CategoryId = 2,
+                            ChemicalProfileId = 11,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc có...",
+                            Description = "Thuốc có hiệu quả cao...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "LÚA VÀNG",
                             SKU = "sp0065",
-                            StockQuantity = 50
+                            UnitPrice = 260000m
                         },
                         new
                         {
                             Id = 66,
+                            CategoryId = 2,
+                            ChemicalProfileId = 18,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ nấm nội hấp...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "KAISAIGON",
                             SKU = "sp0066",
-                            StockQuantity = 50
+                            UnitPrice = 230000m
                         },
                         new
                         {
                             Id = 67,
+                            CategoryId = 2,
+                            ChemicalProfileId = 18,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc đặc...",
+                            Description = "Thuốc đặc trị các bệnh nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "KAISAIGON 10",
                             SKU = "sp0067",
-                            StockQuantity = 50
+                            UnitPrice = 150000m
                         },
                         new
                         {
                             Id = 68,
+                            CategoryId = 2,
+                            ChemicalProfileId = 17,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc phòng...",
+                            Description = "Thuốc phòng trị hiệu quả...",
                             IsActive = true,
-                            LowStockThreshold = 10,
-                            Name = "CẢP XANH",
+                            Name = "CỐP XANH",
                             SKU = "sp0068",
-                            StockQuantity = 50
+                            UnitPrice = 250000m
                         },
                         new
                         {
                             Id = 69,
+                            CategoryId = 2,
+                            ChemicalProfileId = 16,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "HÒA...",
+                            Description = "HỎA TIỄN 50 SP là thuốc trừ bệnh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
-                            Name = "HÒA TIÊN",
+                            Name = "HỎA TIỄN",
                             SKU = "sp0069",
-                            StockQuantity = 50
+                            UnitPrice = 250000m
                         },
                         new
                         {
                             Id = 70,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "HẠT...",
+                            Description = "HẠT VÀNG có khả năng phòng và trị...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "HẠT VÀNG",
                             SKU = "sp0070",
-                            StockQuantity = 50
+                            UnitPrice = 215000m
                         },
                         new
                         {
                             Id = 71,
+                            CategoryId = 2,
+                            ChemicalProfileId = 11,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Edivil...",
+                            Description = "Edivil 80WP là sự kết hợp...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "EDIVIL 80WP",
                             SKU = "sp0071",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 72,
+                            CategoryId = 2,
+                            ChemicalProfileId = 12,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "DIPOMATE...",
+                            Description = "DIPOMATE 430 SC là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "DIPOMATE",
                             SKU = "sp0072",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 73,
+                            CategoryId = 2,
+                            ChemicalProfileId = 12,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng...",
+                            Description = "Phòng trị hiệu quả nhiều bệnh...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "DIPOMATE 80",
                             SKU = "sp0073",
-                            StockQuantity = 50
+                            UnitPrice = 130000m
                         },
                         new
                         {
                             Id = 74,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "CLEARNER...",
+                            Description = "CLEARNER 75 WP là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "CLEARNER 75 WP",
                             SKU = "sp0074",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 75,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Đặc...",
+                            Description = "Đặc trị lem lép hạt trên lúa...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "CHUBECA 1.8SL",
                             SKU = "sp0075",
-                            StockQuantity = 50
+                            UnitPrice = 130000m
                         },
                         new
                         {
                             Id = 76,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "ALPINE...",
+                            Description = "ALPINE có tác dụng lưu dẫn...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ALPINE 80WP",
                             SKU = "sp0076",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 77,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "ALPINE...",
+                            Description = "ALPINE 80 WG là thuốc trừ nấm...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "ALPINE XANH",
                             SKU = "sp0077",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 78,
+                            CategoryId = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Đặc...",
+                            Description = "Đặc trị bệnh phấn trắng...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SULOX 80WP",
                             SKU = "sp0078",
-                            StockQuantity = 50
+                            UnitPrice = 210000m
                         },
                         new
                         {
                             Id = 79,
+                            CategoryId = 2,
+                            ChemicalProfileId = 13,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ nấm có khả năng nội hấp...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAIZOLE 5SC",
                             SKU = "sp0079",
-                            StockQuantity = 50
+                            UnitPrice = 310000m
                         },
                         new
                         {
                             Id = 80,
+                            CategoryId = 2,
+                            ChemicalProfileId = 14,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ nấm và vi khuẩn...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "SAIPAN 2SL",
                             SKU = "sp0080",
-                            StockQuantity = 50
+                            UnitPrice = 220000m
                         },
                         new
                         {
                             Id = 81,
+                            CategoryId = 3,
+                            ChemicalProfileId = 19,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ...",
+                            Description = "Thuốc trừ cỏ không chọn lọc...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "YOSKY",
                             SKU = "sp0081",
-                            StockQuantity = 50
+                            UnitPrice = 310000m
                         },
                         new
                         {
                             Id = 82,
+                            CategoryId = 3,
+                            ChemicalProfileId = 22,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc...",
+                            Description = "Thuốc được dùng để diệt cỏ...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "XINRON",
                             SKU = "sp0082",
-                            StockQuantity = 50
+                            UnitPrice = 250000m
                         },
                         new
                         {
                             Id = 83,
+                            CategoryId = 3,
+                            ChemicalProfileId = 21,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Diệt...",
+                            Description = "Diệt hầu hết các loại cỏ dại...",
                             IsActive = true,
-                            LowStockThreshold = 10,
                             Name = "VITOP",
                             SKU = "sp0083",
-                            StockQuantity = 50
+                            UnitPrice = 310000m
                         });
                 });
 
-            modelBuilder.Entity("inventory_service.Models.WarehouseImport", b =>
+            modelBuilder.Entity("catalog_service.Models.Product", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BatchCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("ImportPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("ImportedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ImportedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ImportedByUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuantityImported")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SupplierName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("WarehouseImports");
-                });
-
-            modelBuilder.Entity("inventory_service.Models.WarehouseImport", b =>
-                {
-                    b.HasOne("inventory_service.Models.Product", "Product")
-                        .WithMany("WarehouseImports")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("catalog_service.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("inventory_service.Models.Product", b =>
-                {
-                    b.Navigation("WarehouseImports");
+                    b.Navigation("Category");
                 });
 #pragma warning restore 612, 618
         }

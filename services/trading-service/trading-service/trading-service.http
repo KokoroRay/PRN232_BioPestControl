@@ -1,6 +1,27 @@
 @trading_service_HostAddress = http://localhost:5071
+@adminToken = your-jwt-with-role-Admin
 
-GET {{trading_service_HostAddress}}/weatherforecast/
+### Discounts — public list (Guest / Customer / Staff)
+GET {{trading_service_HostAddress}}/api/discounts?search=&status=running&productId=
 Accept: application/json
+
+### Discounts — by id
+GET {{trading_service_HostAddress}}/api/discounts/1
+Accept: application/json
+
+### Discounts — create (Admin only)
+POST {{trading_service_HostAddress}}/api/discounts
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Tet sale",
+  "discountPercent": 10,
+  "startDate": "2026-05-01T00:00:00Z",
+  "endDate": "2026-12-31T23:59:59Z",
+  "isActive": true,
+  "productId": 1,
+  "createdByAdminId": null
+}
 
 ###

@@ -74,38 +74,915 @@ namespace inventory_service.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ sâu sinh học chiết xuất từ vi khuẩn Bacillus thuringiensis",
-                            IsActive = true,
-                            LowStockThreshold = 20,
-                            Name = "Thuốc trừ sâu Sinh học BT",
-                            SKU = "BPC-001",
-                            StockQuantity = 100,
-                            Unit = "Lít"
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Bo và Kẽm...",
+                            IsActive = false,
+                            LowStockThreshold = 10,
+                            Name = "Vi lượng-BOROZINC",
+                            SKU = "sp0001",
+                            StockQuantity = 50
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Thuốc trừ bệnh phổ rộng, an toàn với môi trường",
-                            IsActive = true,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ sâu...",
+                            IsActive = false,
                             LowStockThreshold = 10,
-                            Name = "Thuốc trừ nấm Đồng hữu cơ",
-                            SKU = "BPC-002",
-                            StockQuantity = 50,
-                            Unit = "Kg"
+                            Name = "TT-ANONIN 1EC",
+                            SKU = "sp0002",
+                            StockQuantity = 50
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phân bón hữu cơ dạng lỏng bổ sung dinh dưỡng cho cây trồng",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Công thức mới...",
+                            IsActive = false,
+                            LowStockThreshold = 10,
+                            Name = "TT SNAILTA GOLD 750WP",
+                            SKU = "sp0003",
+                            StockQuantity = 49
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp ra hoa...",
                             IsActive = true,
-                            LowStockThreshold = 30,
-                            Name = "Phân bón lá hữu cơ",
-                            SKU = "BPC-003",
-                            StockQuantity = 200,
-                            Unit = "Lít"
+                            LowStockThreshold = 10,
+                            Name = "TANO_606",
+                            SKU = "sp0004",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp cây...",
+                            IsActive = false,
+                            LowStockThreshold = 5,
+                            Name = "TANO_601",
+                            SKU = "sp0005",
+                            StockQuantity = 10
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Sunphat...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SUNPHAT_KẼM",
+                            SKU = "sp0006",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Tăng độ cứng...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SPC - NPK",
+                            SKU = "sp0007",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TT BIOBECA...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "TT BIOBECA 0.1SP",
+                            SKU = "sp0008",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Kích thích...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SPC_MKP",
+                            SKU = "sp0009",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Hạn chế...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SPC_KALI_SILIC",
+                            SKU = "sp0010",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "SAMINO...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAMINO_51SL",
+                            SKU = "sp0011",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "SAIGON...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAIGON_P115WP",
+                            SKU = "sp0012",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "SAGOLATEX...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGOLATEX",
+                            SKU = "sp0013",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGO SÓNG THẦN",
+                            SKU = "sp0014",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "SAGO...",
+                            IsActive = false,
+                            LowStockThreshold = 10,
+                            Name = "SAGO ĐỒNG",
+                            SKU = "sp0015",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Đang cập nhật",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGO SIÊU HẤP",
+                            SKU = "sp0016",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Tăng khả năng...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGO BÁM DÍNH",
+                            SKU = "sp0017",
+                            StockQuantity = 0
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp phát triển...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "PLASTIMULA 1SL",
+                            SKU = "sp0018",
+                            StockQuantity = 30
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp phá vỡ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGO AXIT",
+                            SKU = "sp0019",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp đất...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ORGANIC NOKAYO",
+                            SKU = "sp0020",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Bổ sung...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ORGANIC YUKIMOTO",
+                            SKU = "sp0021",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cung cấp...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK HÀN VIỆT 20 20 15 TE",
+                            SKU = "sp0022",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thúc đẩy...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK HÀN VIỆT 15-15-15",
+                            SKU = "sp0023",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "FERTIGONIA...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK FERTIGONIA",
+                            SKU = "sp0024",
+                            StockQuantity = 47
+                        },
+                        new
+                        {
+                            Id = 25,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Natrazyme...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NATRAZYME",
+                            SKU = "sp0025",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 26,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cung cấp...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK 16-16-8-13S",
+                            SKU = "sp0026",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Tăng sức...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SOP",
+                            SKU = "sp0027",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Phân bón...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK 17-7-17 + TE",
+                            SKU = "sp0028",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Phân NPK...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK 16-16-8 + TE",
+                            SKU = "sp0029",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cung cấp...",
+                            IsActive = true,
+                            LowStockThreshold = 5,
+                            Name = "NPK TÂN THÀNH 25-25-5",
+                            SKU = "sp0030",
+                            StockQuantity = 10
+                        },
+                        new
+                        {
+                            Id = 31,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Phân đa...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NPK TÂN THÀNH 20-20-15 TE",
+                            SKU = "sp0031",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 32,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc sinh...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "LACASOTO 4SP",
+                            SKU = "sp0032",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 33,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Polyphenol...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "CHUBECA",
+                            SKU = "sp0033",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 34,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cung cấp...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "DAP TÂN THÀNH",
+                            SKU = "sp0034",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 35,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cải tạo...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ATRAZIN",
+                            SKU = "sp0035",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 36,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Kẽm và Boron...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "KẼM BORON",
+                            SKU = "sp0036",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 37,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Bo và Kẽm...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ANIMAT",
+                            SKU = "sp0037",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 38,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp kích...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SPC - MKP",
+                            SKU = "sp0038",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Chocaso...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "CHOCASO",
+                            SKU = "sp0039",
+                            StockQuantity = 46
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Phân NPK...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "NKP TE",
+                            SKU = "sp0040",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 41,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ZINEB BUL 80WP",
+                            SKU = "sp0041",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 42,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ZIN 80 WP",
+                            SKU = "sp0042",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 43,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "XINAZO...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "XINAZO",
+                            SKU = "sp0043",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 44,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "VANICIDE...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "VANICIDE",
+                            SKU = "sp0044",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 45,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "UNITIL",
+                            SKU = "sp0045",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 46,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc đặc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "BASU 250WP",
+                            SKU = "sp0046",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 47,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Công thức...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "KEEP 300SC",
+                            SKU = "sp0047",
+                            StockQuantity = 20
+                        },
+                        new
+                        {
+                            Id = 48,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc...",
+                            IsActive = false,
+                            LowStockThreshold = 10,
+                            Name = "ATANIL",
+                            SKU = "sp0048",
+                            StockQuantity = 0
+                        },
+                        new
+                        {
+                            Id = 49,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "BIOMYCIN",
+                            SKU = "sp0049",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 50,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "Regent",
+                            SKU = "sp0050",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 51,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Trizole...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "TRIZOLE 400SC",
+                            SKU = "sp0051",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 52,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Trizole...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "TRIZOLE 75WP",
+                            SKU = "sp0052",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 53,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Trizole...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "TRIZOLE 75 DO",
+                            SKU = "sp0053",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 54,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TRI...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "TRI 75WG",
+                            SKU = "sp0054",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 55,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TREPPACH...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "TREPPACH BUL",
+                            SKU = "sp0055",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 56,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "SAIPORA...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAIPORA",
+                            SKU = "sp0056",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 57,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "SAGOPERFECT...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGOPERFECT 320",
+                            SKU = "sp0057",
+                            StockQuantity = 0
+                        },
+                        new
+                        {
+                            Id = 58,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Diệt...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAGOGRAIN 300EC",
+                            SKU = "sp0058",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 59,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "ROTEVA...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ROTEVA 30SC",
+                            SKU = "sp0059",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 60,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "PYROLAX 250EC",
+                            SKU = "sp0060",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 61,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc phòng...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "OTICIN 47.5WP",
+                            SKU = "sp0061",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 62,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc phòng...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "MEXYL MZ",
+                            SKU = "sp0062",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 63,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc có...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "LUSTER 250SC",
+                            SKU = "sp0063",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 64,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Giúp...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "LUNASA 80",
+                            SKU = "sp0064",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 65,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc có...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "LÚA VÀNG",
+                            SKU = "sp0065",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 66,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "KAISAIGON",
+                            SKU = "sp0066",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 67,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc đặc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "KAISAIGON 10",
+                            SKU = "sp0067",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 68,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc phòng...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "CẢP XANH",
+                            SKU = "sp0068",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 69,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "HÒA...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "HÒA TIÊN",
+                            SKU = "sp0069",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 70,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "HẠT...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "HẠT VÀNG",
+                            SKU = "sp0070",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 71,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Edivil...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "EDIVIL 80WP",
+                            SKU = "sp0071",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 72,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "DIPOMATE...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "DIPOMATE",
+                            SKU = "sp0072",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 73,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Phòng...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "DIPOMATE 80",
+                            SKU = "sp0073",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 74,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "CLEARNER...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "CLEARNER 75 WP",
+                            SKU = "sp0074",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 75,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Đặc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "CHUBECA 1.8SL",
+                            SKU = "sp0075",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 76,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "ALPINE...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ALPINE 80WP",
+                            SKU = "sp0076",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 77,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "ALPINE...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "ALPINE XANH",
+                            SKU = "sp0077",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 78,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Đặc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SULOX 80WP",
+                            SKU = "sp0078",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 79,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAIZOLE 5SC",
+                            SKU = "sp0079",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 80,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "SAIPAN 2SL",
+                            SKU = "sp0080",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 81,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc trừ...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "YOSKY",
+                            SKU = "sp0081",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 82,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Thuốc...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "XINRON",
+                            SKU = "sp0082",
+                            StockQuantity = 50
+                        },
+                        new
+                        {
+                            Id = 83,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Diệt...",
+                            IsActive = true,
+                            LowStockThreshold = 10,
+                            Name = "VITOP",
+                            SKU = "sp0083",
+                            StockQuantity = 50
                         });
                 });
 

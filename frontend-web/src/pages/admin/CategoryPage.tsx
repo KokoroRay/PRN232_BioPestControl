@@ -7,6 +7,7 @@ import { ConfirmModal } from '../../components/admin/ConfirmModal';
 import { useToast } from '../../context/ToastContext';
 import { usePageMode } from '../../context/PageModeContext';
 import { categoryService } from '../../services/categoryService';
+import { getApiErrorMessage } from '../../lib/apiError';
 import type { Category } from '../../types/catalog';
 
 const CategoryPage: React.FC = () => {
@@ -20,6 +21,7 @@ const CategoryPage: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [managedByStaffId, setManagedByStaffId] = useState<number | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
 
   const load = useCallback(async () => {
@@ -58,6 +60,7 @@ const CategoryPage: React.FC = () => {
     setEditId(null);
     setName('');
     setDescription('');
+    setManagedByStaffId(undefined);
     setDrawerOpen(true);
   };
 
@@ -65,20 +68,27 @@ const CategoryPage: React.FC = () => {
     setEditId(c.id);
     setName(c.name);
     setDescription(c.description ?? '');
+    setManagedByStaffId(c.managedByStaffId);
     setDrawerOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const body = { name, description: description || undefined };
-      if (editId) await categoryService.update(editId, body);
-      else await categoryService.create(body);
+      if (editId) {
+        await categoryService.update(editId, {
+          name,
+          description: description || undefined,
+          managedByStaffId,
+        });
+      } else {
+        await categoryService.create({ name, description: description || undefined });
+      }
       showToast(editId ? 'Category updated' : 'Category created');
       setDrawerOpen(false);
       load();
-    } catch {
-      showToast('Save failed', 'error');
+    } catch (err) {
+      showToast(getApiErrorMessage(err, 'Save failed'), 'error');
     }
   };
 
@@ -119,13 +129,14 @@ const CategoryPage: React.FC = () => {
               <tr>
                 <th>Category</th>
                 <th>Description</th>
+                <th>Managed by</th>
                 {canManageCatalog && <th className="text-center">Actions</th>}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="empty-cell">
+                  <td colSpan={canManageCatalog ? 4 : 3} className="empty-cell">
                     No categories found
                   </td>
                 </tr>
@@ -137,6 +148,7 @@ const CategoryPage: React.FC = () => {
                       <div className="text-muted">CAT-{String(c.id).padStart(3, '0')}</div>
                     </td>
                     <td>{c.description || '—'}</td>
+                    <td>{c.managedByStaffName ?? '—'}</td>
                     {canManageCatalog && (
                       <td className="actions-cell">
                         <button type="button" className="btn-icon" onClick={() => openEdit(c)} title="Edit">
@@ -169,6 +181,20 @@ const CategoryPage: React.FC = () => {
             Description
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
           </label>
+          {canManageCatalog && editId && (
+            <label>
+              Managed by Staff ID
+              <input
+                type="number"
+                min={0}
+                value={managedByStaffId ?? ''}
+                onChange={(e) =>
+                  setManagedByStaffId(e.target.value ? Number(e.target.value) : undefined)
+                }
+                placeholder="Optional"
+              />
+            </label>
+          )}
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={() => setDrawerOpen(false)}>
               Cancel

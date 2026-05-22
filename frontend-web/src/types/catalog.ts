@@ -2,6 +2,10 @@ export interface Category {
   id: number;
   name: string;
   description?: string;
+  createdByAdminId?: number;
+  createdByAdminName?: string;
+  managedByStaffId?: number;
+  managedByStaffName?: string;
 }
 
 export interface Product {
@@ -18,11 +22,23 @@ export interface Product {
   chemicalName?: string;
   isActive: boolean;
   createdAt?: string;
+  updatedAt?: string;
+  createdByAdminId?: number;
+  createdByAdminName?: string;
+  managedByStaffId?: number;
+  managedByStaffName?: string;
 }
 
 export interface CreateCategoryRequest {
   name: string;
   description?: string;
+  createdByAdminId?: number;
+}
+
+export interface UpdateCategoryRequest {
+  name: string;
+  description?: string;
+  managedByStaffId?: number;
 }
 
 export interface CreateProductRequest {
@@ -35,4 +51,18 @@ export interface CreateProductRequest {
   categoryId: number;
   chemicalProfileId?: number;
   isActive?: boolean;
+  createdByAdminId?: number;
+}
+
+export interface UpdateProductRequest {
+  sku: string;
+  name: string;
+  description?: string;
+  unit?: string;
+  unitPrice: number;
+  imageUrl?: string;
+  categoryId: number;
+  chemicalProfileId?: number;
+  isActive?: boolean;
+  managedByStaffId?: number;
 }

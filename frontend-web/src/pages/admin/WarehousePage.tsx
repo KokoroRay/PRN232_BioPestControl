@@ -112,10 +112,10 @@ const WarehousePage: React.FC = () => {
       />
       {canImportWarehouse && (
         <div className="panel-card import-panel">
-          <h3>Manual Import</h3>
+          <h3 className="import-panel-title">Manual Import</h3>
           <form onSubmit={handleImport} className="import-form">
-            <label>
-              Product
+            <label className="import-field import-field--product">
+              <span className="import-field-label">Product</span>
               <select value={sku} onChange={(e) => setSku(e.target.value)} required>
                 <option value="">Select product</option>
                 {products.map((p) => (
@@ -125,8 +125,8 @@ const WarehousePage: React.FC = () => {
                 ))}
               </select>
             </label>
-            <label>
-              Quantity
+            <label className="import-field">
+              <span className="import-field-label">Quantity</span>
               <input
                 type="number"
                 min={1}
@@ -134,20 +134,25 @@ const WarehousePage: React.FC = () => {
                 onChange={(e) => setQty(Number(e.target.value))}
               />
             </label>
-            <label>
-              Import price
+            <label className="import-field">
+              <span className="import-field-label">Import price</span>
               <input
                 type="number"
                 min={0}
+                step={1000}
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
               />
             </label>
-            <label>
-              Note
-              <input value={note} onChange={(e) => setNote(e.target.value)} />
+            <label className="import-field import-field--note">
+              <span className="import-field-label">Note</span>
+              <input
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Optional"
+              />
             </label>
-            <button type="submit" className="btn-primary" disabled={importing}>
+            <button type="submit" className="btn-primary import-submit" disabled={importing}>
               {importing ? 'Importing...' : 'Import'}
             </button>
           </form>

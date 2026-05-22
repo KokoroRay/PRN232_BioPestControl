@@ -1,7 +1,7 @@
 import { API } from '../config/api';
 import { createApiClient } from '../lib/http';
-import { mapList } from '../lib/normalize';
-import type { Category, CreateCategoryRequest } from '../types/catalog';
+import { mapKeys, mapList } from '../lib/normalize';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../types/catalog';
 
 const client = createApiClient(`${API.catalog}/api`);
 
@@ -12,9 +12,9 @@ export const categoryService = {
   },
   getById: async (id: number) => {
     const { data } = await client.get(`/categories/${id}`);
-    return data as Category;
+    return mapKeys<Category>(data as Record<string, unknown>);
   },
   create: (body: CreateCategoryRequest) => client.post('/categories', body),
-  update: (id: number, body: CreateCategoryRequest) => client.put(`/categories/${id}`, body),
+  update: (id: number, body: UpdateCategoryRequest) => client.put(`/categories/${id}`, body),
   delete: (id: number) => client.delete(`/categories/${id}`),
 };

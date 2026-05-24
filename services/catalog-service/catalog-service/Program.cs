@@ -21,12 +21,12 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
 {
     // Cấu hình BaseAddress của IdentityService qua config hoặc hardcode
-    var identityServiceUrl = builder.Configuration["IdentityServiceUrl"] ?? "http://localhost:5001";
+    var identityServiceUrl = builder.Configuration["IdentityServiceUrl"] ?? "http://localhost:5240";
     client.BaseAddress = new Uri(identityServiceUrl);
 });
 builder.Services.AddHttpClient<IAgriExpertServiceClient, AgriExpertServiceClient>(client =>
 {
-    var agriExpertServiceUrl = builder.Configuration["AgriExpertServiceUrl"] ?? "http://localhost:5007";
+    var agriExpertServiceUrl = builder.Configuration["AgriExpertServiceUrl"] ?? "http://localhost:5050";
     client.BaseAddress = new Uri(agriExpertServiceUrl);
 });
 
@@ -82,7 +82,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowAll");
 

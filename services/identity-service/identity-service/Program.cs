@@ -173,8 +173,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 // Bật CORS (phải đặt trước Authentication/Authorization)
 app.UseCors("AllowAll");

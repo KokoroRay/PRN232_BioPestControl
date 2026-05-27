@@ -1,11 +1,12 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { clearAuth, getStoredUser, getToken, setAuth, type AuthUser } from '../lib/http';
-import { login as apiLogin, type LoginPayload } from '../services/authService';
+import { login as apiLogin, googleLogin as apiGoogleLogin, type LoginPayload } from '../services/authService';
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   login: (payload: LoginPayload, options?: { allowedRoles?: string[] }) => Promise<string>;
+  googleLogin: (idToken: string, options?: { allowedRoles?: string[] }) => Promise<string>;
   logout: () => void;
 }
 
@@ -34,6 +35,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return data.role;
   }, []);
 
+  const googleLogin = useCallback(async (idToken: string, options?: { allowedRoles?: string[] }) => {
+    const data = await apiGoogleLogin(idToken);
+    const allowed = options?.allowedRoles;
+    if (allowed && !allowed.includes(data.role)) {
+      throw new Error('You do not have permission to access this portal.');
+    }
+    const authUser: AuthUser = {
+      email: data.email,
+      fullName: data.fullName,
+      role: data.role,
+      avatarUrl: data.avatarUrl,
+    };
+    setAuth(data.token, authUser);
+    setUser(authUser);
+    return data.role;
+  }, []);
+
   const logout = useCallback(() => {
     clearAuth();
     setUser(null);
@@ -44,9 +62,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user,
       isAuthenticated: !!user && !!getToken(),
       login,
+      googleLogin,
       logout,
     }),
-    [user, login, logout],
+    [user, login, googleLogin, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

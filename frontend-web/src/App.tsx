@@ -4,7 +4,9 @@ import { AdminLayout } from './layouts/AdminLayout';
 import { StaffLayout } from './layouts/StaffLayout';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import StaffLogin from './pages/StaffLogin';
+import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/Dashboard';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import CategoryPage from './pages/admin/CategoryPage';
@@ -17,12 +19,23 @@ import CustomersPage from './pages/admin/CustomersPage';
 import ChemicalSafetyPage from './pages/admin/ChemicalSafetyPage';
 import WarehousePage from './pages/admin/WarehousePage';
 import FeedbacksPage from './pages/staff/FeedbacksPage';
+import HomePage from './pages/public/HomePage';
+import PublicAboutPage from './pages/public/AboutPage';
+import PublicContactPage from './pages/public/ContactPage';
+import PublicProductsPage from './pages/public/ProductsPage';
+import PublicProductDetailsPage from './pages/public/ProductDetailsPage';
+import PublicArticlesPage from './pages/public/ArticlesPage';
+import PublicArticleDetailsPage from './pages/public/ArticleDetailsPage';
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/Login" element={<AdminLogin />} />
         <Route path="/staff/login" element={<StaffLogin />} />
 
         <Route
@@ -68,7 +81,13 @@ function App() {
         </Route>
 
         <Route path="/" element={<CustomerLayout />}>
-          <Route index element={<Navigate to="/staff/login" replace />} />
+          <Route index element={<HomePage />} />
+          <Route path="about" element={<PublicAboutPage />} />
+          <Route path="contact" element={<PublicContactPage />} />
+          <Route path="products" element={<PublicProductsPage />} />
+          <Route path="products/:id" element={<PublicProductDetailsPage />} />
+          <Route path="articles" element={<PublicArticlesPage />} />
+          <Route path="articles/:id" element={<PublicArticleDetailsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

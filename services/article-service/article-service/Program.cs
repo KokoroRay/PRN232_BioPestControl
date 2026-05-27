@@ -1,4 +1,4 @@
-﻿using article_service.Data;
+using article_service.Data;
 using article_service.Repositories.Implements;
 using article_service.Repositories.Interfaces;
 using article_service.Services.Implements;
@@ -14,6 +14,18 @@ builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 
 // Register Services
 builder.Services.AddScoped<IArticleService, ArticleService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:4000",
+                "http://localhost:5173",
+                "http://localhost:8080")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -36,6 +48,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 

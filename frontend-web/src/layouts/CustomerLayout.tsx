@@ -1,14 +1,6 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { PublicLayout } from '../components/public/PublicLayout';
 
 export const CustomerLayout: React.FC = () => {
-  return (
-    <div className="customer-layout">
-      {/* TODO: Add Customer Header/Navbar here */}
-      <main className="main-content">
-        <Outlet />
-      </main>
-      {/* TODO: Add Customer Footer here */}
-    </div>
-  );
+  return <PublicLayout />;
 };

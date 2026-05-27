@@ -1,0 +1,376 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { productService } from '../../services/productService';
+import { categoryService } from '../../services/categoryService';
+import type { Product, Category } from '../../types/catalog';
+
+const ProductsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({ show: false, msg: '', type: 'success' });
+
+  // Get filter state from query parameters
+  const searchQuery = searchParams.get('search') || '';
+  const selectedCategoryId = searchParams.get('categoryId') ? Number(searchParams.get('categoryId')) : null;
+  const currentSort = searchParams.get('sort') || 'relevance';
+
+  // Load products and categories on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [cList, pList] = await Promise.all([
+          categoryService.getAll(),
+          productService.getAll()
+        ]);
+        setCategories(cList);
+        setProducts(pList);
+      } catch (err) {
+        console.error('Error loading catalog data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
+
+    // Filter by active status
+    result = result.filter(p => p.isActive);
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        p.sku.toLowerCase().includes(q)
+      );
+    }
+
+    // Filter by category
+    if (selectedCategoryId !== null) {
+      result = result.filter(p => p.categoryId === selectedCategoryId);
+    }
+
+    // Sort products
+    if (currentSort === 'price-low-to-high') {
+      result.sort((a, b) => a.unitPrice - b.unitPrice);
+    } else if (currentSort === 'price-high-to-low') {
+      result.sort((a, b) => b.unitPrice - a.unitPrice);
+    } else if (currentSort === 'top-rated') {
+      result.sort((a, b) => (b.id % 5) - (a.id % 5)); // simulated rating sorting based on id
+    }
+
+    return result;
+  }, [products, searchQuery, selectedCategoryId, currentSort]);
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const searchVal = data.get('search') as string;
+    
+    const params = new URLSearchParams(searchParams);
+    if (searchVal.trim()) {
+      params.set('search', searchVal);
+    } else {
+      params.delete('search');
+    }
+    setSearchParams(params);
+  };
+
+  const handleCategorySelect = (catId: number | null) => {
+    const params = new URLSearchParams(searchParams);
+    if (catId !== null) {
+      params.set('categoryId', String(catId));
+    } else {
+      params.delete('categoryId');
+    }
+    setSearchParams(params);
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('sort', e.target.value);
+    setSearchParams(params);
+  };
+
+  const handleClearAll = () => {
+    setSearchParams({});
+  };
+
+  const showToastMsg = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, msg, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 3000);
+  };
+
+  const handleAddToCart = (e: React.MouseEvent, p: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Store in LocalStorage cart representation
+    try {
+      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existing = currentCart.find((item: any) => item.id === p.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        currentCart.push({ id: p.id, name: p.name, price: p.unitPrice, imageUrl: p.imageUrl, quantity: 1 });
+      }
+      localStorage.setItem('cart', JSON.stringify(currentCart));
+      
+      // Dispatch cart change event for badges in layouts
+      window.dispatchEvent(new Event('cartUpdated'));
+      
+      showToastMsg(`Đã thêm "${p.name}" vào giỏ hàng thành công!`);
+    } catch {
+      showToastMsg('Không thể thêm sản phẩm vào giỏ hàng.', 'error');
+    }
+  };
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+
+  return (
+    <div className="max-w-[1280px] mx-auto px-6 lg:px-8 pb-24 pt-32 text-on-background font-body-md overflow-x-hidden">
+      {/* Toast Alert */}
+      {toast.show && (
+        <div className={`fixed top-24 right-6 z-50 px-4 py-3 rounded-lg border shadow-xl flex items-center gap-2 text-sm transition-all duration-300 ${
+          toast.type === 'success' 
+            ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-800 dark:text-green-300' 
+            : 'bg-red-50 border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300'
+        }`}>
+          <span className="material-symbols-outlined text-lg">
+            {toast.type === 'success' ? 'check_circle' : 'error'}
+          </span>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header & Search */}
+      <div className="mb-10">
+        <h1 className="font-h1 text-4xl font-bold text-primary mb-6">Biological Solutions Catalog</h1>
+        <div className="bg-white dark:bg-surface-container p-4 rounded-2xl border border-outline-variant/20 shadow-xl">
+          <form onSubmit={handleSearch} className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant">
+              <span className="material-symbols-outlined text-xl">search</span>
+            </div>
+            <input
+              name="search"
+              defaultValue={searchQuery}
+              className="block w-full pl-11 pr-24 py-4 bg-background dark:bg-surface border border-outline-variant/30 focus:border-primary focus:bg-white dark:focus:bg-black/30 rounded-xl text-on-background placeholder-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all text-base"
+              placeholder="Search by product name, target pest, or SKU code..."
+              type="text"
+            />
+            <div className="absolute inset-y-0 right-2 flex items-center">
+              <button
+                type="submit"
+                className="bg-primary hover:bg-[#173901] text-white font-bold h-10 px-6 rounded-lg transition-colors flex items-center gap-2 text-sm shadow-md"
+              >
+                Search
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* Sidebar Filters */}
+        <aside className="w-full lg:w-72 flex-shrink-0">
+          <div className="sticky top-32 space-y-6">
+            <div className="bg-white dark:bg-surface-container rounded-xl border border-outline-variant/20 p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-4 border-b border-outline-variant/10 pb-3">
+                <h3 className="font-bold text-lg text-primary">Filters</h3>
+                <button
+                  onClick={handleClearAll}
+                  className="text-xs text-secondary font-medium hover:underline cursor-pointer"
+                >
+                  Clear all
+                </button>
+              </div>
+
+              {/* Categories Checklist */}
+              <div>
+                <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4">
+                  Category
+                </h4>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      checked={selectedCategoryId === null}
+                      onChange={() => handleCategorySelect(null)}
+                      className="form-radio h-5 w-5 text-primary border-outline-variant/50 bg-transparent focus:ring-primary focus:ring-offset-0 focus:ring-0 cursor-pointer"
+                      type="radio"
+                      name="categoryId"
+                    />
+                    <span className="text-sm text-on-background group-hover:text-primary transition-colors">
+                      All
+                    </span>
+                  </label>
+                  {categories.map(c => (
+                    <label key={c.id} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        checked={selectedCategoryId === c.id}
+                        onChange={() => handleCategorySelect(c.id)}
+                        className="form-radio h-5 w-5 text-primary border-outline-variant/50 bg-transparent focus:ring-primary focus:ring-offset-0 focus:ring-0 cursor-pointer"
+                        type="radio"
+                        name="categoryId"
+                      />
+                      <span className="text-sm text-on-background group-hover:text-primary transition-colors">
+                        {c.name}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Product Listing */}
+        <div className="flex-1 w-full">
+          {/* Top Sort Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-outline-variant/10 pb-4">
+            <p className="text-sm text-on-surface-variant">
+              Showing{' '}
+              <span className="font-bold text-primary">{filteredProducts.length}</span>{' '}
+              results
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-on-surface-variant hidden sm:inline">
+                Sort by:
+              </span>
+              <select
+                value={currentSort}
+                onChange={handleSortChange}
+                className="bg-white dark:bg-surface-container border border-outline-variant/30 py-2 pl-3 pr-8 rounded-lg text-xs font-semibold text-primary focus:ring-1 focus:ring-primary/20 cursor-pointer shadow-sm focus:outline-none"
+              >
+                <option value="relevance">Relevance</option>
+                <option value="price-low-to-high">Price: Low to High</option>
+                <option value="price-high-to-low">Price: High to Low</option>
+                <option value="top-rated">Top Rated</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Cards Grid */}
+          {loading ? (
+            <div className="flex justify-center items-center py-20 w-full">
+              <span className="material-symbols-outlined text-4xl animate-spin text-primary">
+                hourglass_empty
+              </span>
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredProducts.map(p => {
+                const simulatedRating = ((p.id % 5) / 10 + 4.5).toFixed(1);
+                const simulatedReviews = (p.id * 17) % 150 + 10;
+                
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => navigate(`/products/${p.id}`)}
+                    className="group bg-white dark:bg-surface-container rounded-xl border border-outline-variant/10 overflow-hidden hover:shadow-2xl hover:border-primary/40 transition-all duration-300 flex flex-col h-full cursor-pointer shadow-sm"
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container-low border-b border-outline-variant/5">
+                      <div className="absolute inset-0 organic-gradient opacity-40"></div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        {p.imageUrl ? (
+                          <img
+                            src={p.imageUrl}
+                            alt={p.name}
+                            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                          />
+                        ) : (
+                          <span className="material-symbols-outlined text-6xl text-primary/10 select-none">
+                            science
+                          </span>
+                        )}
+                      </div>
+                      <span className="absolute top-3.5 left-3.5 bg-white/90 px-2 py-0.5 rounded text-[9px] font-bold tracking-tight text-primary shadow-sm uppercase border border-outline-variant/10">
+                        {p.categoryName || 'ACTIVE'}
+                      </span>
+                    </div>
+
+                    {/* Meta Body */}
+                    <div className="p-5 flex flex-col flex-grow">
+                      <h3 className="font-h3 text-base font-bold text-primary mb-1.5 leading-tight line-clamp-1">
+                        {p.name}
+                      </h3>
+                      
+                      {/* Rating */}
+                      <div className="flex items-center gap-0.5 mb-3">
+                        <span
+                          className="material-symbols-outlined text-amber-500 text-sm"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          star
+                        </span>
+                        <span className="text-[11px] text-on-surface-variant font-medium">
+                          {simulatedRating} ({simulatedReviews} reviews)
+                        </span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-on-surface-variant text-xs mb-4 leading-relaxed line-clamp-2 font-light">
+                        {p.description || 'Chế phẩm sinh học giúp tiêu diệt sâu hại, tăng sức đề kháng tự nhiên cho các loại rau ăn lá và cây công nghiệp.'}
+                      </p>
+
+                      {/* Price Action Footer */}
+                      <div className="mt-auto pt-4 border-t border-dashed border-outline-variant/20 flex items-center justify-between gap-3">
+                        <span className="text-lg font-bold text-primary">
+                          {formatPrice(p.unitPrice)}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate(`/products/${p.id}`);
+                            }}
+                            type="button"
+                            className="border border-primary text-primary hover:bg-primary/5 active:scale-[0.97] font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
+                          >
+                            <span className="material-symbols-outlined text-sm">shopping_bag</span>
+                            Buy
+                          </button>
+                          <button
+                            onClick={(e) => handleAddToCart(e, p)}
+                            type="button"
+                            className="bg-primary hover:bg-[#173901] text-white font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 active:scale-[0.97] transition-all text-xs shadow-md"
+                          >
+                            <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-20 text-on-surface-variant font-light bg-white dark:bg-surface-container rounded-2xl border border-outline-variant/10 shadow-sm flex flex-col items-center">
+              <span className="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-3">
+                inventory_2
+              </span>
+              Không tìm thấy sản phẩm phù hợp.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductsPage;

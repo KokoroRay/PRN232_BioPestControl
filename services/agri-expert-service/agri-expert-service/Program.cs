@@ -29,6 +29,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:3000",
+                "http://localhost:4000",
                 "http://localhost:5173",
                 "http://localhost:8080",
                 "https://localhost:7022")
@@ -162,7 +163,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();

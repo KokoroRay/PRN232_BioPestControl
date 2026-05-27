@@ -11,7 +11,7 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import type { RevenueStat } from '../types/statistics';
+import type { RevenueStat } from '../../types/statistics';
 
 ChartJS.register(
   CategoryScale,

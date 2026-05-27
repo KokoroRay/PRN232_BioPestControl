@@ -27,11 +27,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:8080",   // Test HTML page
-                "http://localhost:5240",   // API (http)
-                "https://localhost:7022",  // API (https)
-                "http://localhost:3000",   // Frontend (nếu có)
-                "http://localhost:5173"    // Vite frontend (nếu có)
+                "http://localhost:8080",
+                "http://localhost:5240",
+                "https://localhost:7022",
+                "http://localhost:3000",
+                "http://localhost:4000",
+                "http://localhost:5173"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -172,8 +173,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 // Bật CORS (phải đặt trước Authentication/Authorization)
 app.UseCors("AllowAll");

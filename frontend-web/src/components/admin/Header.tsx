@@ -1,35 +1,39 @@
 import React from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   role?: 'admin' | 'staff';
 }
 
 export const Header: React.FC<HeaderProps> = ({ role = 'admin' }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const brandName = role === 'admin' ? 'BioPestControl Admin' : 'BioPestControl Staff';
-  const avatarInitials = role === 'admin' ? 'AD' : 'ST';
-  const userName = role === 'admin' ? 'Admin User' : 'Staff User';
+  const initials = (user?.fullName?.[0] ?? user?.email?.[0] ?? 'U').toUpperCase();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="admin-header">
       <div className="header-left">
         <h1 className="header-brand">{brandName}</h1>
       </div>
-
       <div className="header-right">
         <div className="header-actions">
-          <button className="icon-btn">
+          <button type="button" className="icon-btn" aria-label="Notifications">
             <Bell size={20} />
-            <span className="notification-dot"></span>
+            <span className="notification-dot" />
           </button>
-          
-          <div className="avatar-dropdown">
-            <div className="avatar-mini" style={{ backgroundColor: role === 'staff' ? '#dcfce7' : '#e0e7ff', color: role === 'staff' ? '#15803d' : '#4f46e5' }}>
-              {avatarInitials}
-            </div>
-            <span className="avatar-name">{userName}</span>
-            <ChevronDown size={16} color="#64748b" />
-          </div>
+          <button type="button" className="avatar-dropdown" onClick={handleLogout} title="Logout">
+            <div className="avatar-mini">{initials}</div>
+            <span className="avatar-name">{user?.fullName ?? user?.email}</span>
+            <LogOut size={16} color="#64748b" />
+          </button>
         </div>
       </div>
     </header>

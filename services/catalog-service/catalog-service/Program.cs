@@ -21,12 +21,12 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
 {
     // Cấu hình BaseAddress của IdentityService qua config hoặc hardcode
-    var identityServiceUrl = builder.Configuration["IdentityServiceUrl"] ?? "http://localhost:5001";
+    var identityServiceUrl = builder.Configuration["IdentityServiceUrl"] ?? "http://localhost:5240";
     client.BaseAddress = new Uri(identityServiceUrl);
 });
 builder.Services.AddHttpClient<IAgriExpertServiceClient, AgriExpertServiceClient>(client =>
 {
-    var agriExpertServiceUrl = builder.Configuration["AgriExpertServiceUrl"] ?? "http://localhost:5007";
+    var agriExpertServiceUrl = builder.Configuration["AgriExpertServiceUrl"] ?? "http://localhost:5050";
     client.BaseAddress = new Uri(agriExpertServiceUrl);
 });
 
@@ -57,8 +57,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:4000",
+                "http://localhost:5173",
+                "http://localhost:8080")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -71,7 +82,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

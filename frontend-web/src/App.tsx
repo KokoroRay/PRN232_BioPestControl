@@ -1,47 +1,96 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminLayout } from './layouts/AdminLayout';
 import { StaffLayout } from './layouts/StaffLayout';
 import { CustomerLayout } from './layouts/CustomerLayout';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import StaffLogin from './pages/StaffLogin';
+import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/Dashboard';
+import StaffDashboard from './pages/staff/StaffDashboard';
+import CategoryPage from './pages/admin/CategoryPage';
+import ProductsPage from './pages/admin/ProductsPage';
+import OrdersPage from './pages/admin/OrdersPage';
+import ArticlesPage from './pages/admin/ArticlesPage';
+import DiscountsPage from './pages/admin/DiscountsPage';
+import StaffPage from './pages/admin/StaffPage';
+import CustomersPage from './pages/admin/CustomersPage';
+import ChemicalSafetyPage from './pages/admin/ChemicalSafetyPage';
+import WarehousePage from './pages/admin/WarehousePage';
+import FeedbacksPage from './pages/staff/FeedbacksPage';
+import HomePage from './pages/public/HomePage';
+import PublicAboutPage from './pages/public/AboutPage';
+import PublicContactPage from './pages/public/ContactPage';
+import PublicProductsPage from './pages/public/ProductsPage';
+import PublicProductDetailsPage from './pages/public/ProductDetailsPage';
+import PublicArticlesPage from './pages/public/ArticlesPage';
+import PublicArticleDetailsPage from './pages/public/ArticleDetailsPage';
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/Login" element={<AdminLogin />} />
+        <Route path="/staff/login" element={<StaffLogin />} />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute roles={['Admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="warehouse" element={<div className="dashboard-container"><h1>Warehouse Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="products" element={<div className="dashboard-container"><h1>Product Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="category" element={<div className="dashboard-container"><h1>Category Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="orders" element={<div className="dashboard-container"><h1>Order Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="discounts" element={<div className="dashboard-container"><h1>Discount Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="articles" element={<div className="dashboard-container"><h1>Article Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="chemicalsafety" element={<div className="dashboard-container"><h1>Chemical Safety</h1><p>Module coming soon...</p></div>} />
-          <Route path="staff" element={<div className="dashboard-container"><h1>Staff Management</h1><p>Module coming soon...</p></div>} />
-          <Route path="customers" element={<div className="dashboard-container"><h1>Customer Management</h1><p>Module coming soon...</p></div>} />
+          <Route path="warehouse" element={<WarehousePage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="category" element={<CategoryPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="discounts" element={<DiscountsPage />} />
+          <Route path="articles" element={<ArticlesPage />} />
+          <Route path="chemicalsafety" element={<ChemicalSafetyPage />} />
+          <Route path="staff" element={<StaffPage />} />
+          <Route path="customers" element={<CustomersPage />} />
         </Route>
 
-        {/* Staff Routes */}
-        <Route path="/staff" element={<StaffLayout />}>
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute roles={['Staff']}>
+              <StaffLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="warehouse" element={<div className="dashboard-container"><h1>Warehouse Management (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="products" element={<div className="dashboard-container"><h1>Product Management (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="category" element={<div className="dashboard-container"><h1>Category Management (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="orders" element={<div className="dashboard-container"><h1>Order Management (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="discounts" element={<div className="dashboard-container"><h1>Discount Management (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="articles" element={<div className="dashboard-container"><h1>Article Management (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="chemicalsafety" element={<div className="dashboard-container"><h1>Chemical Safety (Staff)</h1><p>Module coming soon...</p></div>} />
-          <Route path="customers" element={<div className="dashboard-container"><h1>Customer Management (Staff)</h1><p>Module coming soon...</p></div>} />
+          <Route path="dashboard" element={<StaffDashboard />} />
+          <Route path="feedbacks" element={<FeedbacksPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="discounts" element={<DiscountsPage />} />
+          <Route path="category" element={<CategoryPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="articles" element={<ArticlesPage />} />
+          <Route path="warehouse" element={<WarehousePage />} />
+          <Route path="chemicalsafety" element={<ChemicalSafetyPage />} />
         </Route>
 
-        {/* Customer Routes */}
         <Route path="/" element={<CustomerLayout />}>
-          {/* Temporary redirect to admin, usually it would be Customer Home */}
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route index element={<HomePage />} />
+          <Route path="about" element={<PublicAboutPage />} />
+          <Route path="contact" element={<PublicContactPage />} />
+          <Route path="products" element={<PublicProductsPage />} />
+          <Route path="products/:id" element={<PublicProductDetailsPage />} />
+          <Route path="articles" element={<PublicArticlesPage />} />
+          <Route path="articles/:id" element={<PublicArticleDetailsPage />} />
         </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-ARG RID=linux-musl-x64
+ARG RID=linux-x64
 
 COPY ["trading-service/trading-service.csproj", "trading-service/"]
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
     -p:PublishReadyToRun=true -p:UseAppHost=false
 
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 # Chỉ copy kết quả đã build xong, bỏ lại 1GB SDK ở stage trước

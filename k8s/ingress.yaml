@@ -8,8 +8,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: biopest.local
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

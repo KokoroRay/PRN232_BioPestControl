@@ -104,6 +104,9 @@ jobs:
           KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
           KAFKA_ORDER_PLACED_TOPIC: ${{ secrets.KAFKA_ORDER_PLACED_TOPIC }}
           KAFKA_CONSUMER_GROUP_ID: ${{ secrets.KAFKA_CONSUMER_GROUP_ID }}
+          PAYOS_CLIENT_ID: ${{ secrets.PAYOS_CLIENT_ID }}
+          PAYOS_API_KEY: ${{ secrets.PAYOS_API_KEY }}
+          PAYOS_CHECKSUM_KEY: ${{ secrets.PAYOS_CHECKSUM_KEY }}
         run: |
           set -euo pipefail
           FAILED_SERVICES=()
@@ -155,6 +158,9 @@ jobs:
               --from-literal=SmtpSettings__FromEmail="${SMTP_EMAIL}" \
               --from-literal=SmtpSettings__FromName="${SMTP_APP_NAME}" \
               --from-literal=GoogleOptions__ClientId="${GOOGLE_CLIENT_ID}" \
+              --from-literal=PayOS__ClientId="${PAYOS_CLIENT_ID}" \
+              --from-literal=PayOS__ApiKey="${PAYOS_API_KEY}" \
+              --from-literal=PayOS__ChecksumKey="${PAYOS_CHECKSUM_KEY}" \
               --from-literal=IdentityServiceUrl="http://identity-service" \
               --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
               -n biopest \

@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: engagement-service
+  name: article-service
   namespace: biopest
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: engagement-service
+      app: article-service
   template:
     metadata:
       labels:
-        app: engagement-service
+        app: article-service
     spec:
       containers:
-        - name: engagement-service
-          image: 10.0.0.3:5000/engagement-service:latest
+        - name: article-service
+          image: 10.0.0.3:5000/article-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
           envFrom:
             - configMapRef:
-                name: engagement-service-env
+                name: article-service-env
           resources:
             requests:
               cpu: 100m

@@ -6,7 +6,7 @@ services:
   # 1. Identity Service
   # ----------------------------------------------------
   - name: identity-service
-    url: http://<VM2_IP>:5240
+    url: http://<VM2_IP>:80
     routes:
       - name: identity-routes
         paths:
@@ -22,7 +22,7 @@ services:
   # 2. Agri-Expert Service
   # ----------------------------------------------------
   - name: agri-expert-service
-    url: http://<VM2_IP>:5050
+    url: http://<VM2_IP>:80
     routes:
       - name: agri-expert-routes
         paths:
@@ -30,9 +30,83 @@ services:
           - /api/staff/chemicals
           - /api/admin/chemicals
         strip_path: false
-    # Mặc định .NET nhận token nhưng bạn cũng có thể cấu hình jwt plugin tại gateway nếu muốn chặn ngay từ gateway.
-    # Trong trường hợp này, các service .NET đã có logic validate token (AddJwtBearer) rồi,
-    # nên Gateway chỉ cần đóng vai trò proxy routing là đủ.
+
+  # ----------------------------------------------------
+  # 3. Catalog Service
+  # ----------------------------------------------------
+  - name: catalog-service
+    url: http://<VM2_IP>:80
+    routes:
+      - name: catalog-routes
+        paths:
+          - /api/catalog
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 4. Article Service
+  # ----------------------------------------------------
+  - name: article-service
+    url: http://<VM2_IP>:80
+    routes:
+      - name: article-routes
+        paths:
+          - /api/articles
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 5. Inventory Service
+  # ----------------------------------------------------
+  - name: inventory-service
+    url: http://<VM2_IP>:80
+    routes:
+      - name: inventory-routes
+        paths:
+          - /api/inventory
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 6. Ordering Service
+  # ----------------------------------------------------
+  - name: ordering-service
+    url: http://<VM2_IP>:80
+    routes:
+      - name: ordering-routes
+        paths:
+          - /api/orders
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 7. Payment Service
+  # ----------------------------------------------------
+  - name: payment-service
+    url: http://<VM2_IP>:80
+    routes:
+      - name: payment-routes
+        paths:
+          - /api/payment
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 8. Trading Service
+  # ----------------------------------------------------
+  - name: trading-service
+    url: http://<VM2_IP>:80
+    routes:
+      - name: trading-routes
+        paths:
+          - /api/trading
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 9. Frontend Web
+  # ----------------------------------------------------
+  - name: frontend-web
+    url: http://<VM2_IP>:80
+    routes:
+      - name: frontend-routes
+        paths:
+          - /
+        strip_path: false
 
 plugins:
   - name: cors

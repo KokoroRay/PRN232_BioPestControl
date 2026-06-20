@@ -1,6 +1,23 @@
 version: '3.9'
 
 services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik-gateway
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080" # Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: on-failure
+    networks:
+      - kong-net
+
   kong:
     image: kong:3.6
     container_name: kong-gateway
@@ -16,8 +33,12 @@ services:
       - KONG_PLUGINS=bundled
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kong.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.kong.entrypoints=web"
+      - "traefik.http.services.kong.loadbalancer.server.port=8000"
     ports:
-      - "80:8000"
       - "443:8443"
       - "8001:8001"
       - "8444:8444"

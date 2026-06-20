@@ -17,7 +17,7 @@ jobs:
 
       - name: Parse Kong Config
         run: |
-          docker run --rm -v ${{ github.workspace }}/infrastructure/gateway/kong.yml:/kong.yml kong:3.6 kong config parse /kong.yml
+          docker run --rm -e KONG_DATABASE=off -v ${{ github.workspace }}/infrastructure/gateway/kong.yml:/kong.yml kong:3.6 kong config parse /kong.yml
 
       - name: Copy Files to VM1
         uses: appleboy/scp-action@v0.1.7

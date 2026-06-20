@@ -9,4 +9,4 @@ http:
     k3s-service:
       loadBalancer:
         servers:
-          - url: "http://<VM2_IP>:80"
+          - url: "http://10.0.0.2:80"

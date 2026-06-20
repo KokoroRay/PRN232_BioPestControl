@@ -6,7 +6,7 @@ services:
   # 1. Identity Service
   # ----------------------------------------------------
   - name: identity-service
-    url: http://<VM2_IP>:80
+    url: http://10.0.0.2:80
     routes:
       - name: identity-routes
         paths:
@@ -22,7 +22,7 @@ services:
   # 2. Agri-Expert Service
   # ----------------------------------------------------
   - name: agri-expert-service
-    url: http://<VM2_IP>:80
+    url: http://10.0.0.2:80
     routes:
       - name: agri-expert-routes
         paths:

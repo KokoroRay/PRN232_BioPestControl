@@ -10,28 +10,30 @@ on:
 
 jobs:
   deploy-infra:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy Redis and Kafka
-        shell: bash
-        run: |
-          echo "--- Setting up Redis and Kafka on VM3 ---"
-          # The self-hosted runner executes on VM 3
-          # Create the expected directory if it doesn't exist
-          mkdir -p ~/infra/redis-kafka
-          
-          # Copy docker-compose.yml to the user's directory
-          cp infrastructure/redis-kafka/docker-compose.yml ~/infra/redis-kafka/
-          
-          # Change directory and start the services
-          cd ~/infra/redis-kafka
-          
-          # Pull latest images and run
-          docker-compose pull
-          docker-compose up -d
-          
-          echo "--- Deployment Complete. Services running: ---"
-          docker ps | grep -E 'redis|kafka|zookeeper' || true
+      - name: Copy Files to VM3
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM3_HOST }}
+          username: ${{ secrets.VM3_USERNAME }}
+          key: ${{ secrets.VM3_SSH_KEY }}
+          source: "infrastructure/redis-kafka/docker-compose.yml"
+          target: "~/infra/redis-kafka"
+          strip_components: 2
+
+      - name: Deploy to VM3
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM3_HOST }}
+          username: ${{ secrets.VM3_USERNAME }}
+          key: ${{ secrets.VM3_SSH_KEY }}
+          script: |
+            cd ~/infra/redis-kafka
+            docker-compose pull
+            docker-compose up -d
+            echo "--- Deployment Complete. Services running: ---"
+            docker ps | grep -E 'redis|kafka|zookeeper' || true

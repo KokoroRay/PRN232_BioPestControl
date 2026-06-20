@@ -25,7 +25,7 @@ jobs:
           host: ${{ secrets.VM1_HOST }}
           username: ${{ secrets.VM1_USERNAME }}
           key: ${{ secrets.VM1_SSH_KEY }}
-          source: "infrastructure/gateway/docker-compose.yml,infrastructure/gateway/kong.yml"
+          source: "infrastructure/gateway/docker-compose.yml,infrastructure/gateway/kong.yml,infrastructure/gateway/traefik-dynamic.yml"
           target: "/app/gateway"
           strip_components: 2
 

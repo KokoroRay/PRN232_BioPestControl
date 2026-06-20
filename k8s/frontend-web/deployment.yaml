@@ -21,22 +21,8 @@ spec:
             - containerPort: 80
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 300m
+              cpu: 200m
               memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-web
-  namespace: biopest
-spec:
-  selector:
-    app: frontend-web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: ClusterIP

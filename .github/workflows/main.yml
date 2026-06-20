@@ -40,21 +40,18 @@ jobs:
             "ordering-service"
             "payment-service"
             "trading-service"
-            "frontend-web"
           )
 
           for SVC in "${SERVICES[@]}"; do
-            if [ "$SVC" != "frontend-web" ]; then
-              SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
-              PREFIX="${SVC_UPPER%_SERVICE}"
-              ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
-              DB_CONN="${!ENV_VAR_NAME:-}"
-              
-              if [ -z "$DB_CONN" ]; then
-                echo "--- Skipping build for ${SVC} because ${ENV_VAR_NAME} is empty ---"
-                FAILED_SERVICES+=("${SVC}:missing-db-connection")
-                continue
-              fi
+            SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
+            PREFIX="${SVC_UPPER%_SERVICE}"
+            ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
+            DB_CONN="${!ENV_VAR_NAME:-}"
+            
+            if [ -z "$DB_CONN" ]; then
+              echo "--- Skipping build for ${SVC} because ${ENV_VAR_NAME} is empty ---"
+              FAILED_SERVICES+=("${SVC}:missing-db-connection")
+              continue
             fi
 
             if [ -f "services/${SVC}/Dockerfile" ]; then
@@ -84,6 +81,14 @@ jobs:
 
           if [ ${#FAILED_SERVICES[@]} -gt 0 ]; then
             echo "--- Build step completed with skipped services: ${FAILED_SERVICES[*]} ---"
+          fi
+
+          echo "--- Building frontend-web ---"
+          if docker build --network=host -t "${REGISTRY}/frontend-web:${IMAGE_TAG}" "frontend-web"; then
+            echo "--- Pushing frontend-web ---"
+            docker push "${REGISTRY}/frontend-web:${IMAGE_TAG}"
+          else
+            echo "--- Build failed for frontend-web ---"
           fi
 
       - name: Deploy to K3s
@@ -129,53 +134,48 @@ jobs:
             "ordering-service"
             "payment-service"
             "trading-service"
-            "frontend-web"
           )
 
           for SVC in "${SERVICES[@]}"; do
-            if [ "$SVC" != "frontend-web" ]; then
-              SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
-              PREFIX="${SVC_UPPER%_SERVICE}"
-              ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
-              
-              # Dùng bash indirect expansion để lấy giá trị biến động
-              DB_CONN="${!ENV_VAR_NAME:-}"
-              
-              if [ -z "$DB_CONN" ]; then
-                echo "--- Skipping deploy for ${SVC} because ${ENV_VAR_NAME} is empty ---"
-                FAILED_SERVICES+=("${SVC}:missing-db-connection")
-                continue
-              fi
-              
-              if ! kubectl create configmap "${SVC}-env" \
-                --from-literal=ConnectionStrings__DefaultConnection="${DB_CONN}" \
-                --from-literal=MongoDB__ConnectionString="${DB_CONN}" \
-                --from-literal=MongoDB__DatabaseName="BioPestControlDb_ArticleService_Db" \
-                --from-literal=JwtSettings__Issuer="${JWT_ISSUER}" \
-                --from-literal=JwtSettings__Audience="${JWT_AUDIENCE}" \
-                --from-literal=Kafka__BootstrapServers="${KAFKA_BOOTSTRAP_SERVERS}" \
-                --from-literal=Kafka__OrderPlacedTopic="${KAFKA_ORDER_PLACED_TOPIC}" \
-                --from-literal=Kafka__ConsumerGroupId="${KAFKA_CONSUMER_GROUP_ID}" \
-                --from-literal=SmtpSettings__Host="smtp.gmail.com" \
-                --from-literal=SmtpSettings__Username="${SMTP_EMAIL}" \
-                --from-literal=SmtpSettings__Password="${SMTP_PASSWORD}" \
-                --from-literal=SmtpSettings__FromEmail="${SMTP_EMAIL}" \
-                --from-literal=SmtpSettings__FromName="${SMTP_APP_NAME}" \
-                --from-literal=GoogleOptions__ClientId="${GOOGLE_CLIENT_ID}" \
-                --from-literal=PayOS__ClientId="${PAYOS_CLIENT_ID}" \
-                --from-literal=PayOS__ApiKey="${PAYOS_API_KEY}" \
-                --from-literal=PayOS__ChecksumKey="${PAYOS_CHECKSUM_KEY}" \
-                --from-literal=IdentityServiceUrl="http://identity-service" \
-                --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
-                -n biopest \
-                --dry-run=client -o yaml | kubectl apply -f -; then
-                echo "--- Failed to create/apply configmap for ${SVC}; skipping deploy ---"
-                FAILED_SERVICES+=("${SVC}:configmap-failed")
-                continue
-              fi
+            SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
+            PREFIX="${SVC_UPPER%_SERVICE}"
+            ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
+            
+            # Dùng bash indirect expansion để lấy giá trị biến động
+            DB_CONN="${!ENV_VAR_NAME:-}"
+            
+            if [ -z "$DB_CONN" ]; then
+              echo "--- Skipping deploy for ${SVC} because ${ENV_VAR_NAME} is empty ---"
+              FAILED_SERVICES+=("${SVC}:missing-db-connection")
+              continue
             fi
             
-
+            if ! kubectl create configmap "${SVC}-env" \
+              --from-literal=ConnectionStrings__DefaultConnection="${DB_CONN}" \
+              --from-literal=MongoDB__ConnectionString="${DB_CONN}" \
+              --from-literal=MongoDB__DatabaseName="BioPestControlDb_ArticleService_Db" \
+              --from-literal=JwtSettings__Issuer="${JWT_ISSUER}" \
+              --from-literal=JwtSettings__Audience="${JWT_AUDIENCE}" \
+              --from-literal=Kafka__BootstrapServers="${KAFKA_BOOTSTRAP_SERVERS}" \
+              --from-literal=Kafka__OrderPlacedTopic="${KAFKA_ORDER_PLACED_TOPIC}" \
+              --from-literal=Kafka__ConsumerGroupId="${KAFKA_CONSUMER_GROUP_ID}" \
+              --from-literal=SmtpSettings__Host="smtp.gmail.com" \
+              --from-literal=SmtpSettings__Username="${SMTP_EMAIL}" \
+              --from-literal=SmtpSettings__Password="${SMTP_PASSWORD}" \
+              --from-literal=SmtpSettings__FromEmail="${SMTP_EMAIL}" \
+              --from-literal=SmtpSettings__FromName="${SMTP_APP_NAME}" \
+              --from-literal=GoogleOptions__ClientId="${GOOGLE_CLIENT_ID}" \
+              --from-literal=PayOS__ClientId="${PAYOS_CLIENT_ID}" \
+              --from-literal=PayOS__ApiKey="${PAYOS_API_KEY}" \
+              --from-literal=PayOS__ChecksumKey="${PAYOS_CHECKSUM_KEY}" \
+              --from-literal=IdentityServiceUrl="http://identity-service" \
+              --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
+              -n biopest \
+              --dry-run=client -o yaml | kubectl apply -f -; then
+              echo "--- Failed to create/apply configmap for ${SVC}; skipping deploy ---"
+              FAILED_SERVICES+=("${SVC}:configmap-failed")
+              continue
+            fi
               
             if [ -d "k8s/${SVC}" ]; then
               if ! kubectl apply -f "k8s/${SVC}/"; then
@@ -200,4 +200,13 @@ jobs:
 
           if [ ${#FAILED_SERVICES[@]} -gt 0 ]; then
             echo "--- Deploy step completed with skipped services: ${FAILED_SERVICES[*]} ---"
+          fi
+
+          echo "--- Deploying frontend-web ---"
+          if kubectl apply -f k8s/frontend-web/; then
+            if kubectl set image deployment/frontend-web frontend-web="${REGISTRY}/frontend-web:${IMAGE_TAG}" -n biopest; then
+              kubectl rollout status deployment/frontend-web -n biopest --timeout=180s || echo "--- Rollout failed for frontend-web ---"
+            fi
+          else
+            echo "--- Failed to apply Kubernetes manifests for frontend-web ---"
           fi

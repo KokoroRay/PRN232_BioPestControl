@@ -10,6 +10,7 @@ spec:
   rules:
     - http:
         paths:
+          # Identity Service
           - path: /api/auth
             pathType: Prefix
             backend:
@@ -52,6 +53,15 @@ spec:
                 name: identity-service
                 port:
                   number: 80
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+
+          # Agri-Expert Service
           - path: /api/chemicals
             pathType: Prefix
             backend:
@@ -73,13 +83,8 @@ spec:
                 name: agri-expert-service
                 port:
                   number: 80
-          - path: /api/catalog
-            pathType: Prefix
-            backend:
-              service:
-                name: catalog-service
-                port:
-                  number: 80
+
+          # Article Service
           - path: /api/articles
             pathType: Prefix
             backend:
@@ -87,6 +92,24 @@ spec:
                 name: article-service
                 port:
                   number: 80
+
+          # Catalog Service
+          - path: /api/categories
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 80
+          - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 80
+
+          # Inventory Service
           - path: /api/inventory
             pathType: Prefix
             backend:
@@ -94,6 +117,8 @@ spec:
                 name: inventory-service
                 port:
                   number: 80
+
+          # Ordering Service
           - path: /api/orders
             pathType: Prefix
             backend:
@@ -101,6 +126,33 @@ spec:
                 name: ordering-service
                 port:
                   number: 80
+          - path: /api/statistics
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
+
+          # Trading Service
+          - path: /api/discounts
+            pathType: Prefix
+            backend:
+              service:
+                name: trading-service
+                port:
+                  number: 80
+
+          # Catch-all for API that might overlap (like /api/cart)
+          - path: /api/cart
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
+
+          # Payment Service
           - path: /api/payment
             pathType: Prefix
             backend:
@@ -108,17 +160,12 @@ spec:
                 name: payment-service
                 port:
                   number: 80
-          - path: /api/trading
-            pathType: Prefix
-            backend:
-              service:
-                name: trading-service
-                port:
-                  number: 80
+
+          # Frontend Web (Catch-all for root)
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: frontend-web
+                name: frontend-web-service
                 port:
                   number: 80

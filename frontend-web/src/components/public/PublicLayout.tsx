@@ -2,9 +2,11 @@ import React, { useMemo } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Leaf, LogOut, ShoppingCart, UserCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 export const PublicLayout: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
   const displayName = useMemo(() => user?.fullName || user?.email || 'User', [user]);
 
@@ -30,14 +32,22 @@ export const PublicLayout: React.FC = () => {
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
             <Link to="/articles">News/Article</Link>
+            <Link to="/agri-calculations">Agri Calculators</Link>
           </nav>
 
           <div className="public-auth-actions">
-            <button type="button" className="public-icon-btn" aria-label="Cart">
+            <Link to="/cart" className="public-cart-link" aria-label="Cart">
               <ShoppingCart size={20} />
-            </button>
+              {itemCount > 0 && <span className="public-cart-badge">{itemCount}</span>}
+            </Link>
             {isAuthenticated ? (
               <div className="public-user-box">
+                <Link to="/orders" className="public-orders-link">
+                  Orders
+                </Link>
+                <Link to="/account/profile" className="public-orders-link">
+                  Profile
+                </Link>
                 <span className="public-user-name">Hi, {displayName}</span>
                 <button type="button" className="public-login-btn" onClick={handleLogout}>
                   <LogOut size={16} />

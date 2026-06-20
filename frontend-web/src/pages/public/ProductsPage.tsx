@@ -2,16 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
+import { useAddToCart } from '../../hooks/useAddToCart';
 import type { Product, Category } from '../../types/catalog';
 
 const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { handleAddToCart } = useAddToCart();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({ show: false, msg: '', type: 'success' });
 
   // Get filter state from query parameters
   const searchQuery = searchParams.get('search') || '';
@@ -106,35 +107,16 @@ const ProductsPage: React.FC = () => {
     setSearchParams({});
   };
 
-  const showToastMsg = (msg: string, type: 'success' | 'error' = 'success') => {
-    setToast({ show: true, msg, type });
-    setTimeout(() => {
-      setToast(prev => ({ ...prev, show: false }));
-    }, 3000);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent, p: Product) => {
+  const handleBuyNow = async (e: React.MouseEvent, p: Product) => {
     e.preventDefault();
     e.stopPropagation();
+    await handleAddToCart(p, { buyNow: true });
+  };
 
-    // Store in LocalStorage cart representation
-    try {
-      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existing = currentCart.find((item: any) => item.id === p.id);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        currentCart.push({ id: p.id, name: p.name, price: p.unitPrice, imageUrl: p.imageUrl, quantity: 1 });
-      }
-      localStorage.setItem('cart', JSON.stringify(currentCart));
-      
-      // Dispatch cart change event for badges in layouts
-      window.dispatchEvent(new Event('cartUpdated'));
-      
-      showToastMsg(`Đã thêm "${p.name}" vào giỏ hàng thành công!`);
-    } catch {
-      showToastMsg('Không thể thêm sản phẩm vào giỏ hàng.', 'error');
-    }
+  const handleAddToCartClick = async (e: React.MouseEvent, p: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await handleAddToCart(p);
   };
 
   const formatPrice = (price: number) =>
@@ -142,20 +124,6 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-6 lg:px-8 pb-24 pt-32 text-on-background font-body-md overflow-x-hidden">
-      {/* Toast Alert */}
-      {toast.show && (
-        <div className={`fixed top-24 right-6 z-50 px-4 py-3 rounded-lg border shadow-xl flex items-center gap-2 text-sm transition-all duration-300 ${
-          toast.type === 'success' 
-            ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-800 dark:text-green-300' 
-            : 'bg-red-50 border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300'
-        }`}>
-          <span className="material-symbols-outlined text-lg">
-            {toast.type === 'success' ? 'check_circle' : 'error'}
-          </span>
-          {toast.msg}
-        </div>
-      )}
-
       {/* Header & Search */}
       <div className="mb-10">
         <h1 className="font-h1 text-4xl font-bold text-primary mb-6">Biological Solutions Catalog</h1>
@@ -333,11 +301,7 @@ const ProductsPage: React.FC = () => {
                         </span>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              navigate(`/products/${p.id}`);
-                            }}
+                            onClick={(e) => handleBuyNow(e, p)}
                             type="button"
                             className="border border-primary text-primary hover:bg-primary/5 active:scale-[0.97] font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
                           >
@@ -345,7 +309,7 @@ const ProductsPage: React.FC = () => {
                             Buy
                           </button>
                           <button
-                            onClick={(e) => handleAddToCart(e, p)}
+                            onClick={(e) => handleAddToCartClick(e, p)}
                             type="button"
                             className="bg-primary hover:bg-[#173901] text-white font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 active:scale-[0.97] transition-all text-xs shadow-md"
                           >

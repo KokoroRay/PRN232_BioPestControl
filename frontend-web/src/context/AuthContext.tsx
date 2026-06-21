@@ -8,6 +8,7 @@ interface AuthContextValue {
   login: (payload: LoginPayload, options?: { allowedRoles?: string[] }) => Promise<string>;
   googleLogin: (idToken: string, options?: { allowedRoles?: string[] }) => Promise<string>;
   logout: () => void;
+  refreshUser: (partial: Partial<AuthUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -57,6 +58,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback((partial: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...partial };
+      localStorage.setItem('auth_user', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -64,8 +74,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login,
       googleLogin,
       logout,
+      refreshUser,
     }),
-    [user, login, googleLogin, logout],
+    [user, login, googleLogin, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

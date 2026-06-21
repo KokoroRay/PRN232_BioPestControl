@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { categoryService } from '../../services/categoryService';
 import { productService } from '../../services/productService';
+import { useAddToCart } from '../../hooks/useAddToCart';
 import type { Category, Product } from '../../types/catalog';
 import screen1 from '../../assets/screen.1.png';
 import screen2 from '../../assets/screen,2.png';
@@ -20,6 +21,7 @@ const getCategoryDetails = (name: string) => {
 };
 
 const HomePage: React.FC = () => {
+  const { handleAddToCart } = useAddToCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -38,7 +40,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   const featuredProducts = useMemo(() => {
-    const shuffled = [...products].sort(() => Math.random() - 0.5);
+    const shuffled = [...products].slice().sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 6); // Standard grid is 3 columns, so 6 is ideal
   }, [products]);
 
@@ -243,7 +245,11 @@ const HomePage: React.FC = () => {
                     <span className="text-xl font-bold text-primary">
                       {formatPrice(product.unitPrice)}
                     </span>
-                    <button className="p-3 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all">
+                    <button
+                      type="button"
+                      className="p-3 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all"
+                      onClick={() => handleAddToCart(product)}
+                    >
                       <span className="material-symbols-outlined text-xl">
                         add_shopping_cart
                       </span>

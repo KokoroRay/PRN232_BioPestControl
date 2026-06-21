@@ -132,13 +132,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 // ── Code First: Auto-apply migrations on startup ─────────────
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
-    db.Database.Migrate();
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
+//     db.Database.Migrate();
+// }
 
-using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<PaymentDbContext>(); dbContext.Database.EnsureCreated(); }
+// using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<PaymentDbContext>(); dbContext.Database.EnsureCreated(); }
 
 app.Run();
 

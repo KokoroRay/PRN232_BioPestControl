@@ -136,4 +136,6 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<PaymentDbContext>(); dbContext.Database.EnsureCreated(); }
+
 app.Run();

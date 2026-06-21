@@ -18,6 +18,8 @@ using agri_expert_service.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // Load .env file
 DotNetEnv.Env.Load();
 DotNetEnv.Env.TraversePath().Load();
@@ -182,3 +184,4 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<AgriDbContext>(); dbContext.Database.EnsureCreated(); }
 
 app.Run();
+

@@ -11,6 +11,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // ── Database ──────────────────────────────────────────────────
 builder.Services.AddDbContext<PaymentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -139,3 +141,4 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<PaymentDbContext>(); dbContext.Database.EnsureCreated(); }
 
 app.Run();
+

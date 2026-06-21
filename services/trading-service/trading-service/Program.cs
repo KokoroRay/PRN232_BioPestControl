@@ -13,6 +13,8 @@ using trading_service.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // ── Database ──────────────────────────────────────────────────
 builder.Services.AddDbContext<TradingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -160,3 +162,4 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<TradingDbContext>(); dbContext.Database.EnsureCreated(); }
 
 app.Run();
+

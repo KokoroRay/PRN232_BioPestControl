@@ -12,6 +12,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // ── Database ──────────────────────────────────────────────────
 builder.Services.AddDbContext<OrderingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -152,3 +154,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

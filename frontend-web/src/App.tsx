@@ -26,6 +26,15 @@ import PublicProductsPage from './pages/public/ProductsPage';
 import PublicProductDetailsPage from './pages/public/ProductDetailsPage';
 import PublicArticlesPage from './pages/public/ArticlesPage';
 import PublicArticleDetailsPage from './pages/public/ArticleDetailsPage';
+import CartPage from './pages/public/CartPage';
+import PurchasePage from './pages/public/PurchasePage';
+import PaymentPage from './pages/public/PaymentPage';
+import CustomerOrdersPage from './pages/public/CustomerOrdersPage';
+import CustomerOrderDetailsPage from './pages/public/CustomerOrderDetailsPage';
+import CustomerProfilePage from './pages/public/CustomerProfilePage';
+import ChangePasswordPage from './pages/public/ChangePasswordPage';
+import AgriCalculationsPage from './pages/public/AgriCalculationsPage';
+import AgriSupportPage from './pages/public/AgriSupportPage';
 
 
 function App() {
@@ -88,6 +97,15 @@ function App() {
           <Route path="products/:id" element={<PublicProductDetailsPage />} />
           <Route path="articles" element={<PublicArticlesPage />} />
           <Route path="articles/:id" element={<PublicArticleDetailsPage />} />
+          <Route path="agri-calculations" element={<AgriCalculationsPage />} />
+          <Route path="agri-support" element={<AgriSupportPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={<PurchasePage />} />
+          <Route path="checkout/payment" element={<PaymentPage />} />
+          <Route path="orders" element={<CustomerOrdersPage />} />
+          <Route path="orders/:id" element={<CustomerOrderDetailsPage />} />
+          <Route path="account/profile" element={<CustomerProfilePage />} />
+          <Route path="account/change-password" element={<ChangePasswordPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

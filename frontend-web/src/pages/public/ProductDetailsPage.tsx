@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import type { Product } from '../../types/catalog';
 import { useAuth } from '../../context/AuthContext';
+import { useAddToCart } from '../../hooks/useAddToCart';
 
 interface Feedback {
   id: number;
@@ -21,6 +22,7 @@ const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const { handleAddToCart } = useAddToCart();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -155,29 +157,9 @@ const ProductDetailsPage: React.FC = () => {
     setFormOrderId('');
   };
 
-  const handleCartAdd = (isBuyNow: boolean) => {
+  const handleCartAdd = async (isBuyNow: boolean) => {
     if (!product) return;
-    try {
-      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existing = currentCart.find((item: any) => item.id === product.id);
-      if (existing) {
-        existing.quantity += qty;
-      } else {
-        currentCart.push({ id: product.id, name: product.name, price: product.unitPrice, imageUrl: product.imageUrl, quantity: qty });
-      }
-      localStorage.setItem('cart', JSON.stringify(currentCart));
-      
-      // Dispatch cart change event for badges
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      if (isBuyNow) {
-        navigate('/cart');
-      } else {
-        showToastMsg(`Đã thêm ${qty} "${product.name}" vào giỏ hàng thành công!`);
-      }
-    } catch {
-      showToastMsg('Không thể thêm sản phẩm vào giỏ hàng.', 'error');
-    }
+    await handleAddToCart(product, { quantity: qty, buyNow: isBuyNow });
   };
 
   const filteredFeedbacks = useMemo(() => {

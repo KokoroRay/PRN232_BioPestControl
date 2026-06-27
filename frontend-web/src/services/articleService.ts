@@ -1,9 +1,13 @@
 import { API } from '../config/api';
 import { createApiClient } from '../lib/http';
-import { mapList } from '../lib/normalize';
+import { mapKeys, mapList } from '../lib/normalize';
 import type { Article, CreateArticleRequest } from '../types/article';
 
 const client = createApiClient(`${API.article}/api`);
+
+function mapArticle(raw: unknown): Article {
+  return mapKeys<Article>(raw as Record<string, unknown>);
+}
 
 export const articleService = {
   getAll: async (params?: { title?: string; status?: string; tags?: string }) => {
@@ -12,7 +16,7 @@ export const articleService = {
   },
   getById: async (id: string) => {
     const { data } = await client.get(`/articles/${id}`);
-    return data as Article;
+    return mapArticle(data);
   },
   create: (body: CreateArticleRequest) => client.post('/articles', body),
   update: (id: string, body: CreateArticleRequest) => client.put(`/articles/${id}`, body),

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import bgImage from '../assets/Background_1.png';
 import '../styles/login-admin.css';
@@ -176,9 +176,9 @@ const Login: React.FC = () => {
               <label className="font-label-sm text-xs text-white/80 block" htmlFor="password">
                 Password
               </label>
-              <a className="font-label-sm text-[11px] text-white/60 hover:text-white transition-colors" href="#">
+              <Link to="/forgot-password" className="font-label-sm text-[11px] text-white/60 hover:text-white transition-colors">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-white/50 text-lg z-10">

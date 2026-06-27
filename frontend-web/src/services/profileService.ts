@@ -30,12 +30,14 @@ export interface ChangePasswordPayload {
 export const profileService = {
   getProfile: async () => {
     const { data } = await client.get('/profile');
-    return mapKeys<Profile>(unwrap(data) as Record<string, unknown>);
+    const unwrapped = unwrap(data) as Record<string, unknown>;
+    return mapKeys<Profile>(unwrapped as Record<string, unknown>);
   },
 
   updateProfile: async (payload: UpdateProfilePayload) => {
     const { data } = await client.put('/profile', payload);
-    return mapKeys<Profile>(unwrap(data) as Record<string, unknown>);
+    const unwrapped = unwrap(data) as Record<string, unknown>;
+    return mapKeys<Profile>(unwrapped as Record<string, unknown>);
   },
 
   changePassword: async (payload: ChangePasswordPayload) => {
@@ -49,6 +51,11 @@ export const profileService = {
     const { data } = await client.post('/profile/avatar', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return data as { success: boolean; url?: string; message?: string };
+    const unwrapped = unwrap(data) as Record<string, unknown>;
+    return {
+      success: (unwrapped.success as boolean) ?? true,
+      url: (unwrapped.data as { url?: string })?.url,
+      message: unwrapped.message as string | undefined,
+    };
   },
 };

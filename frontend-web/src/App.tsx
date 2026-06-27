@@ -5,6 +5,7 @@ import { StaffLayout } from './layouts/StaffLayout';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
 import StaffLogin from './pages/StaffLogin';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -43,6 +44,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/Login" element={<AdminLogin />} />
         <Route path="/staff/login" element={<StaffLogin />} />

@@ -2,16 +2,20 @@ using identity_service.DTOs.Requests;
 using identity_service.DTOs.Responses;
 using identity_service.Repositories.Interfaces;
 using identity_service.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace identity_service.Services.Implements
 {
     public class ProfileService : IProfileService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _configuration;
 
-        public ProfileService(IUserRepository userRepository)
+        public ProfileService(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _configuration = configuration;
         }
 
         public async Task<ServiceResult<ProfileDto>> GetProfileAsync(Guid userId)
@@ -94,6 +98,55 @@ namespace identity_service.Services.Implements
             await _userRepository.SaveChangesAsync();
 
             return ServiceResult<object>.Ok(null!, "Đổi mật khẩu thành công.");
+        }
+
+        public async Task<ServiceResult<object>> UploadAvatarAsync(Guid userId, IFormFile file)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ServiceResult<object>.NotFound("Người dùng không tồn tại.");
+            }
+
+            // Get upload directory from config or use default
+            var uploadDir = _configuration["UploadSettings:AvatarDirectory"] ?? "wwwroot/uploads/avatars";
+            var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "..");
+            var fullPath = Path.Combine(webRootPath, uploadDir);
+
+            if (!Directory.Exists(fullPath))
+            {
+                Directory.CreateDirectory(fullPath);
+            }
+
+            // Generate unique filename
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var fileName = $"{userId}_{Guid.NewGuid():N}{extension}";
+            var filePath = Path.Combine(fullPath, fileName);
+            var relativeUrl = $"/{uploadDir.Replace("\\", "/")}/{fileName}";
+
+            // Delete old avatar if exists and is a local file
+            if (!string.IsNullOrEmpty(user.AvatarUrl) && user.AvatarUrl.StartsWith("/"))
+            {
+                var oldPath = Path.Combine(webRootPath, user.AvatarUrl.TrimStart('/'));
+                if (File.Exists(oldPath))
+                {
+                    try { File.Delete(oldPath); } catch { /* ignore */ }
+                }
+            }
+
+            // Save new file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Update user avatar URL
+            user.AvatarUrl = relativeUrl;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            return ServiceResult<object>.Ok(new { url = relativeUrl }, "Tải lên ảnh đại diện thành công.");
         }
     }
 }

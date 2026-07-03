@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { Leaf, LogOut, ShoppingCart, UserCircle2 } from 'lucide-react';
+import { Leaf, LogOut, ShoppingCart, UserCircle2, Bot } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { AIAssistantWidget } from '../ai/AIAssistantWidget';
@@ -56,6 +56,10 @@ export const PublicLayout: React.FC = () => {
                     <span className="public-dropdown-email">{user?.email}</span>
                   </div>
                   <hr className="public-dropdown-divider" />
+                  <button type="button" className="public-dropdown-item" onClick={() => window.dispatchEvent(new Event('open-ai-chat'))} style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left', fontFamily: 'inherit', fontSize: 'inherit', cursor: 'pointer', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Bot size={16} />
+                    <span>Trợ lý AI</span>
+                  </button>
                   <Link to="/orders" className="public-dropdown-item">
                     Orders
                   </Link>

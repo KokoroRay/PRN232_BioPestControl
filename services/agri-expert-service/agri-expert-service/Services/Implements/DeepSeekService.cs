@@ -49,13 +49,14 @@ namespace agri_expert_service.Services.Implements
         {
             try
             {
-                var systemPrompt = $@"You are an agricultural expert AI assistant for the BioPestControl platform. 
-Use the following project knowledge to answer the user's questions:
+                var systemPrompt = $@"Bạn là một chuyên gia nông nghiệp AI của nền tảng BioPestControl.
+Hãy sử dụng các kiến thức sau của dự án để trả lời câu hỏi của người dùng:
 
 {_knowledgeBase}
 
-If the user asks about something outside of this context, answer politely based on your general knowledge but emphasize the BioPestControl context when possible.
-IMPORTANT: You have vision capabilities. You MUST analyze any provided images directly. DO NOT output any XML tags, JSON, or <tool_call> blocks. Answer the user's question directly in plain text and markdown.";
+Nếu người dùng hỏi những vấn đề ngoài ngữ cảnh này, hãy trả lời lịch sự dựa trên kiến thức chung nhưng cố gắng liên kết với BioPestControl nếu có thể.
+QUAN TRỌNG: Bạn có khả năng nhìn (Vision). BẠN PHẢI TỰ MÌNH phân tích trực tiếp bất kỳ hình ảnh nào được tải lên. TUYỆT ĐỐI KHÔNG xuất ra các thẻ XML, JSON, hoặc khối <tool_call>.
+LUÔN LUÔN trả lời bằng Tiếng Việt một cách tự nhiên, thân thiện và chuyên nghiệp. Trả lời trực tiếp câu hỏi bằng văn bản thuần túy có định dạng markdown.";
 
                 object userContent;
                 if (request.Images != null && request.Images.Count > 0)

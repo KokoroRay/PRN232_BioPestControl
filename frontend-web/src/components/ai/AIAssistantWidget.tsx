@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Image as ImageIcon, MessageSquare, Loader2 } from 'lucide-react';
+import { Bot, X, Send, Image as ImageIcon, MessageSquare, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { aiService } from '../../services/aiService';
 import { CameraCapture } from './CameraCapture';
 
@@ -22,8 +23,18 @@ export const AIAssistantWidget: React.FC = () => {
   const [stagedImages, setStagedImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOpenAi = () => {
+      setIsOpen(true);
+      setIsExpanded(true);
+    };
+    window.addEventListener('open-ai-chat', handleOpenAi);
+    return () => window.removeEventListener('open-ai-chat', handleOpenAi);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -106,15 +117,20 @@ export const AIAssistantWidget: React.FC = () => {
   }
 
   return (
-    <div className="ai-widget-container">
+    <div className={`ai-widget-container ${isExpanded ? 'expanded' : ''}`}>
       <div className="ai-widget-header">
         <div className="ai-widget-title">
           <Bot size={20} />
           <span>AI Assistant</span>
         </div>
-        <button className="ai-widget-close" onClick={toggleWidget}>
-          <X size={20} />
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button className="ai-widget-close" onClick={() => setIsExpanded(!isExpanded)} aria-label="Toggle Fullscreen">
+            {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+          </button>
+          <button className="ai-widget-close" onClick={toggleWidget}>
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
       <div className="ai-widget-tabs">
@@ -150,7 +166,11 @@ export const AIAssistantWidget: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  {msg.content && <p>{msg.content}</p>}
+                  {msg.content && (
+                    <div className="ai-markdown-content" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -2816,7 +2816,25 @@
   z-index: 9999;
   overflow: hidden;
   border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.ai-widget-container.expanded {
+  bottom: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+  z-index: 10000;
+}
+
+.ai-markdown-content p { margin: 0 0 0.5rem; }
+.ai-markdown-content p:last-child { margin: 0; }
+.ai-markdown-content ul, .ai-markdown-content ol { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+.ai-markdown-content strong { font-weight: 600; color: inherit; }
+.ai-markdown-content pre { background: rgba(0,0,0,0.05); padding: 0.5rem; border-radius: 4px; overflow-x: auto; margin-bottom: 0.5rem; }
+.ai-markdown-content code { background: rgba(0,0,0,0.05); padding: 0.1rem 0.25rem; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
 
 .ai-widget-header {
   background: var(--public-primary);

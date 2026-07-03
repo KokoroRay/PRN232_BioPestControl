@@ -24,7 +24,7 @@ namespace agri_expert_service.Services.Implements
             _configuration = configuration;
             
             // Allow override via config, fallback to placeholder (user will supply later)
-            _apiKey = _configuration["DeepSeek:ApiKey"] ?? "YOUR_DEEPSEEK_API_KEY_HERE";
+            _apiKey = (_configuration["DeepSeek:ApiKey"] ?? "YOUR_DEEPSEEK_API_KEY_HERE").Trim();
             _modelName = _configuration["DeepSeek:ModelName"] ?? "deepseek-chat";
             
             _httpClient.BaseAddress = new Uri("https://api.deepseek.com/");
@@ -64,7 +64,8 @@ If the user asks about something outside of this context, answer politely based 
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = await response.Content.ReadAsStringAsync();
-                    return new AiResponse { Success = false, ErrorMessage = $"DeepSeek API Error: {response.StatusCode} - {error}" };
+                    var maskedKey = _apiKey.Length > 5 ? $"{_apiKey.Substring(0, 3)}...{_apiKey.Substring(_apiKey.Length - 2)}" : "EMPTY_OR_TOO_SHORT";
+                    return new AiResponse { Success = false, ErrorMessage = $"DeepSeek API Error: {response.StatusCode} - {error}. (Debug Key: {maskedKey}, Length: {_apiKey.Length})" };
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();

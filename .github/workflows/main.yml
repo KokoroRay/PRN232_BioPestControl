@@ -138,6 +138,7 @@ jobs:
           PAYOS_CLIENT_ID: ${{ secrets.PAYOS_CLIENT_ID }}
           PAYOS_API_KEY: ${{ secrets.PAYOS_API_KEY }}
           PAYOS_CHECKSUM_KEY: ${{ secrets.PAYOS_CHECKSUM_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
           set -euo pipefail
           FAILED_SERVICES=()
@@ -193,6 +194,7 @@ jobs:
               --from-literal=PayOS__ChecksumKey="${PAYOS_CHECKSUM_KEY}" \
               --from-literal=IdentityServiceUrl="http://identity-service" \
               --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
+              --from-literal=DeepSeek__ApiKey="${DEEPSEEK_API_KEY}" \
               -n biopest \
               --dry-run=client -o yaml | kubectl apply -f -; then
               echo "--- Failed to create/apply configmap for ${SVC}; skipping deploy ---"

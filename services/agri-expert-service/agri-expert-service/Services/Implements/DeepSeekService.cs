@@ -25,9 +25,9 @@ namespace agri_expert_service.Services.Implements
             
             // Allow override via config, fallback to placeholder (user will supply later)
             _apiKey = _configuration["DeepSeek:ApiKey"] ?? "YOUR_DEEPSEEK_API_KEY_HERE";
-            _modelName = _configuration["DeepSeek:ModelName"] ?? "deepseek-v4-flash";
+            _modelName = _configuration["DeepSeek:ModelName"] ?? "deepseek-chat";
             
-            _httpClient.BaseAddress = new Uri("https://api.deepseek.com/v1/");
+            _httpClient.BaseAddress = new Uri("https://api.deepseek.com/");
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
 
             // Load knowledge base for RAG

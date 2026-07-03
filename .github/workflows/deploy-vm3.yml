@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.VM3_PASSWORD }}
           script: |
             cd ~/infra/redis-kafka
-            docker-compose pull
-            docker-compose up -d
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose pull
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose up -d
             echo "--- Deployment Complete. Services running: ---"
-            docker ps | grep -E 'redis|kafka|zookeeper' || true
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker ps | grep -E 'redis|kafka|zookeeper' || true

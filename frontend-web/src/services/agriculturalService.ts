@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { getToken } from '../lib/http';
+import { API } from '../config/api';
 
-const BASE = import.meta.env.VITE_WEB_MVC_API ?? 'http://localhost:5000';
-
-const client = axios.create({ baseURL: BASE });
+const client = axios.create({ baseURL: API.agriExpert });
 
 client.interceptors.request.use((config) => {
   const token = getToken();

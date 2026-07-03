@@ -28,7 +28,13 @@ export const AIAssistantWidget: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const toggleWidget = () => setIsOpen(!isOpen);
+  const toggleWidget = () => {
+    if (isOpen) {
+      setShowCamera(false);
+      setMode('chat');
+    }
+    setIsOpen(!isOpen);
+  };
 
   const handleSendText = async () => {
     if (!input.trim() || loading) return;
@@ -64,14 +70,28 @@ export const AIAssistantWidget: React.FC = () => {
       const botMsg: Message = { 
         id: (Date.now() + 1).toString(), 
         role: 'assistant', 
-        content: result.success ? result.response : 'Sorry, I could not analyze the image.' 
+        content: result.success ? result.response : (result.errorMessage || 'Lỗi: DeepSeek hiện tại chưa hỗ trợ nhận diện ảnh qua API.') 
       };
       setMessages(prev => [...prev, botMsg]);
     } catch (error) {
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Connection error.' }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Lỗi: API DeepSeek chưa hỗ trợ gửi hình ảnh.' }]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      handleImageCapture(base64);
+    };
+    reader.readAsDataURL(file);
+    // Reset input
+    e.target.value = '';
   };
 
   if (!isOpen) {
@@ -97,7 +117,7 @@ export const AIAssistantWidget: React.FC = () => {
       <div className="ai-widget-tabs">
         <button 
           className={`ai-tab ${mode === 'chat' ? 'active' : ''}`} 
-          onClick={() => setMode('chat')}
+          onClick={() => { setMode('chat'); setShowCamera(false); }}
         >
           <MessageSquare size={16} /> Chat
         </button>
@@ -142,6 +162,10 @@ export const AIAssistantWidget: React.FC = () => {
 
       {(!showCamera || mode === 'chat') && (
         <div className="ai-widget-footer">
+          <label className="ai-upload-btn" style={{ cursor: 'pointer', padding: '0 8px', color: '#666' }}>
+            <ImageIcon size={18} />
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
+          </label>
           <input 
             type="text" 
             placeholder={mode === 'chat' ? "Ask about BioPestControl..." : "Upload or describe..."} 

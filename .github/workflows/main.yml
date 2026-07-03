@@ -16,6 +16,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Copy Files to VM3
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM3_HOST }}
+          username: ${{ secrets.VM3_USERNAME }}
+          key: ${{ secrets.VM3_SSH_KEY }}
+          password: ${{ secrets.VM3_PASSWORD }}
+          source: "infrastructure/docker-compose.yml,infrastructure/kong.yml"
+          target: "~/infra"
+          strip_components: 1
+
+      - name: Deploy Kafka & Redis to VM3
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM3_HOST }}
+          username: ${{ secrets.VM3_USERNAME }}
+          key: ${{ secrets.VM3_SSH_KEY }}
+          password: ${{ secrets.VM3_PASSWORD }}
+          script: |
+            cd ~/infra
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka kong-gateway || true
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose up -d
+
       - name: Build and Push Services
         shell: bash
         run: |

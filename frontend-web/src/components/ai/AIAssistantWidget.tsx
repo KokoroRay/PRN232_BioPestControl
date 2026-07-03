@@ -17,7 +17,7 @@ export const AIAssistantWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<Mode>('chat');
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'assistant', content: 'Hello! I am the BioPestControl AI. How can I help you today?' }
+    { id: '1', role: 'assistant', content: 'Xin chào! Tôi là Trợ lý AI của BioPestControl. Tôi có thể giúp gì cho bạn hôm nay?' }
   ]);
   const [input, setInput] = useState('');
   const [stagedImages, setStagedImages] = useState<string[]>([]);
@@ -207,7 +207,7 @@ export const AIAssistantWidget: React.FC = () => {
             </label>
             <input 
               type="text" 
-              placeholder={mode === 'chat' ? "Ask about BioPestControl..." : "Upload or describe..."} 
+              placeholder={mode === 'chat' ? "Hỏi về BioPestControl..." : "Tải ảnh lên hoặc mô tả..."} 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendText()}

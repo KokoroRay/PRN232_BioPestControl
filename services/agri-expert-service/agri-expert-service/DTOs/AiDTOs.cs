@@ -6,12 +6,8 @@ namespace agri_expert_service.DTOs
     {
         [Required]
         public string Message { get; set; } = string.Empty;
-    }
 
-    public class AiDiseaseAnalysisRequest
-    {
-        [Required]
-        public string Base64Image { get; set; } = string.Empty;
+        public List<string> Images { get; set; } = new List<string>();
     }
 
     public class AiResponse

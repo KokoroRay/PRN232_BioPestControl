@@ -10,13 +10,8 @@ export interface AiResponse {
 }
 
 export const aiService = {
-  chat: async (message: string): Promise<AiResponse> => {
-    const { data } = await client.post('/chat', { message });
-    return data;
-  },
-  
-  analyzeDisease: async (base64Image: string): Promise<AiResponse> => {
-    const { data } = await client.post('/analyze-disease', { base64Image });
+  chat: async (message: string, images?: string[]): Promise<AiResponse> => {
+    const { data } = await client.post('/chat', { message, images: images || [] });
     return data;
   }
 };

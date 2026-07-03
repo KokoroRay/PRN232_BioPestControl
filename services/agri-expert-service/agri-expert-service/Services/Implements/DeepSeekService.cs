@@ -35,7 +35,7 @@ namespace agri_expert_service.Services.Implements
             _knowledgeBase = File.Exists(kbPath) ? File.ReadAllText(kbPath) : "No specific project knowledge available.";
         }
 
-        public async Task<AiResponse> ChatAsync(string message)
+        public async Task<AiResponse> ChatAsync(AiChatRequest request)
         {
             try
             {
@@ -47,13 +47,42 @@ Use the following project knowledge to answer the user's questions:
 
 If the user asks about something outside of this context, answer politely based on your general knowledge but emphasize the BioPestControl context when possible.";
 
+                object userContent;
+                if (request.Images != null && request.Images.Count > 0)
+                {
+                    var contentList = new System.Collections.Generic.List<object>();
+                    if (!string.IsNullOrWhiteSpace(request.Message))
+                    {
+                        contentList.Add(new { type = "text", text = request.Message });
+                    }
+                    else
+                    {
+                        contentList.Add(new { type = "text", text = "Please analyze these images." });
+                    }
+                    
+                    foreach(var img in request.Images)
+                    {
+                        var base64Data = img.Contains(",") ? img.Split(',')[1] : img;
+                        contentList.Add(new 
+                        { 
+                            type = "image_url", 
+                            image_url = new { url = $"data:image/jpeg;base64,{base64Data}" } 
+                        });
+                    }
+                    userContent = contentList;
+                }
+                else
+                {
+                    userContent = request.Message;
+                }
+
                 var payload = new
                 {
                     model = _modelName,
-                    messages = new[]
+                    messages = new object[]
                     {
                         new { role = "system", content = systemPrompt },
-                        new { role = "user", content = message }
+                        new { role = "user", content = userContent }
                     },
                     temperature = 0.7
                 };
@@ -66,60 +95,6 @@ If the user asks about something outside of this context, answer politely based 
                     var error = await response.Content.ReadAsStringAsync();
                     var maskedKey = _apiKey.Length > 5 ? $"{_apiKey.Substring(0, 3)}...{_apiKey.Substring(_apiKey.Length - 2)}" : "EMPTY_OR_TOO_SHORT";
                     return new AiResponse { Success = false, ErrorMessage = $"DeepSeek API Error: {response.StatusCode} - {error}. (Debug Key: {maskedKey}, Length: {_apiKey.Length})" };
-                }
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
-                
-                var reply = result.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
-
-                return new AiResponse { Success = true, Response = reply ?? string.Empty };
-            }
-            catch (Exception ex)
-            {
-                return new AiResponse { Success = false, ErrorMessage = ex.Message };
-            }
-        }
-
-        public async Task<AiResponse> AnalyzeDiseaseAsync(string base64Image)
-        {
-            try
-            {
-                // Format base64 properly if it has the data:image prefix
-                var base64Data = base64Image.Contains(",") ? base64Image.Split(',')[1] : base64Image;
-
-                var systemPrompt = "You are an expert plant pathologist. Analyze the provided image of a plant/crop and identify any diseases, pests, or deficiencies. Provide a clear diagnosis, symptoms observed, and recommended organic/bio-pesticide treatments.";
-
-                var payload = new
-                {
-                    model = _modelName,
-                    messages = new object[]
-                    {
-                        new { role = "system", content = systemPrompt },
-                        new 
-                        { 
-                            role = "user", 
-                            content = new object[]
-                            {
-                                new { type = "text", text = "Please identify the disease in this plant image." },
-                                new 
-                                { 
-                                    type = "image_url", 
-                                    image_url = new { url = $"data:image/jpeg;base64,{base64Data}" } 
-                                }
-                            }
-                        }
-                    },
-                    temperature = 0.5
-                };
-
-                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("chat/completions", content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    return new AiResponse { Success = false, ErrorMessage = $"DeepSeek API Error: {response.StatusCode} - {error}" };
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();

@@ -20,29 +20,12 @@ namespace agri_expert_service.Controllers
         [HttpPost("chat")]
         public async Task<IActionResult> Chat([FromBody] AiChatRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Message))
+            if (string.IsNullOrWhiteSpace(request.Message) && (request.Images == null || request.Images.Count == 0))
             {
-                return BadRequest(new { Success = false, ErrorMessage = "Message cannot be empty." });
+                return BadRequest(new { Success = false, ErrorMessage = "Message or images must be provided." });
             }
 
-            var result = await _deepSeekService.ChatAsync(request.Message);
-            if (!result.Success)
-            {
-                return StatusCode(500, result);
-            }
-
-            return Ok(result);
-        }
-
-        [HttpPost("analyze-disease")]
-        public async Task<IActionResult> AnalyzeDisease([FromBody] AiDiseaseAnalysisRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.Base64Image))
-            {
-                return BadRequest(new { Success = false, ErrorMessage = "Image is required." });
-            }
-
-            var result = await _deepSeekService.AnalyzeDiseaseAsync(request.Base64Image);
+            var result = await _deepSeekService.ChatAsync(request);
             if (!result.Success)
             {
                 return StatusCode(500, result);

@@ -1,16 +1,14 @@
 {
   "ExpandedNodes": [
     "",
-    "\\services",
     "\\services\\agri-expert-service",
     "\\services\\agri-expert-service\\agri-expert-service",
-    "\\services\\catalog-service",
     "\\services\\catalog-service\\catalog-service",
     "\\services\\catalog-service\\catalog-service\\Models",
     "\\services\\catalog-service\\catalog-service\\Repositories",
     "\\services\\catalog-service\\catalog-service\\Repositories\\Implements",
     "\\services\\catalog-service\\catalog-service\\Repositories\\Interfaces"
   ],
-  "SelectedNode": "\\services\\agri-expert-service\\agri-expert-service\\appsettings.json",
+  "SelectedNode": "\\services",
   "PreviewInSolutionExplorer": false
 }

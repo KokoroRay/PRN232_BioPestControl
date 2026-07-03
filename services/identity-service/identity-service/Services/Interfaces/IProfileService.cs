@@ -8,5 +8,6 @@ namespace identity_service.Services.Interfaces
         Task<ServiceResult<ProfileDto>> GetProfileAsync(Guid userId);
         Task<ServiceResult<ProfileDto>> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
         Task<ServiceResult<object>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
+        Task<ServiceResult<object>> UploadAvatarAsync(Guid userId, IFormFile file);
     }
 }

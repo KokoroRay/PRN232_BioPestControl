@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { categoryService } from '../../services/categoryService';
 import { productService } from '../../services/productService';
 import { useAddToCart } from '../../hooks/useAddToCart';
@@ -22,18 +23,24 @@ const getCategoryDetails = (name: string) => {
 
 const HomePage: React.FC = () => {
   const { handleAddToCart } = useAddToCart();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [addingToCartId, setAddingToCartId] = useState<number | null>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
+        setLoading(true);
         const [c, p] = await Promise.all([categoryService.getAll(), productService.getAll()]);
         setCategories(c);
         setProducts(p.filter((item) => item.isActive));
       } catch {
         setCategories([]);
         setProducts([]);
+      } finally {
+        setLoading(false);
       }
     };
     load();
@@ -77,13 +84,19 @@ const HomePage: React.FC = () => {
             Advanced biological solutions replacing harmful chemicals with the power of nature.
           </p>
           <div className="flex flex-wrap justify-center gap-4 mb-20">
-            <button className="bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all hover:shadow-md">
+            <button
+              onClick={() => navigate('/products')}
+              className="bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all hover:shadow-md cursor-pointer"
+            >
               Shop Now{' '}
               <span className="material-symbols-outlined">
                 arrow_forward
               </span>
             </button>
-            <button className="bg-white border border-outline-variant text-primary px-8 py-4 rounded-xl font-bold hover:bg-surface-container transition-all">
+            <button
+              onClick={() => navigate('/products')}
+              className="bg-white border border-outline-variant text-primary px-8 py-4 rounded-xl font-bold hover:bg-surface-container transition-all cursor-pointer"
+            >
               View Categories
             </button>
           </div>
@@ -148,19 +161,28 @@ const HomePage: React.FC = () => {
               <h2 className="font-h2 text-h2 text-primary mb-2">Explore Categories</h2>
               <p className="text-on-surface-variant">Specialized solutions for each growth stage</p>
             </div>
-            <a className="text-secondary font-bold flex items-center gap-1 hover:underline" href="#">
+            <button
+              onClick={() => navigate('/products')}
+              className="text-secondary font-bold flex items-center gap-1 hover:underline cursor-pointer bg-transparent border-none"
+            >
               View All{' '}
               <span className="material-symbols-outlined">
                 east
               </span>
-            </a>
+            </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <span className="material-symbols-outlined text-4xl animate-spin text-primary">hourglass_empty</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category) => {
               const details = getCategoryDetails(category.name);
               return (
                 <div
                   key={category.id}
+                  onClick={() => navigate(`/products?categoryId=${category.id}`)}
                   className="group cursor-pointer border border-outline-variant/30 rounded-xl p-8 hover:bg-surface-container-low transition-all"
                 >
                   <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center text-primary mb-6 transition-transform group-hover:-translate-y-1">
@@ -176,6 +198,7 @@ const HomePage: React.FC = () => {
               );
             })}
           </div>
+          )}
         </div>
       </section>
 
@@ -185,18 +208,23 @@ const HomePage: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="font-h2 text-h2 text-primary mb-6">Featured Products</h2>
             <div className="flex justify-center gap-2">
-              <button className="px-6 py-2 bg-primary text-on-primary rounded-full font-bold text-sm">
+              <button className="px-6 py-2 bg-primary text-on-primary rounded-full font-bold text-sm cursor-pointer">
                 Best Sellers
               </button>
-              <button className="px-6 py-2 bg-white text-on-surface-variant border border-outline-variant rounded-full font-bold text-sm hover:border-primary transition-all">
+              <button className="px-6 py-2 bg-white text-on-surface-variant border border-outline-variant rounded-full font-bold text-sm hover:border-primary transition-all cursor-pointer">
                 New Arrivals
               </button>
-              <button className="px-6 py-2 bg-white text-on-surface-variant border border-outline-variant rounded-full font-bold text-sm hover:border-primary transition-all">
+              <button className="px-6 py-2 bg-white text-on-surface-variant border border-outline-variant rounded-full font-bold text-sm hover:border-primary transition-all cursor-pointer">
                 Offers
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <span className="material-symbols-outlined text-4xl animate-spin text-primary">hourglass_empty</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {featuredProducts.map((product) => {
               const fallbackIcon =
                 product.id % 3 === 0
@@ -247,11 +275,16 @@ const HomePage: React.FC = () => {
                     </span>
                     <button
                       type="button"
-                      className="p-3 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all"
-                      onClick={() => handleAddToCart(product)}
+                      disabled={addingToCartId === product.id}
+                      className="p-3 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={async () => {
+                        setAddingToCartId(product.id);
+                        await handleAddToCart(product);
+                        setAddingToCartId(null);
+                      }}
                     >
                       <span className="material-symbols-outlined text-xl">
-                        add_shopping_cart
+                        {addingToCartId === product.id ? 'hourglass_empty' : 'add_shopping_cart'}
                       </span>
                     </button>
                   </div>
@@ -259,6 +292,7 @@ const HomePage: React.FC = () => {
               );
             })}
           </div>
+          )}
         </div>
       </section>
 

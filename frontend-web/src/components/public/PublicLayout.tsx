@@ -6,9 +6,9 @@ import { useCart } from '../../context/CartContext';
 
 export const PublicLayout: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount, loading } = useCart();
   const navigate = useNavigate();
-  const displayName = useMemo(() => user?.fullName || user?.email || 'User', [user]);
+  const displayName = useMemo(() => user?.fullName || user?.email?.split('@')[0] || 'User', [user]);
 
   const handleLogout = () => {
     logout();
@@ -38,7 +38,7 @@ export const PublicLayout: React.FC = () => {
           <div className="public-auth-actions">
             <Link to="/cart" className="public-cart-link" aria-label="Cart">
               <ShoppingCart size={20} />
-              {itemCount > 0 && <span className="public-cart-badge">{itemCount}</span>}
+              {!loading && itemCount > 0 && <span className="public-cart-badge">{itemCount}</span>}
             </Link>
             {isAuthenticated ? (
               <div className="public-user-box">

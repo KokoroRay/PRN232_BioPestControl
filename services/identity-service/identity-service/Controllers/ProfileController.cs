@@ -5,6 +5,7 @@ using identity_service.DTOs.Requests;
 using identity_service.DTOs.Responses;
 using identity_service.Services.Interfaces;
 using System.Security.Claims;
+using System.IO;
 
 namespace identity_service.Controllers
 {
@@ -14,10 +15,12 @@ namespace identity_service.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly IProfileService _profileService;
+        private readonly IConfiguration _configuration;
 
-        public ProfileController(IProfileService profileService)
+        public ProfileController(IProfileService profileService, IConfiguration configuration)
         {
             _profileService = profileService;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -52,6 +55,44 @@ namespace identity_service.Controllers
                 return NotFound(new ApiResponse<object> { Success = false, Message = result.Message });
 
             return Ok(new ApiResponse<ProfileDto> { Success = true, Message = result.Message, Data = result.Data });
+        }
+
+        [HttpPost("avatar")]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized(new ApiResponse<object> { Success = false, Message = "Token không hợp lệ hoặc đã hết hạn." });
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = "Vui lòng chọn một file." });
+            }
+
+            // Validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = "Chỉ chấp nhận file ảnh (jpg, png, gif, webp)." });
+            }
+
+            // Validate file size (max 1MB)
+            if (file.Length > 1 * 1024 * 1024)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = "File phải nhỏ hơn 1MB." });
+            }
+
+            var result = await _profileService.UploadAvatarAsync(userId.Value, file);
+
+            if (!result.Success)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = result.Message });
+            }
+
+            return Ok(new ApiResponse<object> { Success = true, Message = result.Message, Data = result.Data });
         }
 
         [HttpPut("change-password")]

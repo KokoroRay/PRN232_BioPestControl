@@ -18,22 +18,27 @@ interface Feedback {
   replyAt?: string;
 }
 
+interface RatingFilter {
+  minRating: number | null;
+  showWithImages: boolean;
+}
+
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { handleAddToCart } = useAddToCart();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Gallery state
   const [selectedImage, setSelectedImage] = useState<string>('');
-  
+
   // Order selection for reviews
   const [qty, setQty] = useState(1);
-  const [activeRatingFilter, setActiveRatingFilter] = useState<number | null>(null);
-  const [showOnlyWithImages, setShowOnlyWithImages] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState<RatingFilter>({ minRating: null, showWithImages: false });
+  const [addingToCart, setAddingToCart] = useState(false);
 
   // Review submission state
   const [formRating, setFormRating] = useState(5);
@@ -159,19 +164,25 @@ const ProductDetailsPage: React.FC = () => {
 
   const handleCartAdd = async (isBuyNow: boolean) => {
     if (!product) return;
-    await handleAddToCart(product, { quantity: qty, buyNow: isBuyNow });
+    setAddingToCart(true);
+    try {
+      await handleAddToCart(product, { quantity: qty, buyNow: isBuyNow });
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   const filteredFeedbacks = useMemo(() => {
     let result = [...feedbacks];
-    if (activeRatingFilter !== null) {
-      result = result.filter(f => f.rating === activeRatingFilter);
+    // Filter by minimum rating (e.g., 4 stars = show 4 and 5 stars)
+    if (ratingFilter.minRating !== null) {
+      result = result.filter(f => f.rating >= ratingFilter.minRating!);
     }
-    if (showOnlyWithImages) {
+    if (ratingFilter.showWithImages) {
       result = result.filter(f => f.images && f.images.length > 0);
     }
     return result;
-  }, [feedbacks, activeRatingFilter, showOnlyWithImages]);
+  }, [feedbacks, ratingFilter]);
 
   const ratingSummary = useMemo(() => {
     const total = feedbacks.length;
@@ -363,8 +374,9 @@ const ProductDetailsPage: React.FC = () => {
                 <div className="flex items-center border border-outline-variant/30 rounded-lg overflow-hidden bg-background">
                   <button
                     onClick={() => setQty(q => Math.max(1, q - 1))}
+                    disabled={addingToCart}
                     type="button"
-                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm disabled:opacity-50"
                   >
                     -
                   </button>
@@ -376,8 +388,9 @@ const ProductDetailsPage: React.FC = () => {
                   />
                   <button
                     onClick={() => setQty(q => q + 1)}
+                    disabled={addingToCart}
                     type="button"
-                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm disabled:opacity-50"
                   >
                     +
                   </button>
@@ -387,19 +400,21 @@ const ProductDetailsPage: React.FC = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => handleCartAdd(true)}
+                  disabled={addingToCart}
                   type="button"
-                  className="flex-1 h-12 border-2 border-primary text-primary hover:bg-primary/5 active:scale-[0.98] transition-all font-bold rounded-xl flex items-center justify-center gap-2 text-sm"
+                  className="flex-1 h-12 border-2 border-primary text-primary hover:bg-primary/5 active:scale-[0.98] transition-all font-bold rounded-xl flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-lg">shopping_bag</span>
-                  Mua ngay
+                  <span className="material-symbols-outlined text-lg">{addingToCart ? 'hourglass_empty' : 'shopping_bag'}</span>
+                  {addingToCart ? 'Đang xử lý...' : 'Mua ngay'}
                 </button>
                 <button
                   onClick={() => handleCartAdd(false)}
+                  disabled={addingToCart}
                   type="button"
-                  className="flex-1 h-12 bg-primary hover:bg-[#173901] text-white active:scale-[0.98] transition-all font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm"
+                  className="flex-1 h-12 bg-primary hover:bg-[#173901] text-white active:scale-[0.98] transition-all font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-lg">add_shopping_cart</span>
-                  Thêm vào giỏ
+                  <span className="material-symbols-outlined text-lg">{addingToCart ? 'hourglass_empty' : 'add_shopping_cart'}</span>
+                  {addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ'}
                 </button>
               </div>
             </div>
@@ -470,32 +485,32 @@ const ProductDetailsPage: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-outline-variant/10 pb-4">
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={() => { setActiveRatingFilter(null); setShowOnlyWithImages(false); }}
+              onClick={() => setRatingFilter({ minRating: null, showWithImages: false })}
               className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                activeRatingFilter === null && !showOnlyWithImages
+                ratingFilter.minRating === null && !ratingFilter.showWithImages
                   ? 'bg-primary border-primary text-white shadow-md'
                   : 'bg-background dark:bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/50'
               }`}
             >
               Tất cả
             </button>
-            {[5, 4, 3, 2, 1].map(r => (
+            {[4, 3, 2, 1].map(r => (
               <button
                 key={r}
-                onClick={() => { setActiveRatingFilter(r); setShowOnlyWithImages(false); }}
+                onClick={() => setRatingFilter({ minRating: r, showWithImages: false })}
                 className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                  activeRatingFilter === r
+                  ratingFilter.minRating === r && !ratingFilter.showWithImages
                     ? 'bg-primary border-primary text-white shadow-md'
                     : 'bg-background dark:bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/50'
                 }`}
               >
-                {r} ★
+                {r}+ ★
               </button>
             ))}
             <button
-              onClick={() => { setActiveRatingFilter(null); setShowOnlyWithImages(true); }}
+              onClick={() => setRatingFilter(prev => ({ ...prev, showWithImages: !prev.showWithImages, minRating: null }))}
               className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all flex items-center gap-1 ${
-                showOnlyWithImages
+                ratingFilter.showWithImages
                   ? 'bg-primary border-primary text-white shadow-md'
                   : 'bg-background dark:bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/50'
               }`}

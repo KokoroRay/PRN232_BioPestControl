@@ -148,6 +148,11 @@ jobs:
             echo "--- Failed to apply namespace manifest ---"
             exit 1
           fi
+          
+          if ! kubectl apply -f k8s/ingress.yaml; then
+            echo "--- Failed to apply ingress manifest ---"
+            exit 1
+          fi
 
           SERVICES=(
             "agri-expert-service"

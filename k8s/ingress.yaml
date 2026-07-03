@@ -62,6 +62,13 @@ spec:
                   number: 80
 
           # Agri-Expert Service
+          - path: /api/ai
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
           - path: /api/chemicals
             pathType: Prefix
             backend:

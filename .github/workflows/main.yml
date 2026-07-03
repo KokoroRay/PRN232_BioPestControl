@@ -112,6 +112,7 @@ jobs:
             docker push "${REGISTRY}/frontend-web:${IMAGE_TAG}"
           else
             echo "--- Build failed for frontend-web ---"
+            exit 1
           fi
 
       - name: Deploy to K3s

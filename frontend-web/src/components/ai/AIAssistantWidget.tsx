@@ -75,7 +75,7 @@ export const AIAssistantWidget: React.FC = () => {
         content: result.success ? result.response : (result.errorMessage || 'Sorry, I encountered an error.') 
       };
       setMessages(prev => [...prev, botMsg]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Connection error.' }]);
     } finally {
       setLoading(false);

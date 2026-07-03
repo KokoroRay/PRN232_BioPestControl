@@ -35,6 +35,7 @@ jobs:
           password: ${{ secrets.VM3_PASSWORD }}
           script: |
             cd ~/infra/redis-kafka
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka || true
             echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose pull
             echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose up -d
             echo "--- Deployment Complete. Services running: ---"

@@ -104,7 +104,8 @@ If the user asks about something outside of this context, answer politely based 
                 {
                     var error = await response.Content.ReadAsStringAsync();
                     var maskedKey = _apiKey.Length > 5 ? $"{_apiKey.Substring(0, 3)}...{_apiKey.Substring(_apiKey.Length - 2)}" : "EMPTY_OR_TOO_SHORT";
-                    return new AiResponse { Success = false, ErrorMessage = $"DeepSeek API Error: {response.StatusCode} - {error}. (Debug Key: {maskedKey}, Length: {_apiKey.Length})" };
+                    var fullUrl = _httpClient.BaseAddress + "chat/completions";
+                    return new AiResponse { Success = false, ErrorMessage = $"API Proxy Error at {fullUrl}: {response.StatusCode} - {error}. (Debug Key: {maskedKey}, Length: {_apiKey.Length})" };
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();

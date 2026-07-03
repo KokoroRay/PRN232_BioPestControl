@@ -138,7 +138,8 @@ jobs:
           PAYOS_CLIENT_ID: ${{ secrets.PAYOS_CLIENT_ID }}
           PAYOS_API_KEY: ${{ secrets.PAYOS_API_KEY }}
           PAYOS_CHECKSUM_KEY: ${{ secrets.PAYOS_CHECKSUM_KEY }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
         run: |
           set -euo pipefail
           FAILED_SERVICES=()
@@ -199,7 +200,9 @@ jobs:
               --from-literal=PayOS__ChecksumKey="${PAYOS_CHECKSUM_KEY}" \
               --from-literal=IdentityServiceUrl="http://identity-service" \
               --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
-              --from-literal=DeepSeek__ApiKey="${DEEPSEEK_API_KEY}" \
+              --from-literal=OpenAI__ApiKey="${OPENAI_API_KEY}" \
+              --from-literal=OpenAI__BaseUrl="${OPENAI_BASE_URL}" \
+              --from-literal=OpenAI__ModelName="gpt-4o-mini" \
               -n biopest \
               --dry-run=client -o yaml | kubectl apply -f -; then
               echo "--- Failed to create/apply configmap for ${SVC}; skipping deploy ---"

@@ -24,10 +24,20 @@ namespace agri_expert_service.Services.Implements
             _configuration = configuration;
             
             // Allow override via config, fallback to placeholder (user will supply later)
-            _apiKey = (_configuration["DeepSeek:ApiKey"] ?? "YOUR_DEEPSEEK_API_KEY_HERE").Trim();
-            _modelName = _configuration["DeepSeek:ModelName"] ?? "deepseek-chat";
+            _apiKey = (_configuration["OpenAI:ApiKey"] ?? "YOUR_OPENAI_API_KEY_HERE").Trim();
+            _modelName = _configuration["OpenAI:ModelName"] ?? "gpt-4o-mini";
             
-            _httpClient.BaseAddress = new Uri("https://api.deepseek.com/");
+            var baseUrl = _configuration["OpenAI:BaseUrl"];
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                baseUrl = "https://api.openai.com/v1/";
+            }
+            if (!baseUrl.EndsWith("/"))
+            {
+                baseUrl += "/";
+            }
+            
+            _httpClient.BaseAddress = new Uri(baseUrl);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
 
             // Load knowledge base for RAG

@@ -26,11 +26,8 @@ namespace agri_expert_service.Controllers
             }
 
             var result = await _deepSeekService.ChatAsync(request);
-            if (!result.Success)
-            {
-                return StatusCode(500, result);
-            }
-
+            
+            // Return 200 OK even if Success is false, so the frontend can gracefully read the ErrorMessage
             return Ok(result);
         }
     }

@@ -21,6 +21,7 @@ jobs:
           host: ${{ secrets.VM3_HOST }}
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
+          password: ${{ secrets.VM3_PASSWORD }}
           source: "infrastructure/redis-kafka/docker-compose.yml"
           target: "~/infra/redis-kafka"
           strip_components: 2
@@ -31,6 +32,7 @@ jobs:
           host: ${{ secrets.VM3_HOST }}
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
+          password: ${{ secrets.VM3_PASSWORD }}
           script: |
             cd ~/infra/redis-kafka
             docker-compose pull

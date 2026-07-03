@@ -49,13 +49,13 @@ namespace agri_expert_service.Services.Implements
         {
             try
             {
-                // Simple RAG approach: inject the knowledge base directly into the system prompt
                 var systemPrompt = $@"You are an agricultural expert AI assistant for the BioPestControl platform. 
 Use the following project knowledge to answer the user's questions:
 
 {_knowledgeBase}
 
-If the user asks about something outside of this context, answer politely based on your general knowledge but emphasize the BioPestControl context when possible.";
+If the user asks about something outside of this context, answer politely based on your general knowledge but emphasize the BioPestControl context when possible.
+IMPORTANT: You have vision capabilities. You MUST analyze any provided images directly. DO NOT output any XML tags, JSON, or <tool_call> blocks. Answer the user's question directly in plain text and markdown.";
 
                 object userContent;
                 if (request.Images != null && request.Images.Count > 0)

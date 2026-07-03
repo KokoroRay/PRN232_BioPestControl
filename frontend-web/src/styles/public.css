@@ -2778,3 +2778,243 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --- AI Assistant Widget --- */
+.ai-widget-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--public-primary);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  transition: transform 0.2s;
+}
+.ai-widget-toggle:hover {
+  transform: scale(1.05);
+}
+
+.ai-widget-container {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.ai-widget-header {
+  background: var(--public-primary);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ai-widget-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+.ai-widget-close {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.ai-widget-close:hover {
+  opacity: 1;
+}
+
+.ai-widget-tabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.ai-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.ai-tab.active {
+  color: var(--public-primary);
+  border-bottom-color: var(--public-primary);
+  background: white;
+}
+
+.ai-widget-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+.ai-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ai-message-row {
+  display: flex;
+}
+.ai-message-row.user {
+  justify-content: flex-end;
+}
+.ai-message-row.assistant {
+  justify-content: flex-start;
+}
+
+.ai-message-bubble {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+.ai-message-bubble p {
+  margin: 0;
+}
+.ai-message-row.user .ai-message-bubble {
+  background: var(--public-primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.ai-message-row.assistant .ai-message-bubble {
+  background: white;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 4px;
+}
+.ai-message-bubble.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+}
+
+.ai-uploaded-img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.ai-widget-footer {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 0.5rem;
+}
+.ai-widget-footer input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  outline: none;
+  font-size: 0.9rem;
+}
+.ai-widget-footer input:focus {
+  border-color: var(--public-primary);
+}
+.ai-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--public-primary);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.ai-send-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* --- Camera Capture --- */
+.camera-capture-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.video-wrapper {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 3/4;
+  display: flex;
+}
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camera-actions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+.camera-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.camera-btn.capture {
+  background: var(--public-primary);
+  color: white;
+}
+.camera-btn.cancel {
+  background: #e2e8f0;
+  color: #475569;
+}
+.camera-error {
+  color: #ef4444;
+  text-align: center;
+  font-size: 0.9rem;
+  background: #fef2f2;
+  padding: 1rem;
+  border-radius: 8px;
+}

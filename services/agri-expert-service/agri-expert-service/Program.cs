@@ -54,6 +54,9 @@ builder.Services.AddDbContext<AgriDbContext>(options =>
 builder.Services.AddScoped<IChemicalRepository, ChemicalRepository>();
 builder.Services.AddScoped<IChemicalService, ChemicalService>();
 
+builder.Services.AddHttpClient<agri_expert_service.Services.Interfaces.IDeepSeekService, agri_expert_service.Services.Implements.DeepSeekService>();
+builder.Services.AddScoped<agri_expert_service.Services.Interfaces.IDeepSeekService, agri_expert_service.Services.Implements.DeepSeekService>();
+
 // ── JWT Authentication ────────────────────────────────────────
 // Dùng chung JwtSettings với identity-service
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

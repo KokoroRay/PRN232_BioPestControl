@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Leaf, LogOut, ShoppingCart, UserCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { AIAssistantWidget } from './ai/AIAssistantWidget';
 
 export const PublicLayout: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -93,7 +94,8 @@ export const PublicLayout: React.FC = () => {
           </p>
         </div>
       </footer>
+      
+      <AIAssistantWidget />
     </div>
   );
 };
-

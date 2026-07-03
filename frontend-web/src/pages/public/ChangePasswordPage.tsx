@@ -51,9 +51,7 @@ export default function ChangePasswordPage() {
     }
   };
 
-  const Field: React.FC<{ name: 'oldPassword' | 'newPassword' | 'confirmPassword'; label: string; placeholder: string; hint?: string }> = ({
-    name, label, placeholder, hint,
-  }) => (
+  const renderField = (name: 'oldPassword' | 'newPassword' | 'confirmPassword', label: string, placeholder: string, hint?: string) => (
     <div className="change-pwd-field">
       <label htmlFor={name}>{label}</label>
       <div className="change-pwd-input-wrap">
@@ -101,14 +99,9 @@ export default function ChangePasswordPage() {
 
             <form className="profile-form" onSubmit={handleSubmit}>
               <div className="profile-fields">
-                <Field name="oldPassword" label="Current Password" placeholder="••••••••" />
-                <Field
-                  name="newPassword"
-                  label="New Password"
-                  placeholder="••••••••"
-                  hint="Minimum 8 characters."
-                />
-                <Field name="confirmPassword" label="Confirm New Password" placeholder="••••••••" />
+                {renderField('oldPassword', 'Current Password', '••••••••')}
+                {renderField('newPassword', 'New Password', '••••••••', 'Minimum 8 characters.')}
+                {renderField('confirmPassword', 'Confirm New Password', '••••••••')}
               </div>
 
               <div className="profile-footer">

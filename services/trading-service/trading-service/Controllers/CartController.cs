@@ -119,9 +119,6 @@ namespace trading_service.Controllers
             cart.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            // Reload cart với items mới nhất để trả về
-            await _context.Entry(cart).Collection(c => c.Items).LoadAsync();
-
             var responseData = new ApiResponse<CartDto>
             {
                 Success = true,

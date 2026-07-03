@@ -41,18 +41,31 @@ export const PublicLayout: React.FC = () => {
               {!loading && itemCount > 0 && <span className="public-cart-badge">{itemCount}</span>}
             </Link>
             {isAuthenticated ? (
-              <div className="public-user-box">
-                <Link to="/orders" className="public-orders-link">
-                  Orders
-                </Link>
-                <Link to="/account/profile" className="public-orders-link">
-                  Profile
-                </Link>
-                <span className="public-user-name">Hi, {displayName}</span>
-                <button type="button" className="public-login-btn" onClick={handleLogout}>
-                  <LogOut size={16} />
-                  Logout
-                </button>
+              <div className="public-user-dropdown-container">
+                <div className="public-user-avatar">
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={displayName} />
+                  ) : (
+                    <UserCircle2 size={24} />
+                  )}
+                </div>
+                <div className="public-user-dropdown-menu">
+                  <div className="public-dropdown-header">
+                    <span className="public-dropdown-name">{displayName}</span>
+                    <span className="public-dropdown-email">{user?.email}</span>
+                  </div>
+                  <hr className="public-dropdown-divider" />
+                  <Link to="/orders" className="public-dropdown-item">
+                    Orders
+                  </Link>
+                  <Link to="/account/profile" className="public-dropdown-item">
+                    Profile
+                  </Link>
+                  <button type="button" className="public-dropdown-item public-dropdown-logout" onClick={handleLogout}>
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <Link to="/login" className="public-login-btn">

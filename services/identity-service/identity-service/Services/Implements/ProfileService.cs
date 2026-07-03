@@ -110,8 +110,7 @@ namespace identity_service.Services.Implements
 
             // Get upload directory from config or use default
             var uploadDir = _configuration["UploadSettings:AvatarDirectory"] ?? "wwwroot/uploads/avatars";
-            var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "..");
-            var fullPath = Path.Combine(webRootPath, uploadDir);
+            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), uploadDir);
 
             if (!Directory.Exists(fullPath))
             {
@@ -127,7 +126,7 @@ namespace identity_service.Services.Implements
             // Delete old avatar if exists and is a local file
             if (!string.IsNullOrEmpty(user.AvatarUrl) && user.AvatarUrl.StartsWith("/"))
             {
-                var oldPath = Path.Combine(webRootPath, user.AvatarUrl.TrimStart('/'));
+                var oldPath = Path.Combine(Directory.GetCurrentDirectory(), user.AvatarUrl.TrimStart('/'));
                 if (File.Exists(oldPath))
                 {
                     try { File.Delete(oldPath); } catch { /* ignore */ }

@@ -140,6 +140,7 @@ jobs:
           PAYOS_CHECKSUM_KEY: ${{ secrets.PAYOS_CHECKSUM_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          OPENAI_MODEL_NAME: ${{ secrets.OPENAI_MODEL_NAME }}
         run: |
           set -euo pipefail
           FAILED_SERVICES=()
@@ -202,7 +203,7 @@ jobs:
               --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
               --from-literal=OpenAI__ApiKey="${OPENAI_API_KEY}" \
               --from-literal=OpenAI__BaseUrl="${OPENAI_BASE_URL}" \
-              --from-literal=OpenAI__ModelName="gpt-4o-mini" \
+              --from-literal=OpenAI__ModelName="${OPENAI_MODEL_NAME:-llama3.3-70b-instruct}" \
               -n biopest \
               --dry-run=client -o yaml | kubectl apply -f -; then
               echo "--- Failed to create/apply configmap for ${SVC}; skipping deploy ---"

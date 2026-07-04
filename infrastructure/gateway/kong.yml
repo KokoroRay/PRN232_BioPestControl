@@ -99,6 +99,8 @@ services:
           - /api/chemicals
           - /api/staff/chemicals
           - /api/admin/chemicals
+          - /api/AgriCalculations
+          - /api/AgriSupport
         strip_path: false
 
 plugins:

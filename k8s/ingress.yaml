@@ -90,6 +90,20 @@ spec:
                 name: agri-expert-service
                 port:
                   number: 80
+          - path: /api/AgriCalculations
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
+          - path: /api/AgriSupport
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
 
           # Article Service
           - path: /api/articles

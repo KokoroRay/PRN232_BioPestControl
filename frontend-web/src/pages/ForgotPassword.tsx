@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import bgImage from '../assets/Background_1.png';
 import '../styles/login-admin.css';
+import { API } from '../config/api';
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const ForgotPassword: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5240/api/auth/password/forgot', {
+      const response = await fetch(`${API.identity}/api/auth/password/forgot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -50,7 +51,7 @@ const ForgotPassword: React.FC = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5240/api/auth/password/verify-otp', {
+      const response = await fetch(`${API.identity}/api/auth/password/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -82,7 +83,7 @@ const ForgotPassword: React.FC = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5240/api/auth/password/reset', {
+      const response = await fetch(`${API.identity}/api/auth/password/reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword }),

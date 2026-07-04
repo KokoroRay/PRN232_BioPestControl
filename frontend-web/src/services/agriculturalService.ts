@@ -64,7 +64,7 @@ export interface DistrictDto {
 export const agriculturalService = {
   /** Load dropdown data: products, crops, pests */
   getCalculationsData: async () => {
-    const { data } = await client.get('/AgriCalculations');
+    const { data } = await client.get('/api/AgriCalculations');
     return data;
   },
 
@@ -76,13 +76,13 @@ export const agriculturalService = {
     areaSize: number;
     tankCapacity: number;
   }) => {
-    const { data } = await client.post('/AgriCalculations/Dosage', body);
+    const { data } = await client.post('/api/AgriCalculations/Dosage', body);
     return data;
   },
 
   /** POST mixability check */
   checkMixability: async (productIds: number[]) => {
-    const { data } = await client.post('/AgriCalculations/Mixability', { mixProductIds: productIds });
+    const { data } = await client.post('/api/AgriCalculations/Mixability', { mixProductIds: productIds });
     return data;
   },
 

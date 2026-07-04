@@ -5,17 +5,19 @@ import type { Product } from '../../types/catalog';
 import { useAuth } from '../../context/AuthContext';
 import { useAddToCart } from '../../hooks/useAddToCart';
 
+import { getFeedbacksByProductId, createFeedback as createFeedbackApi } from '../../services/feedbackService';
+
 interface Feedback {
-  id: number;
-  customerName: string;
+  id: string;
+  userName: string;
   customerAvatar?: string;
   rating: number;
   comment: string;
   createdAt: string;
-  helpfulCount: number;
+  helpfulCount?: number;
   images?: string[];
-  staffReply?: string;
-  replyAt?: string;
+  replyMessage?: string;
+  repliedAt?: string;
 }
 
 interface RatingFilter {
@@ -61,42 +63,14 @@ const ProductDetailsPage: React.FC = () => {
           setSelectedImage(data.imageUrl);
         }
         
-        // Load mock feedbacks
-        const mockFeedbacks: Feedback[] = [
-          {
-            id: 101,
-            customerName: 'Nguyễn Văn Hải',
-            rating: 5,
-            comment: 'Sản phẩm rất tốt! Tôi đã sử dụng cho vườn cam nhà mình, sâu vẽ bùa giảm hẳn sau 2 lần xịt. Đặc biệt là không có mùi hôi như thuốc hóa học.',
-            createdAt: '2026-05-10T14:30:00Z',
-            helpfulCount: 24,
-            images: [
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc'
-            ],
-            staffReply: 'Cảm ơn chú Hải đã tin dùng sản phẩm sinh học của BioPestControl! Chúc vườn cam nhà mình trúng mùa trúng giá ạ.',
-            replyAt: '2026-05-11T08:15:00Z'
-          },
-          {
-            id: 102,
-            customerName: 'Trần Thị Mai',
-            rating: 4,
-            comment: 'Giao hàng nhanh, đóng gói cẩn thận. Thuốc phun có hiệu quả cao đối với rệp sáp trên cây hoa hồng. Sẽ tiếp tục mua ủng hộ.',
-            createdAt: '2026-05-18T09:20:00Z',
-            helpfulCount: 8,
-          },
-          {
-            id: 103,
-            customerName: 'Lê Hoàng Nam',
-            rating: 5,
-            comment: 'Tuyệt vời! Chế phẩm sinh học cực kỳ an toàn, có thể thu hoạch quả chỉ sau 1 ngày phun. An tâm sử dụng cho vườn rau sạch gia đình.',
-            createdAt: '2026-05-22T16:45:00Z',
-            helpfulCount: 15,
-            images: [
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc'
-            ]
-          }
-        ];
-        setFeedbacks(mockFeedbacks);
+        // Load feedbacks from API
+        try {
+          const apiFeedbacks = await getFeedbacksByProductId(Number(id));
+          setFeedbacks(apiFeedbacks);
+        } catch (error) {
+          console.error('Failed to load feedbacks:', error);
+          setFeedbacks([]);
+        }
       } catch (err) {
         console.error('Error loading product details', err);
         navigate('/products');
@@ -143,23 +117,37 @@ const ProductDetailsPage: React.FC = () => {
       return;
     }
 
-    const newFeedback: Feedback = {
-      id: Date.now(),
-      customerName: user?.fullName || user?.email || 'Khách hàng',
-      rating: formRating,
-      comment: formComment,
-      createdAt: new Date().toISOString(),
-      helpfulCount: 0,
-      images: formImagesPreviews.length > 0 ? formImagesPreviews : undefined
-    };
+    try {
+      const created = await createFeedbackApi({
+        productId: product?.id,
+        userId: user?.id || '00000000-0000-0000-0000-000000000000',
+        userName: user?.fullName || user?.email || 'Khách hàng',
+        rating: formRating,
+        comment: formComment
+      });
 
-    setFeedbacks(prev => [newFeedback, ...prev]);
-    showToastMsg('Gửi đánh giá thành công! Cảm ơn đóng góp của bạn.');
-    
-    // Clear form state
-    setFormComment('');
-    setFormImagesPreviews([]);
-    setFormOrderId('');
+      // Optimistic UI update or fetch from server again, here we do optimistic:
+      const newFeedback: Feedback = {
+        id: created.id,
+        userName: created.userName,
+        rating: created.rating,
+        comment: created.comment,
+        createdAt: created.createdAt,
+        helpfulCount: 0,
+        images: formImagesPreviews.length > 0 ? formImagesPreviews : undefined
+      };
+
+      setFeedbacks(prev => [newFeedback, ...prev]);
+      showToastMsg('Gửi đánh giá thành công! Cảm ơn đóng góp của bạn.');
+      
+      // Clear form state
+      setFormComment('');
+      setFormImagesPreviews([]);
+      setFormOrderId('');
+    } catch (err) {
+      console.error('Failed to submit feedback', err);
+      showToastMsg('Có lỗi xảy ra khi gửi đánh giá, vui lòng thử lại.', 'error');
+    }
   };
 
   const handleCartAdd = async (isBuyNow: boolean) => {
@@ -575,7 +563,7 @@ const ProductDetailsPage: React.FC = () => {
                   </div>
                   <div className="flex-grow">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-bold text-primary text-sm">{fb.customerName}</span>
+                      <span className="font-bold text-primary text-sm">{fb.userName}</span>
                       <span className="text-[10px] text-on-surface-variant font-medium">
                         {new Date(fb.createdAt).toLocaleDateString('vi-VN')}
                       </span>
@@ -609,10 +597,17 @@ const ProductDetailsPage: React.FC = () => {
                       </div>
                     )}
 
-                    {fb.staffReply && (
+                    {fb.replyMessage && (
                       <div className="mt-5 bg-background dark:bg-surface p-4 rounded-xl border border-outline-variant/10 border-l-4 border-l-primary space-y-1">
-                        <div className="text-[10px] font-bold text-primary uppercase tracking-wider">BioPestControl Phản hồi</div>
-                        <p className="text-sm text-on-surface-variant font-light leading-relaxed">{fb.staffReply}</p>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-[10px] font-bold text-primary uppercase tracking-wider">BioPestControl Phản hồi</div>
+                          {fb.repliedAt && (
+                            <span className="text-[10px] text-on-surface-variant/70">
+                              {new Date(fb.repliedAt).toLocaleDateString('vi-VN')}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-on-surface-variant font-light leading-relaxed">{fb.replyMessage}</p>
                       </div>
                     )}
 

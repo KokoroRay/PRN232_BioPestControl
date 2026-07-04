@@ -22,9 +22,9 @@ namespace catalog_service.Services.Implements
             _agriExpertServiceClient = agriExpertServiceClient;
         }
 
-        public async Task<IEnumerable<ProductResponse>> GetAllAsync()
+        public async Task<IEnumerable<ProductResponse>> GetAllAsync(ProductFilterRequest filter = null)
         {
-            var products = await _repository.GetAllAsync();
+            var products = await _repository.GetAllAsync(filter);
             var responses = new List<ProductResponse>();
 
             foreach (var product in products)

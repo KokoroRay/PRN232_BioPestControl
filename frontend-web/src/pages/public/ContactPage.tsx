@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { submitContact } from '../../services/feedbackService';
 
 const ContactPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -9,21 +10,30 @@ const ContactPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
 
-    // Simulate sending message
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await submitContact({
+        name,
+        email,
+        phone,
+        message
+      });
       setSuccess('Cảm ơn bạn đã gửi lời nhắn! Đội ngũ tư vấn sẽ liên hệ lại với bạn trong vòng 24h.');
       setName('');
       setEmail('');
       setPhone('');
       setMessage('');
-    }, 1000);
+    } catch (err) {
+      console.error('Failed to submit contact', err);
+      setError('Đã xảy ra lỗi khi gửi lời nhắn, vui lòng thử lại sau.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

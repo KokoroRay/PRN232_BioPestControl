@@ -2,6 +2,7 @@ using catalog_service.Data;
 using catalog_service.Models;
 using catalog_service.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using catalog_service.DTOs.Requests;
 
 namespace catalog_service.Repositories.Implements
 {
@@ -14,11 +15,47 @@ namespace catalog_service.Repositories.Implements
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync(ProductFilterRequest filter = null)
         {
-            return await _context.Products
-                .Include(p => p.Category)
-                .ToListAsync();
+            var query = _context.Products.Include(p => p.Category).AsQueryable();
+
+            if (filter != null)
+            {
+                if (!string.IsNullOrEmpty(filter.Name))
+                {
+                    query = query.Where(p => p.Name.Contains(filter.Name));
+                }
+                if (filter.CategoryId.HasValue)
+                {
+                    query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
+                }
+                if (filter.MinPrice.HasValue)
+                {
+                    query = query.Where(p => p.UnitPrice >= filter.MinPrice.Value);
+                }
+                if (filter.MaxPrice.HasValue)
+                {
+                    query = query.Where(p => p.UnitPrice <= filter.MaxPrice.Value);
+                }
+
+                if (!string.IsNullOrEmpty(filter.SortBy))
+                {
+                    switch (filter.SortBy.ToLower())
+                    {
+                        case "price":
+                            query = filter.Ascending ? query.OrderBy(p => p.UnitPrice) : query.OrderByDescending(p => p.UnitPrice);
+                            break;
+                        case "name":
+                            query = filter.Ascending ? query.OrderBy(p => p.Name) : query.OrderByDescending(p => p.Name);
+                            break;
+                        default:
+                            query = filter.Ascending ? query.OrderBy(p => p.Id) : query.OrderByDescending(p => p.Id);
+                            break;
+                    }
+                }
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> SearchByNameAsync(string name)

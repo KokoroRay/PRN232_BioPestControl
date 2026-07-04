@@ -42,17 +42,32 @@ const ProductsPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [realtimeSearch, searchQuery, searchParams, setSearchParams]);
 
-  // Load products and categories on mount
+  // Load products and categories on mount or when filters change
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
+        let sortBy = '';
+        let ascending = true;
+        if (currentSort === 'price-low-to-high') {
+          sortBy = 'price';
+          ascending = true;
+        } else if (currentSort === 'price-high-to-low') {
+          sortBy = 'price';
+          ascending = false;
+        }
+
         const [cList, pList] = await Promise.all([
           categoryService.getAll(),
-          productService.getAll()
+          productService.getAll({
+            name: searchQuery || undefined,
+            categoryId: selectedCategoryId || undefined,
+            sortBy: sortBy || undefined,
+            ascending
+          })
         ]);
         setCategories(cList);
-        setProducts(pList);
+        setProducts(pList.filter(p => p.isActive));
       } catch (err) {
         console.error('Error loading catalog data', err);
       } finally {
@@ -60,41 +75,9 @@ const ProductsPage: React.FC = () => {
       }
     };
     loadData();
-  }, []);
+  }, [searchQuery, selectedCategoryId, currentSort]);
 
-  // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    // Filter by active status
-    result = result.filter(p => p.isActive);
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        (p.description && p.description.toLowerCase().includes(q)) ||
-        p.sku.toLowerCase().includes(q)
-      );
-    }
-
-    // Filter by category
-    if (selectedCategoryId !== null) {
-      result = result.filter(p => p.categoryId === selectedCategoryId);
-    }
-
-    // Sort products
-    if (currentSort === 'price-low-to-high') {
-      result.sort((a, b) => a.unitPrice - b.unitPrice);
-    } else if (currentSort === 'price-high-to-low') {
-      result.sort((a, b) => b.unitPrice - a.unitPrice);
-    } else if (currentSort === 'top-rated') {
-      result.sort((a, b) => (b.id % 5) - (a.id % 5)); // simulated rating sorting based on id
-    }
-
-    return result;
-  }, [products, searchQuery, selectedCategoryId, currentSort]);
+  const filteredProducts = products;
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);

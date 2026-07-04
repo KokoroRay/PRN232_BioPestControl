@@ -10,8 +10,8 @@ function mapProduct(raw: unknown): Product {
 }
 
 export const productService = {
-  getAll: async (name?: string) => {
-    const { data } = await client.get('/products', { params: name ? { name } : {} });
+  getAll: async (filter?: any) => {
+    const { data } = await client.get('/products', { params: filter || {} });
     return mapList<Product>(Array.isArray(data) ? data : []);
   },
   getById: async (id: number) => {

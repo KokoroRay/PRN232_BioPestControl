@@ -96,17 +96,17 @@ const ProductDetailsPage: React.FC = () => {
     setFormImagesPreviews(previews);
   };
 
-  const handleHelpfulClick = (feedbackId: number) => {
+  const handleHelpfulClick = (feedbackId: string) => {
     setFeedbacks(prev => prev.map(f => {
       if (f.id === feedbackId) {
-        return { ...f, helpfulCount: f.helpfulCount + 1 };
+        return { ...f, helpfulCount: (f.helpfulCount || 0) + 1 };
       }
       return f;
     }));
     showToastMsg('Cảm ơn bạn đã phản hồi review này hữu ích!');
   };
 
-  const handleAddReview = (e: React.FormEvent) => {
+  const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
       showToastMsg('Vui lòng đăng nhập để gửi đánh giá!', 'error');

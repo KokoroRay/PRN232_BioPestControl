@@ -113,6 +113,13 @@ spec:
                 name: article-service
                 port:
                   number: 80
+          - path: /api/feedbacks
+            pathType: Prefix
+            backend:
+              service:
+                name: article-service
+                port:
+                  number: 80
 
           # Catalog Service
           - path: /api/categories

@@ -66,7 +66,12 @@ const ProductDetailsPage: React.FC = () => {
         // Load feedbacks from API
         try {
           const apiFeedbacks = await getFeedbacksByProductId(Number(id));
-          setFeedbacks(apiFeedbacks);
+          if (Array.isArray(apiFeedbacks)) {
+            setFeedbacks(apiFeedbacks);
+          } else {
+            console.error('API returned non-array for feedbacks:', apiFeedbacks);
+            setFeedbacks([]);
+          }
         } catch (error) {
           console.error('Failed to load feedbacks:', error);
           setFeedbacks([]);

@@ -13,5 +13,8 @@ namespace identity_service.DTOs.Requests
         [MaxLength(20)]
         [Phone(ErrorMessage = "Số điện thoại không đúng định dạng.")]
         public string? PhoneNumber { get; set; }
+
+        [MaxLength(500)]
+        public string? Address { get; set; }
     }
 }

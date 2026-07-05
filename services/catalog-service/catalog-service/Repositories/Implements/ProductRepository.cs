@@ -15,12 +15,18 @@ namespace catalog_service.Repositories.Implements
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync(ProductFilterRequest filter = null)
+        public async Task<PagedResult<Product>> GetAllAsync(ProductFilterRequest filter = null)
         {
-            var query = _context.Products.Include(p => p.Category).AsQueryable();
+            var query = _context.Products.Include(p => p.Category).AsNoTracking().AsQueryable();
+
+            int page = 1;
+            int pageSize = 10;
 
             if (filter != null)
             {
+                page = filter.Page > 0 ? filter.Page : 1;
+                pageSize = filter.PageSize > 0 ? filter.PageSize : 10;
+                
                 if (!string.IsNullOrEmpty(filter.Name))
                 {
                     query = query.Where(p => p.Name.Contains(filter.Name));
@@ -55,7 +61,16 @@ namespace catalog_service.Repositories.Implements
                 }
             }
 
-            return await query.ToListAsync();
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            
+            return new PagedResult<Product>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<IEnumerable<Product>> SearchByNameAsync(string name)

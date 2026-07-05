@@ -11,6 +11,7 @@ export interface Profile {
   fullName?: string;
   phoneNumber?: string;
   avatarUrl?: string;
+  address?: string;
   role: string;
   createdAt?: string;
   updatedAt?: string;
@@ -20,6 +21,7 @@ export interface UpdateProfilePayload {
   fullName?: string;
   avatarUrl?: string;
   phoneNumber?: string;
+  address?: string;
 }
 
 export interface ChangePasswordPayload {

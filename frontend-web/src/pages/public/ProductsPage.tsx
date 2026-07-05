@@ -15,6 +15,7 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   // Get filter state from query parameters
   const searchQuery = searchParams.get('search') || '';
@@ -63,11 +64,14 @@ const ProductsPage: React.FC = () => {
             name: searchQuery || undefined,
             categoryId: selectedCategoryId || undefined,
             sortBy: sortBy || undefined,
-            ascending
+            ascending,
+            page: currentPage,
+            pageSize: ITEMS_PER_PAGE
           })
         ]);
         setCategories(cList);
-        setProducts(pList.filter(p => p.isActive));
+        setProducts(pList.items.filter(p => p.isActive));
+        setTotalProducts(pList.totalCount);
       } catch (err) {
         console.error('Error loading catalog data', err);
       } finally {
@@ -75,16 +79,10 @@ const ProductsPage: React.FC = () => {
       }
     };
     loadData();
-  }, [searchQuery, selectedCategoryId, currentSort]);
+  }, [searchQuery, selectedCategoryId, currentSort, currentPage]);
 
-  const filteredProducts = products;
-
-  // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const paginatedProducts = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredProducts, currentPage]);
+  const paginatedProducts = products;
+  const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -236,7 +234,7 @@ const ProductsPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-outline-variant/10 pb-4">
             <p className="text-sm text-on-surface-variant">
               Showing{' '}
-              <span className="font-bold text-primary">{filteredProducts.length}</span>{' '}
+              <span className="font-bold text-primary">{totalProducts}</span>{' '}
               results
             </p>
             <div className="flex items-center gap-2">

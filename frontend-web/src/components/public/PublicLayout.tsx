@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { Leaf, LogOut, ShoppingCart, UserCircle2, Bot } from 'lucide-react';
+import { Leaf, LogOut, ShoppingCart, UserCircle2, Bot, Globe } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { AIAssistantWidget } from '../ai/AIAssistantWidget';
+import { useTranslation } from 'react-i18next';
 
 export const PublicLayout: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { isAuthenticated, user, logout } = useAuth();
   const { itemCount, loading } = useCart();
   const navigate = useNavigate();
@@ -14,6 +16,11 @@ export const PublicLayout: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const toggleLanguage = () => {
+    const nextLng = i18n.language === 'vi' ? 'en' : 'vi';
+    i18n.changeLanguage(nextLng);
   };
 
   return (
@@ -28,15 +35,25 @@ export const PublicLayout: React.FC = () => {
           </Link>
 
           <nav className="public-nav">
-            <Link to="/">Home</Link>
-            <Link to="/products">Products</Link>
-            <Link to="/about">About</Link>
-            <Link to="/contact">Contact</Link>
+            <Link to="/">{t('home', 'Home')}</Link>
+            <Link to="/products">{t('products', 'Products')}</Link>
+            <Link to="/about">{t('about', 'About')}</Link>
+            <Link to="/contact">{t('contact', 'Contact')}</Link>
             <Link to="/articles">News/Article</Link>
             <Link to="/agri-calculations">Agri Calculators</Link>
           </nav>
 
           <div className="public-auth-actions">
+            <button 
+              type="button" 
+              onClick={toggleLanguage} 
+              className="public-cart-link" 
+              title={t('language', 'Language')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', fontWeight: 500, color: 'var(--text-color)' }}
+            >
+              <Globe size={20} />
+              {i18n.language === 'vi' ? 'VI' : 'EN'}
+            </button>
             <Link to="/cart" className="public-cart-link" aria-label="Cart">
               <ShoppingCart size={20} />
               {!loading && itemCount > 0 && <span className="public-cart-badge">{itemCount}</span>}

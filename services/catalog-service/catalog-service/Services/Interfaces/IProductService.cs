@@ -5,7 +5,7 @@ namespace catalog_service.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductResponse>> GetAllAsync(ProductFilterRequest filter = null);
+        Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest filter = null);
         Task<IEnumerable<ProductResponse>> SearchByNameAsync(string name);
         Task<ProductResponse?> GetByIdAsync(int id);
         Task<ProductCommandResult> AddAsync(CreateProductRequest request);

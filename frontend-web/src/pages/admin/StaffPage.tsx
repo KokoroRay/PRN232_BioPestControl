@@ -103,7 +103,12 @@ const StaffPage: React.FC = () => {
     if (!validatePermissions(createForm.isFullAccess, createForm.permissionIds)) return;
     setSaving(true);
     try {
-      await staffService.create(createForm);
+      const body: CreateStaffRequest = {
+        ...createForm,
+        fullName: createForm.fullName || undefined,
+        phoneNumber: createForm.phoneNumber || undefined,
+      };
+      await staffService.create(body);
       showToast('Staff created');
       closeDrawer();
       load();
@@ -242,6 +247,8 @@ const StaffPage: React.FC = () => {
                 value={editForm.newPassword}
                 onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
                 minLength={8}
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$"
+                title="Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number"
               />
             </label>
             <label className="checkbox-row">
@@ -293,6 +300,8 @@ const StaffPage: React.FC = () => {
                 onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
                 required
                 minLength={8}
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$"
+                title="Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number"
               />
             </label>
             <label>

@@ -7,10 +7,19 @@ import type { ImportProductItem, ProductDetail, ProductStock } from '../types/in
 const client = createApiClient(`${API.inventory}/api`);
 
 export const inventoryService = {
-  getStock: async (search?: string) => {
-    const { data } = await client.get('/inventory/stock', { params: { search } });
-    const inner = unwrap<ProductStock[]>(data);
-    return mapList<ProductStock>(Array.isArray(inner) ? inner : []);
+  getStock: async (search?: string, page: number = 1, pageSize: number = 10) => {
+    const { data } = await client.get('/inventory/stock', { params: { search, page, pageSize } });
+    const inner = unwrap<any>(data);
+    if (inner && inner.items) {
+      return {
+        items: mapList<ProductStock>(inner.items),
+        totalCount: inner.totalCount,
+        page: inner.page,
+        pageSize: inner.pageSize
+      };
+    }
+    const items = mapList<ProductStock>(Array.isArray(inner) ? inner : []);
+    return { items, totalCount: items.length, page: 1, pageSize: items.length };
   },
   importProducts: (items: ImportProductItem[], note?: string, supplierName?: string) =>
     client.post('/inventory/import', { items, note, supplierName }),

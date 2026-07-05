@@ -17,9 +17,33 @@ const PurchasePage: React.FC = () => {
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const [provinces, setProvinces] = useState<{ Code: string; FullName: string; Wards: { Code: string; FullName: string }[] }[]>([]);
+  const [wards, setWards] = useState<{ Code: string; FullName: string }[]>([]);
+
+  const [selectedProvince, setSelectedProvince] = useState<{ Code: string; FullName: string } | null>(null);
+  const [selectedWard, setSelectedWard] = useState<{ Code: string; FullName: string } | null>(null);
+  const [streetAddress, setStreetAddress] = useState('');
+  
+  const [useProfileAddress, setUseProfileAddress] = useState(false);
+  const [profileAddress, setProfileAddress] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/data/vietnam_provinces.json')
+      .then((res) => res.json())
+      .then((data) => setProvinces(data))
+      .catch(() => setError('Failed to load provinces.'));
+  }, []);
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const code = e.target.value;
+    const prov = provinces.find((p) => p.Code === code) || null;
+    setSelectedProvince(prov);
+    setSelectedWard(null);
+    setWards(prov ? prov.Wards : []);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,6 +61,10 @@ const PurchasePage: React.FC = () => {
       .then((profile) => {
         setFullName(profile.fullName ?? '');
         setPhone(profile.phoneNumber ?? '');
+        if (profile.address) {
+          setProfileAddress(profile.address);
+          setUseProfileAddress(true);
+        }
       })
       .catch(() => {
         // optional prefill
@@ -59,7 +87,7 @@ const PurchasePage: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!fullName.trim() || !phone.trim() || !address.trim()) {
+    if (!useProfileAddress && (!streetAddress.trim() || !selectedProvince || !selectedWard)) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -69,16 +97,15 @@ const PurchasePage: React.FC = () => {
       return;
     }
 
-    if (address.trim().length < 5) {
-      setError('Please enter a full shipping address.');
-      return;
-    }
+    const fullAddress = useProfileAddress 
+      ? profileAddress 
+      : `${streetAddress.trim()}, ${selectedWard!.FullName}, ${selectedProvince!.FullName}`;
 
     setSubmitting(true);
     checkoutStorage.save({
       fullName: fullName.trim(),
       phone: phone.trim(),
-      address: address.trim(),
+      address: fullAddress,
       selectedItems,
     });
     navigate(`/checkout/payment?selectedItems=${encodeURIComponent(selectedItems)}`);
@@ -118,15 +145,52 @@ const PurchasePage: React.FC = () => {
                     required
                   />
                 </label>
-                <label>
-                  Street Address *
-                  <input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="123 Green Way, District 1, HCMC"
-                    required
-                  />
-                </label>
+                {profileAddress && (
+                  <div className="checkout-address-toggle" style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={useProfileAddress} 
+                        onChange={(e) => setUseProfileAddress(e.target.checked)} 
+                      />
+                      Sử dụng địa chỉ mặc định từ Profile: <strong>{profileAddress}</strong>
+                    </label>
+                  </div>
+                )}
+                
+                {!useProfileAddress && (
+                  <>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                      <label style={{ flex: 1, marginBottom: 0 }}>
+                        Province/City *
+                        <select required value={selectedProvince?.Code || ''} onChange={handleProvinceChange}>
+                          <option value="">Select Province</option>
+                          {provinces.map((p) => (
+                            <option key={p.Code} value={p.Code}>{p.FullName}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label style={{ flex: 1, marginBottom: 0 }}>
+                        Ward/Commune *
+                        <select required value={selectedWard?.Code || ''} onChange={(e) => setSelectedWard(wards.find((w) => w.Code === e.target.value) || null)} disabled={!selectedProvince}>
+                          <option value="">Select Ward</option>
+                          {wards.map((w) => (
+                            <option key={w.Code} value={w.Code}>{w.FullName}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <label>
+                      Street Address *
+                      <input
+                        value={streetAddress}
+                        onChange={(e) => setStreetAddress(e.target.value)}
+                        placeholder="123 Green Way"
+                        required
+                      />
+                    </label>
+                  </>
+                )}
                 <div className="checkout-form-actions">
                   <Link to="/cart" className="checkout-back-link">
                     Back to Cart

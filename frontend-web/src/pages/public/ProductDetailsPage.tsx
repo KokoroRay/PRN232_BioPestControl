@@ -260,11 +260,13 @@ const ProductDetailsPage: React.FC = () => {
             )}
             <div className="absolute top-4 left-4 z-20 flex gap-2">
               <span className="bg-primary text-white text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full shadow-md border border-white/10">
-                {product.categoryName || 'ACTIVE'}
+                {product.categoryName || 'Uncategorized'}
               </span>
-              <span className="bg-white text-primary text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full shadow-md border border-outline-variant/20">
-                Eco Safe
-              </span>
+              {product.chemicalName && (
+                <span className="bg-white text-primary text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full shadow-md border border-outline-variant/20">
+                  {product.chemicalName}
+                </span>
+              )}
             </div>
           </div>
 
@@ -315,7 +317,7 @@ const ProductDetailsPage: React.FC = () => {
               {formatPrice(product.unitPrice)}
             </span>
             <span className="text-xs text-on-surface-variant font-medium">
-              Đơn vị: {product.unit || 'Chai 500ml'}
+              Đơn vị: {product.unit || 'Chai'}
             </span>
           </div>
 

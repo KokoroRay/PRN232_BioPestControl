@@ -31,6 +31,9 @@ namespace identity_service.Models
         [MaxLength(20)]
         public string? PhoneNumber { get; set; }
 
+        [MaxLength(500)]
+        public string? Address { get; set; }
+
         // Vai trò của người dùng trong hệ thống (VD: Admin, Customer, Technician)
         [Required]
         [MaxLength(50)]

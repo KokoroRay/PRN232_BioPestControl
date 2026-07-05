@@ -8,6 +8,7 @@ import { useToast } from '../../context/ToastContext';
 import { orderStatusLabel } from '../../lib/checkoutUtils';
 import { orderService } from '../../services/orderService';
 import type { Order } from '../../types/ordering';
+import { useCart } from '../../context/CartContext';
 
 const STATUS_TABS = [
   { label: 'All', value: '' },
@@ -50,6 +51,7 @@ const CustomerOrdersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
+  const { addToCart } = useCart();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [counts, setCounts] = useState<Counts>({ all: 0 });
@@ -63,12 +65,16 @@ const CustomerOrdersPage: React.FC = () => {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [result, allResult] = await Promise.all([
+      const [result, ...countsRes] = await Promise.all([
         orderService.getMyOrders({ status: status || undefined, search: search || undefined, page, pageSize: 10 }),
-        orderService.getMyOrders({ pageSize: 1 }),
+        ...STATUS_TABS.map(tab => 
+          orderService.getMyOrders({ status: tab.value || undefined, pageSize: 1 })
+            .then(r => ({ status: tab.value || 'all', count: r.totalCount }))
+        )
       ]);
       setOrders(result.items);
-      setCounts((prev) => ({ ...prev, all: allResult.totalCount }));
+      const newCounts = countsRes.reduce((acc, curr) => ({ ...acc, [curr.status]: curr.count }), { all: 0 });
+      setCounts(newCounts as Counts);
     } catch {
       showToast('Failed to load orders', 'error');
     } finally {
@@ -128,9 +134,9 @@ const CustomerOrdersPage: React.FC = () => {
                 >
                   {Icon && <Icon size={13} />}
                   {tab.label}
-                  {counts.all > 0 && (
+                  {(counts[tab.value || 'all'] || 0) > 0 && (
                     <span className={`orders-tab-badge ${status === tab.value ? 'active-badge' : ''}`}>
-                      {tab.value === '' ? counts.all : 0}
+                      {counts[tab.value || 'all']}
                     </span>
                   )}
                 </button>
@@ -224,7 +230,28 @@ const CustomerOrdersPage: React.FC = () => {
                       <div className="orders-card-actions">
                         {isFinished(order.status) ? (
                           <>
-                            <Link to="/products" className="orders-action-secondary">Buy Again</Link>
+                            <button 
+                              type="button" 
+                              className="orders-action-secondary" 
+                              onClick={async () => {
+                                try {
+                                  // Wait for all items to be added to cart
+                                  await Promise.all(order.items.map(item => 
+                                    addToCart({
+                                      id: item.productId,
+                                      name: item.productName,
+                                      unitPrice: item.unitPrice,
+                                      imageUrl: item.productImageUrl || ''
+                                    }, item.quantity)
+                                  ));
+                                  navigate('/cart');
+                                } catch {
+                                  showToast('Could not add items to cart', 'error');
+                                }
+                              }}
+                            >
+                              Buy Again
+                            </button>
                             <Link to={`/orders/${order.id}`} className="orders-action-secondary">Details</Link>
                             {isDelivered(order.status) && (
                               <Link to={`/orders/${order.id}`} className="orders-action-feedback">Feedback</Link>

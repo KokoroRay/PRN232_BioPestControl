@@ -7,6 +7,8 @@ import { ConfirmModal } from '../../components/admin/ConfirmModal';
 import { useToast } from '../../context/ToastContext';
 import { articleService } from '../../services/articleService';
 import type { Article, CreateArticleRequest } from '../../types/article';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const ArticlesPage: React.FC = () => {
   const { showToast } = useToast();
@@ -26,6 +28,61 @@ const ArticlesPage: React.FC = () => {
     status: 'Published',
     tags: '',
   });
+
+  const uploadToCloudinary = async (file: File) => {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dfv00htk8'; // Fallback for testing
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'biopest_preset';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const imageHandler = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const url = await uploadToCloudinary(file);
+        // Find quill instance
+        const quill = (document.querySelector('.ql-editor') as any)?.parentElement?.__quill;
+        if (quill) {
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range.index, 'image', url);
+        }
+      } catch {
+        showToast('Image upload failed', 'error');
+      }
+    };
+  }, [showToast]);
+
+  const quillModules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    }
+  }), [imageHandler]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -141,7 +198,16 @@ const ArticlesPage: React.FC = () => {
           <label>Title *<input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></label>
           <label>Status<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option>Draft</option><option>Published</option><option>Archived</option></select></label>
           <label>Summary<textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} rows={2} /></label>
-          <label>Content *<textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={8} required /></label>
+          <div className="quill-wrapper" style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Content *</label>
+            <ReactQuill 
+              theme="snow"
+              value={form.content} 
+              onChange={(val) => setForm({ ...form, content: val })} 
+              modules={quillModules}
+              style={{ height: '300px', marginBottom: '40px' }}
+            />
+          </div>
           <label>Thumbnail URL<input value={form.thumbnailUrl} onChange={(e) => setForm({ ...form, thumbnailUrl: e.target.value })} /></label>
           <label>Tags<input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} /></label>
           <div className="form-actions">
@@ -155,9 +221,9 @@ const ArticlesPage: React.FC = () => {
           <article>
             <h3>{viewArticle.title}</h3>
             <p className="text-muted">{viewArticle.status} · {new Date(viewArticle.createdAt).toLocaleString('vi-VN')}</p>
-            {viewArticle.thumbnailUrl && <img src={viewArticle.thumbnailUrl} alt="" className="article-thumb" />}
-            {viewArticle.summary && <p>{viewArticle.summary}</p>}
-            <pre className="article-content">{viewArticle.content}</pre>
+            {viewArticle.thumbnailUrl && <img src={viewArticle.thumbnailUrl} alt="" className="article-thumb" style={{ maxWidth: '100%', marginBottom: '1rem', borderRadius: '8px' }} />}
+            {viewArticle.summary && <p style={{ fontWeight: '500', marginBottom: '1rem' }}>{viewArticle.summary}</p>}
+            <div className="article-content" dangerouslySetInnerHTML={{ __html: viewArticle.content }}></div>
           </article>
         )}
       </Drawer>

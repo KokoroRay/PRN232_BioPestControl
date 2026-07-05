@@ -24,7 +24,7 @@ namespace ordering_service.Controllers
         public async Task<ActionResult<ApiResponse<decimal>>> GetTotalRevenue()
         {
             var totalRevenue = await _context.Orders
-                .Where(o => o.Status != OrderStatus.Cancelled)
+                .Where(o => o.Status == OrderStatus.Delivered)
                 .SumAsync(o => o.TotalAmount);
 
             return Ok(new ApiResponse<decimal>
@@ -74,7 +74,7 @@ namespace ordering_service.Controllers
         public async Task<ActionResult<ApiResponse<DashboardStatsDto>>> GetSummary([FromQuery] StatsFilterRequest filter)
         {
             var query = _context.Orders
-                .Where(o => o.Status != OrderStatus.Cancelled);
+                .Where(o => o.Status == OrderStatus.Delivered);
 
             if (filter.FromDate.HasValue)
             {
@@ -116,7 +116,7 @@ namespace ordering_service.Controllers
         public async Task<ActionResult<ApiResponse<List<RevenueStatDto>>>> GetRevenueChart([FromQuery] StatsFilterRequest filter)
         {
             var query = _context.Orders
-                .Where(o => o.Status != OrderStatus.Cancelled);
+                .Where(o => o.Status == OrderStatus.Delivered);
 
             if (filter.FromDate.HasValue)
                 query = query.Where(o => o.OrderDate >= filter.FromDate.Value);

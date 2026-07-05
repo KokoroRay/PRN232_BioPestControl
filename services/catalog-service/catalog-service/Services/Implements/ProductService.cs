@@ -22,17 +22,23 @@ namespace catalog_service.Services.Implements
             _agriExpertServiceClient = agriExpertServiceClient;
         }
 
-        public async Task<IEnumerable<ProductResponse>> GetAllAsync(ProductFilterRequest filter = null)
+        public async Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest filter = null)
         {
-            var products = await _repository.GetAllAsync(filter);
+            var pagedProducts = await _repository.GetAllAsync(filter);
             var responses = new List<ProductResponse>();
 
-            foreach (var product in products)
+            foreach (var product in pagedProducts.Items)
             {
                 responses.Add(await MapToResponseAsync(product));
             }
 
-            return responses;
+            return new PagedResult<ProductResponse>
+            {
+                Items = responses,
+                TotalCount = pagedProducts.TotalCount,
+                Page = pagedProducts.Page,
+                PageSize = pagedProducts.PageSize
+            };
         }
 
         public async Task<IEnumerable<ProductResponse>> SearchByNameAsync(string name)

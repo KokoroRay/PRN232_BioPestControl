@@ -42,6 +42,11 @@ const ProductsPage: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<ProductFormState>(emptyCreate);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
   const loadMeta = useCallback(async () => {
     const [c, ch] = await Promise.all([categoryService.getAll(), chemicalService.getAll()]);
@@ -50,18 +55,19 @@ const ProductsPage: React.FC = () => {
   }, []);
 
   const loadProducts = useCallback(
-    async (nameQuery?: string) => {
+    async (nameQuery?: string, pageNum = 1) => {
       setLoading(true);
       try {
-        const p = await productService.getAll(nameQuery);
-        setProducts(p);
+        const p = await productService.getAll({ name: nameQuery, page: pageNum, pageSize });
+        setProducts(p.items);
+        setTotalCount(p.totalCount);
       } catch {
         showToast('Failed to load products', 'error');
       } finally {
         setLoading(false);
       }
     },
-    [showToast],
+    [pageSize, showToast],
   );
 
   useEffect(() => {
@@ -71,10 +77,10 @@ const ProductsPage: React.FC = () => {
   useEffect(() => {
     const q = search.trim();
     const t = setTimeout(() => {
-      loadProducts(q || undefined);
+      loadProducts(q || undefined, page);
     }, 300);
     return () => clearTimeout(t);
-  }, [search, loadProducts]);
+  }, [search, page, loadProducts]);
 
   const displayed = useMemo(() => {
     let list = products;
@@ -83,6 +89,8 @@ const ProductsPage: React.FC = () => {
     if (statusFilter === 'inactive') list = list.filter((p) => !p.isActive);
     return list;
   }, [products, categoryFilter, statusFilter]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const openCreate = () => {
     setEditId(null);
@@ -253,6 +261,25 @@ const ProductsPage: React.FC = () => {
               )}
             </tbody>
           </table>
+          {totalPages > 1 && (
+            <div className="pagination flex items-center justify-between p-4 border-t border-outline-variant/10">
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                disabled={page <= 1} 
+                onClick={() => setPage(p => p - 1)}>
+                Previous
+              </button>
+              <span className="text-sm">Page {page} of {totalPages}</span>
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                disabled={page >= totalPages} 
+                onClick={() => setPage(p => p + 1)}>
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
       <Drawer

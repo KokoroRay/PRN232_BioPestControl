@@ -33,6 +33,7 @@ namespace identity_service.Services.Implements
                 FullName = user.FullName,
                 AvatarUrl = user.AvatarUrl,
                 PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
                 Role = user.Role,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt
@@ -52,6 +53,7 @@ namespace identity_service.Services.Implements
             if (request.FullName != null) user.FullName = request.FullName.Trim();
             if (request.AvatarUrl != null) user.AvatarUrl = request.AvatarUrl.Trim();
             if (request.PhoneNumber != null) user.PhoneNumber = request.PhoneNumber.Trim();
+            if (request.Address != null) user.Address = request.Address.Trim();
 
             user.UpdatedAt = DateTime.UtcNow;
 
@@ -65,6 +67,7 @@ namespace identity_service.Services.Implements
                 FullName = user.FullName,
                 AvatarUrl = user.AvatarUrl,
                 PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
                 Role = user.Role,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt

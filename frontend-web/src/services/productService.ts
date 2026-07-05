@@ -12,7 +12,17 @@ function mapProduct(raw: unknown): Product {
 export const productService = {
   getAll: async (filter?: any) => {
     const { data } = await client.get('/products', { params: filter || {} });
-    return mapList<Product>(Array.isArray(data) ? data : []);
+    if (data && data.items) {
+      return {
+        items: mapList<Product>(data.items),
+        totalCount: data.totalCount,
+        page: data.page,
+        pageSize: data.pageSize
+      };
+    }
+    // Fallback for non-paginated or old response
+    const items = mapList<Product>(Array.isArray(data) ? data : []);
+    return { items, totalCount: items.length, page: 1, pageSize: items.length };
   },
   getById: async (id: number) => {
     const { data } = await client.get(`/products/${id}`);

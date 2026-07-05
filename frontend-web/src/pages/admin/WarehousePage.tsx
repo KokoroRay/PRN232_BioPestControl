@@ -9,6 +9,7 @@ import { inventoryService } from '../../services/inventoryService';
 import { productService } from '../../services/productService';
 import type { ProductDetail, ProductStock, WarehouseImport } from '../../types/inventory';
 import type { Product } from '../../types/catalog';
+import * as XLSX from 'xlsx';
 
 const formatDate = (value: string) => {
   const d = new Date(value);
@@ -34,26 +35,34 @@ const WarehousePage: React.FC = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [detail, setDetail] = useState<ProductDetail | null>(null);
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [s, p] = await Promise.all([
-        inventoryService.getStock(search || undefined),
-        productService.getAll(),
+      const [s, pRes] = await Promise.all([
+        inventoryService.getStock(search || undefined, page, pageSize),
+        productService.getAll({ pageSize: 100 }), // Get max for dropdown
       ]);
-      setStock(s);
-      setProducts(p);
+      setStock(s.items);
+      setTotalCount(s.totalCount);
+      setProducts(pRes.items);
     } catch {
       showToast('Failed to load warehouse data', 'error');
     } finally {
       setLoading(false);
     }
-  }, [search, showToast]);
+  }, [search, page, pageSize, showToast]);
 
   useEffect(() => {
     const t = setTimeout(load, 300);
     return () => clearTimeout(t);
   }, [load]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const openHistory = async (productId: number) => {
     setHistoryOpen(true);
@@ -96,6 +105,51 @@ const WarehousePage: React.FC = () => {
     } finally {
       setImporting(false);
     }
+  };
+
+  const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      // Expected columns: SKU, Quantity, Price
+      const json = XLSX.utils.sheet_to_json(worksheet) as any[];
+
+      const items = json.map(row => ({
+        sku: String(row.SKU || row.sku || ''),
+        quantity: Number(row.Quantity || row.quantity),
+        importPrice: Number(row.Price || row.price || row.importPrice)
+      })).filter(item => item.sku && !isNaN(item.quantity) && !isNaN(item.importPrice));
+
+      if (items.length === 0) {
+        showToast('No valid data found in Excel', 'error');
+        return;
+      }
+
+      await inventoryService.importProducts(items, 'Excel Import');
+      showToast(`Imported ${items.length} products successfully`);
+      load();
+    } catch (err) {
+      showToast('Failed to parse or import Excel', 'error');
+    } finally {
+      setImporting(false);
+      // Reset input
+      e.target.value = '';
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const ws = XLSX.utils.json_to_sheet([
+      { SKU: 'SP-01', Quantity: 100, Price: 50000 }
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, "Import_Template.xlsx");
   };
 
   const history: WarehouseImport[] = detail?.importHistory ?? [];
@@ -156,6 +210,27 @@ const WarehousePage: React.FC = () => {
               {importing ? 'Importing...' : 'Import'}
             </button>
           </form>
+          <div className="flex gap-4 mt-6 pt-6 border-t border-outline-variant/10">
+            <label className="btn-secondary cursor-pointer inline-flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">upload_file</span>
+              {importing ? 'Importing...' : 'Import from Excel'}
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleExcelImport}
+                disabled={importing}
+                className="hidden"
+              />
+            </label>
+            <button
+              type="button"
+              className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1"
+              onClick={handleDownloadTemplate}
+            >
+              <span className="material-symbols-outlined text-sm">download</span>
+              Download Template
+            </button>
+          </div>
         </div>
       )}
       <div className="filter-bar">
@@ -209,6 +284,25 @@ const WarehousePage: React.FC = () => {
               ))}
             </tbody>
           </table>
+          {totalPages > 1 && (
+            <div className="pagination flex items-center justify-between p-4 border-t border-outline-variant/10">
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                disabled={page <= 1} 
+                onClick={() => setPage(p => p - 1)}>
+                Previous
+              </button>
+              <span className="text-sm">Page {page} of {totalPages}</span>
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                disabled={page >= totalPages} 
+                onClick={() => setPage(p => p + 1)}>
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 

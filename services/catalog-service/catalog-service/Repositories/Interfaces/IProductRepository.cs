@@ -5,7 +5,7 @@ namespace catalog_service.Repositories.Interfaces
 {
     public interface IProductRepository
     {
-        Task<IEnumerable<Product>> GetAllAsync(ProductFilterRequest filter = null);
+        Task<PagedResult<Product>> GetAllAsync(ProductFilterRequest filter = null);
         Task<IEnumerable<Product>> SearchByNameAsync(string name);
         Task<Product?> GetByIdAsync(int id);
         Task<bool> ExistsByCategoryIdAsync(int categoryId);

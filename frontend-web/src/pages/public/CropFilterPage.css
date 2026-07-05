@@ -1,0 +1,143 @@
+.crop-filter-container {
+  padding-bottom: 4rem;
+}
+
+.crop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.crop-row {
+  display: flex;
+  background-color: var(--surface-color);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  height: 350px;
+}
+
+.crop-info {
+  flex: 0 0 350px;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-right: 1px solid #f0f0f0;
+}
+
+.crop-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.crop-details {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.view-more-btn {
+  margin-top: auto;
+  align-self: flex-start;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.view-more-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.crop-products-scroller {
+  flex: 1;
+  overflow-x: auto;
+  padding: 2rem;
+  background-color: #fafbfc;
+}
+
+.crop-products-scroller::-webkit-scrollbar {
+  height: 8px;
+}
+
+.crop-products-scroller::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 4px;
+}
+
+.crop-products {
+  display: flex;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.crop-product-card {
+  flex: 0 0 220px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #f0f0f0;
+  transition: transform 0.2s;
+}
+
+.crop-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.crop-product-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+  padding: 1rem;
+  background-color: #fff;
+}
+
+.crop-product-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  border-top: 1px solid #f9f9f9;
+}
+
+.crop-product-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reason {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 992px) {
+  .crop-row {
+    flex-direction: column;
+    height: auto;
+  }
+  .crop-info {
+    flex: none;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+}

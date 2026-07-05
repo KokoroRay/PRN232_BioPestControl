@@ -3,6 +3,8 @@ using catalog_service.DTOs.Responses;
 using catalog_service.Models;
 using catalog_service.Repositories.Interfaces;
 using catalog_service.Services.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace catalog_service.Services.Implements
 {
@@ -11,19 +13,30 @@ namespace catalog_service.Services.Implements
         private readonly IProductRepository _repository;
         private readonly IIdentityServiceClient _identityServiceClient;
         private readonly IAgriExpertServiceClient _agriExpertServiceClient;
+        private readonly IDistributedCache _cache;
 
         public ProductService(
             IProductRepository repository,
             IIdentityServiceClient identityServiceClient,
-            IAgriExpertServiceClient agriExpertServiceClient)
+            IAgriExpertServiceClient agriExpertServiceClient,
+            IDistributedCache cache)
         {
             _repository = repository;
             _identityServiceClient = identityServiceClient;
             _agriExpertServiceClient = agriExpertServiceClient;
+            _cache = cache;
         }
 
         public async Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest? filter = null)
         {
+            var cacheKey = $"Products_GetAll_{JsonSerializer.Serialize(filter)}";
+            var cachedData = await _cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<PagedResult<ProductResponse>>(cachedData)!;
+            }
+
             var pagedProducts = await _repository.GetAllAsync(filter);
             var responses = new List<ProductResponse>();
 
@@ -32,13 +45,21 @@ namespace catalog_service.Services.Implements
                 responses.Add(await MapToResponseAsync(product));
             }
 
-            return new PagedResult<ProductResponse>
+            var result = new PagedResult<ProductResponse>
             {
                 Items = responses,
                 TotalCount = pagedProducts.TotalCount,
                 Page = pagedProducts.Page,
                 PageSize = pagedProducts.PageSize
             };
+
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+
+            return result;
         }
 
         public async Task<IEnumerable<ProductResponse>> SearchByNameAsync(string name)
@@ -56,13 +77,29 @@ namespace catalog_service.Services.Implements
 
         public async Task<ProductResponse?> GetByIdAsync(int id)
         {
+            var cacheKey = $"Product_GetById_{id}";
+            var cachedData = await _cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<ProductResponse>(cachedData)!;
+            }
+
             var product = await _repository.GetByIdAsync(id);
             if (product == null)
             {
                 return null;
             }
 
-            return await MapToResponseAsync(product);
+            var response = await MapToResponseAsync(product);
+
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(response), cacheOptions);
+
+            return response;
         }
 
         public async Task<ProductCommandResult> AddAsync(CreateProductRequest request)

@@ -37,10 +37,10 @@ export const PublicLayout: React.FC = () => {
           <nav className="public-nav">
             <Link to="/">{t('home', 'Home')}</Link>
             <Link to="/products">{t('products', 'Products')}</Link>
+            <Link to="/crops">{t('crops', 'Crops')}</Link>
             <Link to="/about">{t('about', 'About')}</Link>
             <Link to="/contact">{t('contact', 'Contact')}</Link>
-            <Link to="/articles">News/Article</Link>
-            <Link to="/agri-calculations">Agri Calculators</Link>
+            <Link to="/articles">{t('news', 'News/Article')}</Link>
           </nav>
 
           <div className="public-auth-actions">
@@ -75,17 +75,20 @@ export const PublicLayout: React.FC = () => {
                   <hr className="public-dropdown-divider" />
                   <button type="button" className="public-dropdown-item" onClick={() => window.dispatchEvent(new Event('open-ai-chat'))} style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left', fontFamily: 'inherit', fontSize: 'inherit', cursor: 'pointer', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Bot size={16} />
-                    <span>Trợ lý AI</span>
+                    <span>{t('aiAssistant', 'AI Assistant')}</span>
                   </button>
+                  <Link to="/agri-calculations" className="public-dropdown-item">
+                    {t('agriCalculators', 'Agri Calculators')}
+                  </Link>
                   <Link to="/orders" className="public-dropdown-item">
-                    Orders
+                    {t('orders', 'Orders')}
                   </Link>
                   <Link to="/account/profile" className="public-dropdown-item">
-                    Profile
+                    {t('profile', 'Profile')}
                   </Link>
                   <button type="button" className="public-dropdown-item public-dropdown-logout" onClick={handleLogout}>
                     <LogOut size={16} />
-                    <span>Logout</span>
+                    <span>{t('logout', 'Logout')}</span>
                   </button>
                 </div>
               </div>

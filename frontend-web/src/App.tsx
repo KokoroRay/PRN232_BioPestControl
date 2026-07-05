@@ -36,6 +36,8 @@ import CustomerProfilePage from './pages/public/CustomerProfilePage';
 import ChangePasswordPage from './pages/public/ChangePasswordPage';
 import AgriCalculationsPage from './pages/public/AgriCalculationsPage';
 import AgriSupportPage from './pages/public/AgriSupportPage';
+import { CropFilterPage } from './pages/public/CropFilterPage';
+import { CropProfilePage } from './pages/public/CropProfilePage';
 
 
 function App() {
@@ -99,6 +101,8 @@ function App() {
           <Route path="products/:id" element={<PublicProductDetailsPage />} />
           <Route path="articles" element={<PublicArticlesPage />} />
           <Route path="articles/:id" element={<PublicArticleDetailsPage />} />
+          <Route path="crops" element={<CropFilterPage />} />
+          <Route path="crops/:id" element={<CropProfilePage />} />
           <Route path="agri-calculations" element={<AgriCalculationsPage />} />
           <Route path="agri-support" element={<AgriSupportPage />} />
           <Route path="cart" element={<CartPage />} />

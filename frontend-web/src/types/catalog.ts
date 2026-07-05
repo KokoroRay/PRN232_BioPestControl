@@ -27,6 +27,7 @@ export interface Product {
   createdByAdminName?: string;
   managedByStaffId?: number;
   managedByStaffName?: string;
+  cropIds?: number[];
 }
 
 export interface CreateCategoryRequest {
@@ -52,6 +53,7 @@ export interface CreateProductRequest {
   chemicalProfileId?: number;
   isActive?: boolean;
   createdByAdminId?: number;
+  cropIds?: number[];
 }
 
 export interface UpdateProductRequest {
@@ -65,4 +67,5 @@ export interface UpdateProductRequest {
   chemicalProfileId?: number;
   isActive?: boolean;
   managedByStaffId?: number;
+  cropIds?: number[];
 }

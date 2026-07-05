@@ -6,7 +6,8 @@ import { Drawer } from '../../components/admin/Drawer';
 import { ConfirmModal } from '../../components/admin/ConfirmModal';
 import { useToast } from '../../context/ToastContext';
 import { usePageMode } from '../../context/PageModeContext';
-import { cropService, CropResponse } from '../../services/cropService';
+import { cropService } from '../../services/cropService';
+import type { CropResponse } from '../../services/cropService';
 import { getApiErrorMessage } from '../../lib/apiError';
 import axios from 'axios';
 

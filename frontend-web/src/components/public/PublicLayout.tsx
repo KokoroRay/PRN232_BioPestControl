@@ -5,7 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { AIAssistantWidget } from '../ai/AIAssistantWidget';
 import { useTranslation } from 'react-i18next';
-import { cropService, CropResponse } from '../../services/cropService';
+import { cropService } from '../../services/cropService';
+import type { CropResponse } from '../../services/cropService';
 
 export const PublicLayout: React.FC = () => {
   const { t, i18n } = useTranslation();

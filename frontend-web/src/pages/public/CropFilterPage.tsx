@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { cropService, CropProfileResponse } from '../../services/cropService';
+import { cropService } from '../../services/cropService';
+import type { CropProfileResponse } from '../../services/cropService';
 import './CropFilterPage.css';
 
 export const CropFilterPage: React.FC = () => {

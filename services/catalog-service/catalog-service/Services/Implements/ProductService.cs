@@ -30,11 +30,32 @@ namespace catalog_service.Services.Implements
         public async Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest? filter = null)
         {
             var cacheKey = $"Products_GetAll_{JsonSerializer.Serialize(filter)}";
-            var cachedData = await _cache.GetStringAsync(cacheKey);
+            string? cachedData = null;
+
+            try
+            {
+                cachedData = await _cache.GetStringAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                // Log exception if possible, or just ignore to fallback to DB
+                Console.WriteLine($"Redis Cache Error (Get): {ex.Message}");
+            }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<PagedResult<ProductResponse>>(cachedData)!;
+                try
+                {
+                    var resultFromCache = JsonSerializer.Deserialize<PagedResult<ProductResponse>>(cachedData);
+                    if (resultFromCache != null)
+                    {
+                        return resultFromCache;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Redis Cache Deserialize Error: {ex.Message}");
+                }
             }
 
             var pagedProducts = await _repository.GetAllAsync(filter);
@@ -53,11 +74,18 @@ namespace catalog_service.Services.Implements
                 PageSize = pagedProducts.PageSize
             };
 
-            var cacheOptions = new DistributedCacheEntryOptions
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-            };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis Cache Error (Set): {ex.Message}");
+            }
 
             return result;
         }
@@ -78,11 +106,31 @@ namespace catalog_service.Services.Implements
         public async Task<ProductResponse?> GetByIdAsync(int id)
         {
             var cacheKey = $"Product_GetById_{id}";
-            var cachedData = await _cache.GetStringAsync(cacheKey);
+            string? cachedData = null;
+
+            try
+            {
+                cachedData = await _cache.GetStringAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis Cache Error (Get): {ex.Message}");
+            }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<ProductResponse>(cachedData)!;
+                try
+                {
+                    var resultFromCache = JsonSerializer.Deserialize<ProductResponse>(cachedData);
+                    if (resultFromCache != null)
+                    {
+                        return resultFromCache;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Redis Cache Deserialize Error: {ex.Message}");
+                }
             }
 
             var product = await _repository.GetByIdAsync(id);
@@ -93,11 +141,18 @@ namespace catalog_service.Services.Implements
 
             var response = await MapToResponseAsync(product);
 
-            var cacheOptions = new DistributedCacheEntryOptions
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-            };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(response), cacheOptions);
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(response), cacheOptions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis Cache Error (Set): {ex.Message}");
+            }
 
             return response;
         }

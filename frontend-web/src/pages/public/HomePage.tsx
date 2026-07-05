@@ -35,7 +35,7 @@ const HomePage: React.FC = () => {
         setLoading(true);
         const [c, p] = await Promise.all([categoryService.getAll(), productService.getAll()]);
         setCategories(c);
-        setProducts(p.filter((item) => item.isActive));
+        setProducts(p.items.filter((item: any) => item.isActive));
       } catch {
         setCategories([]);
         setProducts([]);

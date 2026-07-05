@@ -30,7 +30,7 @@ const StaffDashboard: React.FC = () => {
           orderService.getStaffOrders({ pageSize: 100 }),
           customerService.getAllStaff({ pageSize: 100 }),
           productService.getAll(),
-          inventoryService.getStock().catch(() => []),
+          inventoryService.getStock().catch(() => ({ items: [], totalCount: 0 })),
         ]);
 
         const orders = ordersRes.items;
@@ -52,8 +52,8 @@ const StaffDashboard: React.FC = () => {
           })),
         );
         setTotalCustomers(customers.length);
-        setTotalProducts(products.length);
-        setLowStock(stock.filter((s) => s.isLowStock).length);
+        setTotalProducts(products.totalCount || products.items?.length || 0);
+        setLowStock(stock.items ? stock.items.filter((s: any) => s.isLowStock).length : 0);
       } catch (e) {
         console.error(e);
       } finally {

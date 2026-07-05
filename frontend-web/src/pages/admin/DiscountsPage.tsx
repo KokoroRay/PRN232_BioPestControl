@@ -42,8 +42,8 @@ const DiscountsPage: React.FC = () => {
         productService.getAll(),
       ]);
       setList(d);
-      setProducts(p);
-      if (p[0] && !editId) setForm((f) => ({ ...f, productId: p[0].id }));
+      setProducts(p.items);
+      if (p.items[0] && !editId) setForm((f) => ({ ...f, productId: p.items[0].id }));
     } catch {
       showToast('Failed to load discounts', 'error');
     } finally {

@@ -26,7 +26,6 @@ const PurchasePage: React.FC = () => {
   
   const [useProfileAddress, setUseProfileAddress] = useState(false);
   const [profileAddress, setProfileAddress] = useState('');
-  const [streetAddress, setStreetAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 

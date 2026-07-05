@@ -40,14 +40,14 @@ const AdminDashboard: React.FC = () => {
           statisticsService.getSummary(filter),
           statisticsService.getRevenueChart(filter),
           customerService.getAll({ pageSize: 100 }).catch(() => []),
-          productService.getAll().catch(() => []),
+          productService.getAll().catch(() => ({ items: [], totalCount: 0 })),
           orderService.getAdminOrders({ page: 1, pageSize: 6 }).catch(() => ({ items: [] })),
         ]);
 
         if (summaryRes.success) setStats(summaryRes.data);
         if (chartRes.success) setRevenueChartData(chartRes.data);
         setTotalCustomers(customers.length);
-        setTotalProducts(products.length);
+        setTotalProducts(products.totalCount || products.items?.length || 0);
         setRecentOrders(
           ordersRes.items.map((o) => ({
             id: o.id,

@@ -28,16 +28,28 @@ export interface CropProfileResponse extends CropResponse {
 export const cropService = {
     getAllCrops: async (): Promise<CropResponse[]> => {
         const response = await axios.get(`${API_URL}/crops`);
-        return response.data;
+        if (response.data && Array.isArray(response.data)) {
+            return response.data;
+        }
+        if (response.data && Array.isArray(response.data.items)) {
+            return response.data.items;
+        }
+        return [];
     },
 
     getCropById: async (id: number): Promise<CropProfileResponse> => {
         const response = await axios.get(`${API_URL}/crops/${id}`);
-        return response.data;
+        return {
+            ...response.data,
+            products: response.data?.products || []
+        };
     },
 
     getCropBySlug: async (slug: string): Promise<CropProfileResponse> => {
         const response = await axios.get(`${API_URL}/crops/slug/${slug}`);
-        return response.data;
+        return {
+            ...response.data,
+            products: response.data?.products || []
+        };
     }
 };

@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API } from '../config/api';
 
-const API_URL = import.meta.env.VITE_CATALOG_SERVICE_URL || 'http://localhost:5000/api';
+const API_URL = `${API.catalog}/api`;
 
 export interface CropProductDetail {
     productId: number;

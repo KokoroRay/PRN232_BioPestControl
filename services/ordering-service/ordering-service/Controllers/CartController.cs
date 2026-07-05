@@ -113,7 +113,7 @@ namespace ordering_service.Controllers
                     ProductImageUrl = request.ProductImageUrl,
                     Quantity        = request.Quantity
                 };
-                cart.Items.Add(newItem);
+                _context.CartItems.Add(newItem);
             }
 
             cart.UpdatedAt = DateTime.UtcNow;

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PayOS;
-using PayOS.Types;
+using PayOS.Models.V2.PaymentRequests;
+using PayOS.Models.Webhooks;
 using System.Text.Json;
 
 namespace payment_service.Controllers
@@ -22,17 +23,18 @@ namespace payment_service.Controllers
             try
             {
                 var domain = "http://localhost:5173"; // Replace with your actual frontend domain
-                var paymentData = new PaymentData(
-                    orderCode: int.Parse(DateTimeOffset.Now.ToString("ffffff")),
-                    amount: request.Amount,
-                    description: $"Thanh toán đơn hàng",
-                    items: new List<ItemData>(), // Option to add items here
-                    cancelUrl: $"{domain}/checkout/payment?status=cancel",
-                    returnUrl: $"{domain}/checkout/payment?status=success"
-                );
+                var paymentData = new CreatePaymentLinkRequest
+                {
+                    OrderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
+                    Amount = (long)request.Amount,
+                    Description = "Thanh toán đơn hàng",
+                    Items = new List<PaymentLinkItem>(), // Option to add items here
+                    CancelUrl = $"{domain}/checkout/payment?status=cancel",
+                    ReturnUrl = $"{domain}/checkout/payment?status=success"
+                };
 
-                var createPayment = await _payOsClient.createPaymentLink(paymentData);
-                return Ok(new { Success = true, CheckoutUrl = createPayment.checkoutUrl });
+                var createPayment = await _payOsClient.PaymentRequests.CreateAsync(paymentData);
+                return Ok(new { Success = true, CheckoutUrl = createPayment.CheckoutUrl });
             }
             catch (Exception ex)
             {
@@ -41,11 +43,11 @@ namespace payment_service.Controllers
         }
 
         [HttpPost("webhook")]
-        public IActionResult Webhook([FromBody] WebhookType request)
+        public async Task<IActionResult> Webhook([FromBody] Webhook request)
         {
             try
             {
-                var webhookData = _payOsClient.verifyPaymentWebhookData(request);
+                var webhookData = await _payOsClient.Webhooks.VerifyAsync(request);
                 // Here we would typically update the OrderStatus via gRPC or message queue to ordering-service
                 // For now we just return Ok to acknowledge PayOS
                 return Ok(new { Success = true });
@@ -59,7 +61,6 @@ namespace payment_service.Controllers
 
     public class PaymentRequest
     {
-        public Guid OrderId { get; set; }
-        public int Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 }

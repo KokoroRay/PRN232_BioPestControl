@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { AIAssistantWidget } from '../ai/AIAssistantWidget';
 import { useTranslation } from 'react-i18next';
+import { cropService, CropResponse } from '../../services/cropService';
 
 export const PublicLayout: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -12,6 +13,12 @@ export const PublicLayout: React.FC = () => {
   const { itemCount, loading } = useCart();
   const navigate = useNavigate();
   const displayName = useMemo(() => user?.fullName || user?.email?.split('@')[0] || 'User', [user]);
+
+  const [crops, setCrops] = React.useState<CropResponse[]>([]);
+
+  React.useEffect(() => {
+    cropService.getAllCrops().then(setCrops).catch(console.error);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -37,7 +44,18 @@ export const PublicLayout: React.FC = () => {
           <nav className="public-nav">
             <Link to="/">{t('home', 'Home')}</Link>
             <Link to="/products">{t('products', 'Products')}</Link>
-            <Link to="/crops">{t('crops', 'Crops')}</Link>
+            
+            <div className="public-nav-dropdown">
+              <Link to="/crops" className="public-nav-dropdown-btn">{t('crops', 'Crops')}</Link>
+              <div className="public-nav-dropdown-menu">
+                {crops.map(c => (
+                  <Link key={c.id} to={`/crops/${c.slug}`} className="public-dropdown-item">
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <Link to="/about">{t('about', 'About')}</Link>
             <Link to="/contact">{t('contact', 'Contact')}</Link>
             <Link to="/articles">{t('news', 'News/Article')}</Link>

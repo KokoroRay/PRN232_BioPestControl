@@ -30,5 +30,7 @@ namespace catalog_service.DTOs.Requests
         public int? ChemicalProfileId { get; set; }
         public bool IsActive { get; set; } = true;
         public int? CreatedByAdminId { get; set; }
+
+        public List<int> CropIds { get; set; } = new List<int>();
     }
 }

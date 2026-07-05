@@ -86,6 +86,7 @@ namespace catalog_service.Repositories.Implements
         {
             return await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.ProductCrops)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

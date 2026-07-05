@@ -19,6 +19,7 @@ import StaffPage from './pages/admin/StaffPage';
 import CustomersPage from './pages/admin/CustomersPage';
 import ChemicalSafetyPage from './pages/admin/ChemicalSafetyPage';
 import WarehousePage from './pages/admin/WarehousePage';
+import AdminCropsPage from './pages/admin/AdminCropsPage';
 import FeedbacksPage from './pages/staff/FeedbacksPage';
 import HomePage from './pages/public/HomePage';
 import PublicAboutPage from './pages/public/AboutPage';
@@ -63,6 +64,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="warehouse" element={<WarehousePage />} />
           <Route path="products" element={<ProductsPage />} />
+          <Route path="crops" element={<AdminCropsPage />} />
           <Route path="category" element={<CategoryPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="discounts" element={<DiscountsPage />} />

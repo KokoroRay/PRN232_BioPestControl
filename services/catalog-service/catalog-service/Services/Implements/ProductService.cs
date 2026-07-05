@@ -189,7 +189,8 @@ namespace catalog_service.Services.Implements
                 CategoryId = request.CategoryId,
                 ChemicalProfileId = request.ChemicalProfileId,
                 IsActive = request.IsActive,
-                CreatedByAdminId = request.CreatedByAdminId
+                CreatedByAdminId = request.CreatedByAdminId,
+                ProductCrops = request.CropIds?.Select(cId => new ProductCrop { CropId = cId }).ToList() ?? new List<ProductCrop>()
             };
 
             var added = await _repository.AddAsync(product);
@@ -242,6 +243,16 @@ namespace catalog_service.Services.Implements
             existing.ManagedByStaffId = request.ManagedByStaffId;
             existing.UpdatedAt = DateTime.UtcNow;
 
+            // Update ProductCrops
+            existing.ProductCrops.Clear();
+            if (request.CropIds != null && request.CropIds.Any())
+            {
+                foreach (var cropId in request.CropIds)
+                {
+                    existing.ProductCrops.Add(new ProductCrop { CropId = cropId, ProductId = id });
+                }
+            }
+
             await _repository.UpdateAsync(existing);
             return ProductCommandResult.Ok();
         }
@@ -291,7 +302,8 @@ namespace catalog_service.Services.Implements
                 CreatedByAdminId = product.CreatedByAdminId,
                 CreatedByAdminName = adminName,
                 ManagedByStaffId = product.ManagedByStaffId,
-                ManagedByStaffName = staffName
+                ManagedByStaffName = staffName,
+                CropIds = product.ProductCrops?.Select(pc => pc.CropId).ToList() ?? new List<int>()
             };
         }
     }

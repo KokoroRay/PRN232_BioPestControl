@@ -19,13 +19,16 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     var redisConn = builder.Configuration.GetConnectionString("RedisConnection") ?? "redis:6379";
-    options.Configuration = redisConn;
+    // Tối ưu hóa timeout để tránh treo (LCP chậm) khi Redis sập
+    options.Configuration = $"{redisConn},abortConnect=false,connectTimeout=2000,syncTimeout=2000";
 });
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICropRepository, CropRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICropService, CropService>();
 builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
 {
     // Cấu hình BaseAddress của IdentityService qua config hoặc hardcode

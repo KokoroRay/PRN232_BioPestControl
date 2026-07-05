@@ -9,6 +9,7 @@ import { usePageMode } from '../../context/PageModeContext';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
 import { chemicalService } from '../../services/chemicalService';
+import { cropService, CropResponse } from '../../services/cropService';
 import { getApiErrorMessage } from '../../lib/apiError';
 import type { Product, CreateProductRequest, UpdateProductRequest } from '../../types/catalog';
 import type { Category } from '../../types/catalog';
@@ -24,6 +25,7 @@ const emptyCreate: CreateProductRequest = {
   categoryId: 0,
   chemicalProfileId: undefined,
   isActive: true,
+  cropIds: [],
 };
 
 type ProductFormState = CreateProductRequest & { managedByStaffId?: number };
@@ -34,6 +36,7 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [chemicals, setChemicals] = useState<Chemical[]>([]);
+  const [crops, setCrops] = useState<CropResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(0);
@@ -49,9 +52,14 @@ const ProductsPage: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
 
   const loadMeta = useCallback(async () => {
-    const [c, ch] = await Promise.all([categoryService.getAll(), chemicalService.getAll()]);
+    const [c, ch, cr] = await Promise.all([
+      categoryService.getAll(),
+      chemicalService.getAll(),
+      cropService.getAllCrops()
+    ]);
     setCategories(c);
     setChemicals(ch);
+    setCrops(cr);
   }, []);
 
   const loadProducts = useCallback(
@@ -111,6 +119,7 @@ const ProductsPage: React.FC = () => {
       chemicalProfileId: p.chemicalProfileId,
       isActive: p.isActive,
       managedByStaffId: p.managedByStaffId,
+      cropIds: p.cropIds || [],
     });
     setDrawerOpen(true);
   };
@@ -130,6 +139,7 @@ const ProductsPage: React.FC = () => {
           chemicalProfileId: form.chemicalProfileId,
           isActive: form.isActive ?? true,
           managedByStaffId: form.managedByStaffId,
+          cropIds: form.cropIds,
         };
         await productService.update(editId, body);
       } else {
@@ -143,6 +153,7 @@ const ProductsPage: React.FC = () => {
           categoryId: form.categoryId,
           chemicalProfileId: form.chemicalProfileId,
           isActive: form.isActive ?? true,
+          cropIds: form.cropIds,
         };
         await productService.create(body);
       }
@@ -348,6 +359,25 @@ const ProductsPage: React.FC = () => {
                 </option>
               ))}
             </select>
+          </label>
+          <label>
+            Crops
+            <select
+              multiple
+              value={form.cropIds?.map(String) || []}
+              onChange={(e) => {
+                const values = Array.from(e.target.selectedOptions, option => Number(option.value));
+                setForm({ ...form, cropIds: values });
+              }}
+              style={{ minHeight: '100px' }}
+            >
+              {crops.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <small className="text-muted" style={{ display: 'block', marginTop: '0.25rem' }}>Hold Ctrl/Cmd to select multiple</small>
           </label>
           {canManageCatalog && editId && (
             <label>

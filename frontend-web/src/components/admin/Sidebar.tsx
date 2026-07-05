@@ -105,6 +105,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ role = 'admin' }) => {
               <Tags size={20} />
               <span>Categories</span>
             </NavLink>
+            <NavLink to={link('crops')} className={navClass}>
+              <Leaf size={20} />
+              <span>Crops</span>
+            </NavLink>
             <div className="nav-section-title">Sales</div>
             <NavLink to={link('orders')} className={navClass}>
               <ShoppingCart size={20} />

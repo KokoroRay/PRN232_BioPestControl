@@ -22,7 +22,7 @@ namespace catalog_service.Services.Implements
             _agriExpertServiceClient = agriExpertServiceClient;
         }
 
-        public async Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest filter = null)
+        public async Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest? filter = null)
         {
             var pagedProducts = await _repository.GetAllAsync(filter);
             var responses = new List<ProductResponse>();

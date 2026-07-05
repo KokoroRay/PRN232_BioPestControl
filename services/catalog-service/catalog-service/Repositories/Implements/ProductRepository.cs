@@ -3,6 +3,7 @@ using catalog_service.Models;
 using catalog_service.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using catalog_service.DTOs.Requests;
+using catalog_service.DTOs.Responses;
 
 namespace catalog_service.Repositories.Implements
 {
@@ -15,7 +16,7 @@ namespace catalog_service.Repositories.Implements
             _context = context;
         }
 
-        public async Task<PagedResult<Product>> GetAllAsync(ProductFilterRequest filter = null)
+        public async Task<PagedResult<Product>> GetAllAsync(ProductFilterRequest? filter = null)
         {
             var query = _context.Products.Include(p => p.Category).AsNoTracking().AsQueryable();
 

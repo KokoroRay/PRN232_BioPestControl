@@ -81,37 +81,49 @@ export const CropProfilePage: React.FC = () => {
 
         {loading ? (
           <div className="loading-spinner">Đang tải sản phẩm...</div>
+        ) : products.length === 0 ? (
+          <div className="no-products">
+            <p>Không tìm thấy sản phẩm phù hợp nào trong hệ thống.</p>
+          </div>
         ) : (
-          <div className="crop-products-grid">
-            {products.map(prod => (
-              <div key={prod.id} className="product-card">
-                <Link to={`/products/${prod.id}`} className="product-image-wrap">
-                  <img src={prod.imageUrl} alt={prod.name} />
-                  {!prod.isActive && <span className="status-badge inactive">Hết hàng</span>}
-                </Link>
-                <div className="product-info">
-                  <Link to={`/products/${prod.id}`}>
-                    <h3 className="product-title" title={prod.name}>{prod.name}</h3>
-                  </Link>
-                  <div className="product-price">
-                    {prod.unitPrice.toLocaleString('vi-VN')} ₫
-                  </div>
-                  <button 
-                    className="add-to-cart-btn" 
-                    onClick={() => addToCart(prod, 1)}
-                    disabled={!prod.isActive}
-                  >
-                    Thêm vào giỏ
-                  </button>
+          <div className="crop-products-grouped">
+            {Object.entries(
+              products.reduce((acc, prod) => {
+                const category = prod.category?.name || 'Sản phẩm khác';
+                if (!acc[category]) acc[category] = [];
+                acc[category].push(prod);
+                return acc;
+              }, {} as Record<string, Product[]>)
+            ).map(([categoryName, catProducts]) => (
+              <div key={categoryName} className="crop-product-category-section">
+                <h3 className="category-section-title">{categoryName}</h3>
+                <div className="crop-products-grid">
+                  {catProducts.map(prod => (
+                    <div key={prod.id} className="product-card">
+                      <Link to={`/products/${prod.id}`} className="product-image-wrap">
+                        <img src={prod.imageUrl} alt={prod.name} />
+                        {!prod.isActive && <span className="status-badge inactive">Hết hàng</span>}
+                      </Link>
+                      <div className="product-info">
+                        <Link to={`/products/${prod.id}`}>
+                          <h3 className="product-title" title={prod.name}>{prod.name}</h3>
+                        </Link>
+                        <div className="product-price">
+                          {prod.unitPrice.toLocaleString('vi-VN')} ₫
+                        </div>
+                        <button 
+                          className="add-to-cart-btn" 
+                          onClick={() => addToCart(prod, 1)}
+                          disabled={!prod.isActive}
+                        >
+                          Thêm vào giỏ
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
-            
-            {products.length === 0 && !loading && (
-              <div className="no-products">
-                <p>Không tìm thấy sản phẩm phù hợp nào trong hệ thống.</p>
-              </div>
-            )}
           </div>
         )}
       </div>

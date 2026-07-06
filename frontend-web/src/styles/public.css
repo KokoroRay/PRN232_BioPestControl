@@ -3092,3 +3092,8 @@
   margin-bottom: 0.5rem;
 }
 
+
+.public-nav-dropdown { position: relative; display: inline-flex; } 
+.public-nav-dropdown-menu { position: absolute; top: 100%; left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.375rem; min-width: 150px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 50; display: flex; flex-direction: column; } 
+.public-nav-dropdown:hover .public-nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); } 
+.public-nav-dropdown-btn { display: flex; align-items: center; gap: 4px; padding: 0.5rem 0; }

@@ -89,7 +89,7 @@ export const CropProfilePage: React.FC = () => {
           <div className="crop-products-grouped">
             {Object.entries(
               products.reduce((acc, prod) => {
-                const category = prod.category?.name || 'Sản phẩm khác';
+                const category = prod.categoryName || 'Sản phẩm khác';
                 if (!acc[category]) acc[category] = [];
                 acc[category].push(prod);
                 return acc;

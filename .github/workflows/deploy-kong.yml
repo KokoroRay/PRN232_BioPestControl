@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy-kong:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

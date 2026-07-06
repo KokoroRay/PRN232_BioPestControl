@@ -28,6 +28,7 @@ services:
         paths:
           - /api/products
           - /api/categories
+          - /api/crops
         strip_path: false
 
   # ----------------------------------------------------

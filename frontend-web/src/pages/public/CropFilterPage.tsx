@@ -16,7 +16,12 @@ export const CropFilterPage: React.FC = () => {
         const cropList = await cropService.getAllCrops();
         // Lấy chi tiết từng cây để có danh sách products
         const detailedCrops = await Promise.all(
-          cropList.map(c => cropService.getCropBySlug(c.slug))
+          cropList.map(c => 
+            cropService.getCropBySlug(c.slug).catch(err => {
+              console.error(`Failed to load crop ${c.slug}:`, err);
+              return { ...c, products: [] } as CropProfileResponse;
+            })
+          )
         );
         setCrops(detailedCrops);
       } catch (error) {

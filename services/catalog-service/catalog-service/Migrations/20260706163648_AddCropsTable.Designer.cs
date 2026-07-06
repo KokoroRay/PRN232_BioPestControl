@@ -12,7 +12,7 @@ using catalog_service.Data;
 namespace catalog_service.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20260705182743_AddCropsTable")]
+    [Migration("20260706163648_AddCropsTable")]
     partial class AddCropsTable
     {
         /// <inheritdoc />
@@ -246,98 +246,6 @@ namespace catalog_service.Migrations
                     b.HasIndex("CropId");
 
                     b.ToTable("ProductCrops");
-
-                    b.HasData(
-                        new
-                        {
-                            ProductId = 50,
-                            CropId = 1,
-                            UsageInstruction = "Đặc trị rầy nâu, sâu đục thân hại lúa."
-                        },
-                        new
-                        {
-                            ProductId = 47,
-                            CropId = 1,
-                            UsageInstruction = "Đặc trị bệnh đạo ôn trên lúa."
-                        },
-                        new
-                        {
-                            ProductId = 3,
-                            CropId = 1,
-                            UsageInstruction = "Trừ ốc bươu vàng hại lúa non."
-                        },
-                        new
-                        {
-                            ProductId = 8,
-                            CropId = 1,
-                            UsageInstruction = "Giữ xanh lá đòng, hạt lúa sáng mẩy."
-                        },
-                        new
-                        {
-                            ProductId = 1,
-                            CropId = 2,
-                            UsageInstruction = "Cung cấp Bo và Kẽm giúp đậu trái, chống rụng hoa."
-                        },
-                        new
-                        {
-                            ProductId = 4,
-                            CropId = 2,
-                            UsageInstruction = "Kích thích ra hoa sớm, đồng loạt."
-                        },
-                        new
-                        {
-                            ProductId = 22,
-                            CropId = 2,
-                            UsageInstruction = "Cung cấp dinh dưỡng NPK nuôi trái lớn."
-                        },
-                        new
-                        {
-                            ProductId = 60,
-                            CropId = 2,
-                            UsageInstruction = "Phòng trị bệnh thán thư sầu riêng, nứt thân xì mủ."
-                        },
-                        new
-                        {
-                            ProductId = 2,
-                            CropId = 3,
-                            UsageInstruction = "Thuốc sinh học an toàn trừ sâu tơ bắp cải."
-                        },
-                        new
-                        {
-                            ProductId = 78,
-                            CropId = 3,
-                            UsageInstruction = "Đặc trị bệnh phấn trắng trên dưa leo, bầu bí."
-                        },
-                        new
-                        {
-                            ProductId = 9,
-                            CropId = 3,
-                            UsageInstruction = "Kích rễ rau màu phát triển mạnh."
-                        },
-                        new
-                        {
-                            ProductId = 24,
-                            CropId = 4,
-                            UsageInstruction = "Phân bón đa năng giúp phục hồi cây cà phê sau thu hoạch."
-                        },
-                        new
-                        {
-                            ProductId = 81,
-                            CropId = 4,
-                            UsageInstruction = "Trừ cỏ dại trong vườn hồ tiêu, cà phê."
-                        },
-                        new
-                        {
-                            ProductId = 41,
-                            CropId = 5,
-                            UsageInstruction = "Trừ nấm bệnh thối củ khoai."
-                        },
-                        new
-                        {
-                            ProductId = 17,
-                            CropId = 6,
-                            UsageInstruction = "Tăng khả năng bám dính thuốc trên lá hoa hồng."
-                        });
                 });
 
             modelBuilder.Entity("catalog_service.Models.Product", b =>

@@ -37,29 +37,7 @@ namespace catalog_service.Data
                 new Crop { Id = 6, Name = "Hoa và Cây Cảnh", Slug = "hoa-cay-canh", Description = "Hoa hồng, lan, cúc... Dễ mắc bệnh rỉ sắt, đốm lá và nhện đỏ.", ImageUrl = "https://images.unsplash.com/photo-1490750967868-88cb4ecb07fa?q=80&w=600&auto=format&fit=crop", IsActive = true }
             );
 
-            // Seed ProductCrops (Map some products to crops)
-            modelBuilder.Entity<ProductCrop>().HasData(
-                new ProductCrop { ProductId = 50, CropId = 1, UsageInstruction = "Đặc trị rầy nâu, sâu đục thân hại lúa." }, // Regent -> Lúa
-                new ProductCrop { ProductId = 47, CropId = 1, UsageInstruction = "Đặc trị bệnh đạo ôn trên lúa." }, // KEEP 300SC -> Lúa
-                new ProductCrop { ProductId = 3,  CropId = 1, UsageInstruction = "Trừ ốc bươu vàng hại lúa non." }, // TT SNAILTA -> Lúa
-                new ProductCrop { ProductId = 8,  CropId = 1, UsageInstruction = "Giữ xanh lá đòng, hạt lúa sáng mẩy." }, // TT BIOBECA -> Lúa
 
-                new ProductCrop { ProductId = 1,  CropId = 2, UsageInstruction = "Cung cấp Bo và Kẽm giúp đậu trái, chống rụng hoa." }, // Vi lượng -> Trái
-                new ProductCrop { ProductId = 4,  CropId = 2, UsageInstruction = "Kích thích ra hoa sớm, đồng loạt." }, // TANO_606 -> Trái
-                new ProductCrop { ProductId = 22, CropId = 2, UsageInstruction = "Cung cấp dinh dưỡng NPK nuôi trái lớn." }, // NPK HÀN VIỆT -> Trái
-                new ProductCrop { ProductId = 60, CropId = 2, UsageInstruction = "Phòng trị bệnh thán thư sầu riêng, nứt thân xì mủ." }, // PYROLAX -> Trái
-                
-                new ProductCrop { ProductId = 2,  CropId = 3, UsageInstruction = "Thuốc sinh học an toàn trừ sâu tơ bắp cải." }, // TT-ANONIN -> Rau màu
-                new ProductCrop { ProductId = 78, CropId = 3, UsageInstruction = "Đặc trị bệnh phấn trắng trên dưa leo, bầu bí." }, // SULOX -> Rau màu
-                new ProductCrop { ProductId = 9,  CropId = 3, UsageInstruction = "Kích rễ rau màu phát triển mạnh." }, // SPC_MKP -> Rau màu
-                
-                new ProductCrop { ProductId = 24, CropId = 4, UsageInstruction = "Phân bón đa năng giúp phục hồi cây cà phê sau thu hoạch." }, // NPK FERTIGONIA -> Cây CN
-                new ProductCrop { ProductId = 81, CropId = 4, UsageInstruction = "Trừ cỏ dại trong vườn hồ tiêu, cà phê." }, // YOSKY -> Cây CN
-                
-                new ProductCrop { ProductId = 41, CropId = 5, UsageInstruction = "Trừ nấm bệnh thối củ khoai." }, // ZINEB BUL -> Cây Củ
-                
-                new ProductCrop { ProductId = 17, CropId = 6, UsageInstruction = "Tăng khả năng bám dính thuốc trên lá hoa hồng." } // SAGO BÁM DÍNH -> Hoa
-            );
 
             modelBuilder.Entity<ProductCrop>(entity =>
             {

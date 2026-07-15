@@ -27,7 +27,7 @@ jobs:
           proxy_username: ${{ secrets.VM1_USERNAME }}
           proxy_password: ${{ secrets.VM1_PASSWORD }}
           script: |
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S rm -rf ~/infra/redis-kafka/prometheus/prometheus.yml || true
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S rm -rf ~/infra/redis-kafka/prometheus || true
 
       - name: Copy Files to VM3
         uses: appleboy/scp-action@v0.1.7

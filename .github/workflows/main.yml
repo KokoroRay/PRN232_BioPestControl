@@ -16,6 +16,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Cleanup previous Prometheus config
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM3_HOST }}
+          username: ${{ secrets.VM3_USERNAME }}
+          key: ${{ secrets.VM3_SSH_KEY }}
+          password: ${{ secrets.VM3_PASSWORD }}
+          proxy_host: ${{ secrets.VM1_HOST }}
+          proxy_username: ${{ secrets.VM1_USERNAME }}
+          proxy_password: ${{ secrets.VM1_PASSWORD }}
+          script: |
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S rm -rf ~/infra/redis-kafka/prometheus/prometheus.yml || true
+
       - name: Copy Files to VM3
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -26,7 +39,7 @@ jobs:
           proxy_host: ${{ secrets.VM1_HOST }}
           proxy_username: ${{ secrets.VM1_USERNAME }}
           proxy_password: ${{ secrets.VM1_PASSWORD }}
-          source: "infrastructure/redis-kafka/docker-compose.yml"
+          source: "infrastructure/redis-kafka/docker-compose.yml,infrastructure/redis-kafka/prometheus/prometheus.yml"
           target: "~/infra/redis-kafka"
           strip_components: 2
 
@@ -42,7 +55,7 @@ jobs:
           proxy_password: ${{ secrets.VM1_PASSWORD }}
           script: |
             cd ~/infra/redis-kafka
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka || true
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka prometheus grafana || true
             echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose up -d
 
       - name: Build and Push Services

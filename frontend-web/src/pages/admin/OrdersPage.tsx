@@ -24,7 +24,11 @@ const OrdersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('');
   const [detail, setDetail] = useState<Order | null>(null);
+  
+  // To keep global counts stable regardless of filter
+  const [globalCounts, setGlobalCounts] = useState<Record<string, number>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,25 +39,35 @@ const OrdersPage: React.FC = () => {
         status: statusFilter || undefined,
         pageSize: 50,
       });
-      setOrders(res.items);
+      // Filter by payment if selected (since backend doesn't support payment filtering directly yet)
+      const finalItems = paymentFilter 
+        ? res.items.filter(o => o.paymentStatus === paymentFilter)
+        : res.items;
+      setOrders(finalItems);
+      
+      // If we don't have filters, update the global counts
+      if (!search && !statusFilter && !paymentFilter) {
+        const c: Record<string, number> = {};
+        for (const s of STATUSES) c[s] = 0;
+        for (const o of res.items) c[o.status] = (c[o.status] ?? 0) + 1;
+        setGlobalCounts(c);
+      }
     } catch {
       showToast('Failed to load orders', 'error');
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, showToast, isStaff]);
+  }, [search, statusFilter, paymentFilter, showToast, isStaff]);
 
   useEffect(() => {
     const t = setTimeout(load, 300);
     return () => clearTimeout(t);
   }, [load]);
 
-  const counts = useMemo(() => {
-    const c: Record<string, number> = {};
-    for (const s of STATUSES) c[s] = 0;
-    for (const o of orders) c[o.status] = (c[o.status] ?? 0) + 1;
-    return c;
-  }, [orders]);
+  const counts = Object.keys(globalCounts).length > 0 ? globalCounts : orders.reduce((acc, o) => {
+    acc[o.status] = (acc[o.status] ?? 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   const formatMoney = (v: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v);
@@ -73,6 +87,28 @@ const OrdersPage: React.FC = () => {
     }
   };
 
+  const parseShipping = (addr?: string) => {
+    if (!addr) return { fullName: '', phone: '', address: '' };
+    const parts = addr.split('|').map(p => p.trim());
+    if (parts.length >= 3) {
+      const phone = parts[parts.length - 1].replace(/^Phone:\s*/i, '') ?? '';
+      const fullName = parts[parts.length - 2].replace(/^Receiver:\s*/i, '') ?? '';
+      const address = parts.slice(0, -2).join(' | ');
+      return { address, fullName, phone };
+    }
+    return { fullName: '', phone: '', address: addr };
+  };
+
+  const getNextStatus = (current: string) => {
+    const map: Record<string, string> = {
+      WaitingConfirmation: 'Confirmed',
+      Confirmed: 'Processing',
+      Processing: 'Shipping',
+      Shipping: 'Delivered',
+    };
+    return map[current];
+  };
+
   return (
     <div className="admin-page">
       <PageHeader title="Orders Management" subtitle="Track and manage customer orders." />
@@ -83,12 +119,18 @@ const OrdersPage: React.FC = () => {
         <div className="mini-stat"><span>Delivered</span><strong>{counts.Delivered ?? 0}</strong></div>
       </div>
       <div className="filter-bar">
-        <input type="search" placeholder="Search orders..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <input type="search" placeholder="Search orders or customers..." value={search} onChange={(e) => setSearch(e.target.value)} />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">All Status</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
+        </select>
+        <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
+          <option value="">All Payments</option>
+          <option value="Paid">Paid</option>
+          <option value="Unpaid">Unpaid</option>
+          <option value="Refunded">Refunded</option>
         </select>
       </div>
       {loading ? (
@@ -99,6 +141,7 @@ const OrdersPage: React.FC = () => {
             <thead>
               <tr>
                 <th>Order</th>
+                <th>Customer</th>
                 <th>Date</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -110,10 +153,11 @@ const OrdersPage: React.FC = () => {
               {orders.map((o) => (
                 <tr key={o.id}>
                   <td><code>#{String(o.id).slice(0, 8)}</code></td>
+                  <td>{parseShipping(o.shippingAddress).fullName || 'N/A'}</td>
                   <td>{new Date(o.orderDate).toLocaleString('vi-VN')}</td>
                   <td>{formatMoney(o.totalAmount)}</td>
-                  <td><span className="pill">{o.status}</span></td>
-                  <td>{o.paymentStatus}</td>
+                  <td><span className={`pill ${o.status.toLowerCase()}`}>{o.status}</span></td>
+                  <td><span className={`pill ${o.paymentStatus.toLowerCase()}`}>{o.paymentStatus}</span></td>
                   <td>
                     <button type="button" className="btn-icon" onClick={() => setDetail(o)}><Eye size={18} /></button>
                   </td>
@@ -127,15 +171,40 @@ const OrdersPage: React.FC = () => {
         {detail && (
           <div className="form-stack">
             <p><strong>ID:</strong> {detail.id}</p>
-            <p><strong>Status:</strong> {detail.status}</p>
+            <p><strong>Customer Name:</strong> {parseShipping(detail.shippingAddress).fullName}</p>
+            <p><strong>Phone:</strong> {parseShipping(detail.shippingAddress).phone}</p>
+            <p><strong>Shipping Address:</strong> {parseShipping(detail.shippingAddress).address}</p>
+            <hr style={{ margin: '1rem 0', borderColor: '#eee' }} />
+            <p><strong>Status:</strong> <span className={`pill ${detail.status.toLowerCase()}`}>{detail.status}</span></p>
+            <p><strong>Payment Status:</strong> <span className={`pill ${detail.paymentStatus.toLowerCase()}`}>{detail.paymentStatus}</span> {detail.paymentStatus === 'Refunded' ? '(Refund is processing)' : ''}</p>
             <p><strong>Total:</strong> {formatMoney(detail.totalAmount)}</p>
-            <label>Update status
-              <select defaultValue={detail.status} onChange={(e) => updateStatus(detail.id, e.target.value)}>
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </label>
+            <hr style={{ margin: '1rem 0', borderColor: '#eee' }} />
+            
+            {getNextStatus(detail.status) && (
+              <div style={{ marginBottom: '1rem' }}>
+                <p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>Next Action:</p>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => updateStatus(detail.id, getNextStatus(detail.status))}
+                >
+                  Mark as {getNextStatus(detail.status)}
+                </button>
+              </div>
+            )}
+            
+            {detail.status === 'WaitingConfirmation' && (
+              <div style={{ marginBottom: '1rem' }}>
+                <button 
+                  className="btn" style={{ backgroundColor: '#fff0f0', color: '#d93025', border: '1px solid #fce8e6' }}
+                  onClick={() => {
+                    const reason = prompt("Enter cancellation reason:");
+                    if (reason) orderService.cancel(detail.id, reason, isStaff).then(() => { showToast('Cancelled'); load(); setDetail(null); }).catch(() => showToast('Failed to cancel', 'error'));
+                  }}
+                >
+                  Cancel Order
+                </button>
+              </div>
+            )}
             <h4>Items</h4>
             <ul className="order-items-list">
               {detail.items?.map((i) => (

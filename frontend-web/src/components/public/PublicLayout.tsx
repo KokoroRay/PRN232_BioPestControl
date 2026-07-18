@@ -45,7 +45,7 @@ export const PublicLayout: React.FC = () => {
           <nav className="public-nav">
             <Link to="/">{t('home', 'Home')}</Link>
             <Link to="/products">{t('products', 'Products')}</Link>
-            
+
             <div className="public-nav-dropdown">
               <Link to="/crops" className="public-nav-dropdown-btn">{t('crops', 'Crops')}</Link>
               <div className="public-nav-dropdown-menu">
@@ -63,10 +63,10 @@ export const PublicLayout: React.FC = () => {
           </nav>
 
           <div className="public-auth-actions">
-            <button 
-              type="button" 
-              onClick={toggleLanguage} 
-              className="public-cart-link" 
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="public-cart-link"
               title={t('language', 'Language')}
               style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', fontWeight: 500, color: 'var(--text-color)' }}
             >
@@ -137,7 +137,7 @@ export const PublicLayout: React.FC = () => {
           </p>
         </div>
       </footer>
-      
+
       <AIAssistantWidget />
     </div>
   );

@@ -443,13 +443,13 @@ namespace ordering_service.Controllers
                     Message = $"Đơn hàng ở trạng thái '{order.Status}' không thể cập nhật thêm."
                 });
 
-            // Bỏ kiểm tra tịnh tuyến nghiêm ngặt để Admin/Staff có thể chuyển đổi trạng thái linh hoạt hơn
-            // if (!_nextStatusMap.TryGetValue(order.Status, out var expectedNext) || expectedNext != newStatus)
-            //     return BadRequest(new ApiResponse<object>
-            //     {
-            //         Success = false,
-            //         Message = $"Không thể chuyển từ '{order.Status}' sang '{newStatus}'. Trạng thái tiếp theo hợp lệ là '{(_nextStatusMap.TryGetValue(order.Status, out var next) ? next : "không có")}' ."
-            //     });
+            // Kiểm tra tịnh tuyến: newStatus phải là trạng thái tiếp theo hợp lệ
+            if (!_nextStatusMap.TryGetValue(order.Status, out var expectedNext) || expectedNext != newStatus)
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = $"Không thể chuyển từ '{order.Status}' sang '{newStatus}'. Trạng thái tiếp theo hợp lệ là '{(_nextStatusMap.TryGetValue(order.Status, out var next) ? next : "không có")}' ."
+                });
 
             order.Status    = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
@@ -529,6 +529,7 @@ namespace ordering_service.Controllers
                 
                 query = query.Where(o =>
                     (isGuid && o.Id == searchGuid) ||
+                    (o.ShippingAddress != null && o.ShippingAddress.ToLower().Contains(searchLower)) ||
                     o.OrderItems.Any(i => i.ProductName.ToLower().Contains(searchLower)));
             }
 

@@ -10,7 +10,7 @@ namespace trading_service.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Customer,Admin")] // Chỉ Customer và Admin mới truy cập được
+    [Authorize(Roles = "Customer,Admin,Staff")] // Thêm Staff để không bị lỗi 403 khi load layout
     public class CartController : ControllerBase
     {
         private readonly TradingDbContext _context;

@@ -71,5 +71,66 @@ namespace catalog_service.Services.Implements
             };
             return response;
         }
+
+        public async Task<CropResponse> CreateAsync(CropRequest request)
+        {
+            var crop = new Crop
+            {
+                Name = request.Name,
+                Slug = GenerateSlug(request.Name),
+                Description = request.Description,
+                ImageUrl = request.ImageUrl,
+                IsActive = request.IsActive
+            };
+            
+            await _repository.CreateAsync(crop);
+            return new CropResponse
+            {
+                Id = crop.Id,
+                Name = crop.Name,
+                Slug = crop.Slug,
+                Description = crop.Description,
+                ImageUrl = crop.ImageUrl,
+                IsActive = crop.IsActive
+            };
+        }
+
+        public async Task<CropResponse> UpdateAsync(int id, CropRequest request)
+        {
+            var crop = await _repository.GetByIdAsync(id);
+            if (crop == null)
+            {
+                throw new System.Exception("Crop not found");
+            }
+
+            crop.Name = request.Name;
+            crop.Slug = GenerateSlug(request.Name);
+            crop.Description = request.Description;
+            crop.ImageUrl = request.ImageUrl;
+            crop.IsActive = request.IsActive;
+
+            await _repository.UpdateAsync(crop);
+            return new CropResponse
+            {
+                Id = crop.Id,
+                Name = crop.Name,
+                Slug = crop.Slug,
+                Description = crop.Description,
+                ImageUrl = crop.ImageUrl,
+                IsActive = crop.IsActive
+            };
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            await _repository.DeleteAsync(id);
+        }
+
+        private string GenerateSlug(string phrase)
+        {
+            string str = phrase.ToLower().Replace(" ", "-");
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            return str;
+        }
     }
 }

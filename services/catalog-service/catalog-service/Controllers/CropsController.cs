@@ -45,5 +45,33 @@ namespace catalog_service.Controllers
             }
             return Ok(crop);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<CropResponse>> Create([FromBody] CropRequest request)
+        {
+            var crop = await _cropService.CreateAsync(request);
+            return Ok(crop);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<CropResponse>> Update(int id, [FromBody] CropRequest request)
+        {
+            try
+            {
+                var crop = await _cropService.UpdateAsync(id, request);
+                return Ok(crop);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            await _cropService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

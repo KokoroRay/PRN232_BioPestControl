@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API } from '../../config/api';
 
 interface Feedback {
   id: string;
@@ -24,7 +25,10 @@ const FeedbacksPage: React.FC = () => {
 
   const fetchFeedbacks = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/feedbacks');
+      const token = localStorage.getItem('token');
+      const { data } = await axios.get(`${API.article}/api/feedbacks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setFeedbacks(data);
     } catch (err) {
       console.error('Failed to load feedbacks', err);
@@ -35,9 +39,20 @@ const FeedbacksPage: React.FC = () => {
 
   const submitReply = async (feedbackId: string) => {
     try {
-      await axios.post(`http://localhost:5000/api/feedbacks/${feedbackId}/reply`, {
+      const token = localStorage.getItem('token');
+      // Lấy id nhân viên từ localStorage nếu có, mặc định là 00... nếu không tìm thấy
+      let staffIdStr = '00000000-0000-0000-0000-000000000000';
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user.id) staffIdStr = user.id;
+      }
+      
+      await axios.post(`${API.article}/api/feedbacks/${feedbackId}/reply`, {
         replyMessage: replyText,
-        staffId: '00000000-0000-0000-0000-000000000000' // mock staff id
+        staffId: staffIdStr
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       setReplyText('');
       setReplyingTo(null);

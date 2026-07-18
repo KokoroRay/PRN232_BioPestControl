@@ -93,7 +93,11 @@ const ForgotPassword: React.FC = () => {
         showToast('Đặt lại mật khẩu thành công!', 'success');
         navigate('/login');
       } else {
-        setError(data.message || 'Không thể đặt lại mật khẩu.');
+        let errorMsg = data.message;
+        if (data.errors) {
+            errorMsg = Object.values(data.errors).flat().join(', ');
+        }
+        setError(errorMsg || 'Không thể đặt lại mật khẩu. Vui lòng kiểm tra lại độ khó của mật khẩu (ít nhất 8 ký tự, gồm 1 chữ hoa, 1 chữ thường và 1 số).');
       }
     } catch {
       setError('Không thể kết nối đến server.');

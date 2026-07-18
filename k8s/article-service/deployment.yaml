@@ -53,11 +53,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: engagement-service
+  name: article-service
   namespace: biopest
 spec:
   selector:
-    app: engagement-service
+    app: article-service
   ports:
     - protocol: TCP
       port: 80

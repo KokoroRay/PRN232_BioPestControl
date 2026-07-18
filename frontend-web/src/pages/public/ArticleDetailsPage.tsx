@@ -31,46 +31,6 @@ const ArticleDetailsPage: React.FC = () => {
         setPopularPosts(allList.filter(a => a.id !== id).slice(0, 3));
       } catch (err) {
         console.error('Error fetching article details', err);
-        // Load mock fallback for visual wow if not found on backend yet
-        const mockFallback: Article = {
-          id: id,
-          title: 'Ứng dụng Công nghệ AI trong phát hiện sâu bệnh hại cây Cam Sành',
-          content: `
-            <p className="mb-4">Hội thảo khoa học Nông nghiệp hữu cơ vùng Đồng bằng Sông Cửu Long vừa qua đã chính thức công bố giải pháp phát hiện rầy chổng cánh và sâu vẽ bùa tự động sử dụng trí tuệ nhân tạo (AI).</p>
-            <p className="mb-4">Theo báo cáo thực tế từ các nhà vườn thử nghiệm tại Vĩnh Long và Cần Thơ, công nghệ AI thông qua camera quét quang học có thể phát hiện mật độ sâu hại siêu nhỏ ngay từ giai đoạn trứng hoặc ấu trùng với độ chính xác đạt tới 95%.</p>
-            <h4 className="font-bold text-primary mt-6 mb-3 text-base">Giải pháp đột phá cắt giảm chi phí</h4>
-            <p className="mb-4">Việc phát hiện sớm sâu rầy gây hại giúp bà con nông dân khoanh vùng phun cục bộ bằng chế phẩm sinh học Bt hữu cơ thay vì phun xịt tràn lan toàn bộ vườn cam như trước đây. Điều này vừa giúp bảo vệ côn trùng có lợi thiên địch, vừa cắt giảm tới 60% chi phí mua thuốc bảo vệ thực vật hàng năm.</p>
-            <p className="mb-4">Hệ thống ứng dụng thông minh BioPestControl hiện đã sẵn sàng tích hợp module camera phân tích hình ảnh này cho tất cả khách hàng đăng ký sử dụng tài khoản Farmer Premium trong tháng này.</p>
-          `,
-          summary: 'Khám phá giải pháp nhận diện rầy chổng cánh và sâu vẽ bùa tự động trên cây có múi bằng công nghệ quét hình ảnh học sâu hiện đại.',
-          thumbnailUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc',
-          status: '2', // Instruction
-          tags: 'AI, Pest, Citrus',
-          createdAt: '2026-05-25T08:00:00Z'
-        };
-        setArticle(mockFallback);
-        
-        // Mock popular posts fallback
-        setPopularPosts([
-          {
-            id: '2',
-            title: 'Ưu đãi cực lớn: Giảm 20% các dòng chế phẩm Bacillus hữu cơ tháng này',
-            content: '',
-            summary: 'Nhận ngay khuyến mãi ưu đãi 20% và miễn phí vận chuyển tận vườn cho các hộ nông dân đặt mua chế phẩm diệt rầy sinh học trong tháng này.',
-            thumbnailUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc',
-            status: '3',
-            createdAt: '2026-05-26T09:15:00Z'
-          },
-          {
-            id: '3',
-            title: 'Hội thảo Nông nghiệp hữu cơ bền vững tại Cần Thơ năm 2026',
-            content: '',
-            summary: 'Điểm lại những công bố giải pháp Nano sinh học đột phá bảo vệ rễ cây ăn trái tại sự kiện hội thảo khoa học lớn nhất Đồng bằng Sông Cửu Long.',
-            thumbnailUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc',
-            status: '1',
-            createdAt: '2026-05-24T14:00:00Z'
-          }
-        ]);
       } finally {
         setLoading(false);
       }

@@ -161,6 +161,20 @@ spec:
                 name: ordering-service
                 port:
                   number: 80
+          - path: /api/staff/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
+          - path: /api/admin/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
           - path: /api/statistics
             pathType: Prefix
             backend:

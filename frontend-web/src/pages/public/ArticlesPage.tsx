@@ -29,44 +29,7 @@ const ArticlesPage: React.FC = () => {
         // Call article service to get all articles
         const data = await articleService.getAll();
         
-        // Provide mock fallback data if backend returns empty (for visual wow factor)
-        if (data.length === 0) {
-          const mockList: Article[] = [
-            {
-              id: '1',
-              title: 'Ứng dụng Công nghệ AI trong phát hiện sâu bệnh hại cây Cam Sành',
-              content: 'Công nghệ trí tuệ nhân tạo (AI) giúp các nhà vườn sớm phát hiện các loại rầy chổng cánh, vẽ bùa từ sớm, giảm thiểu chi phí phun thuốc...',
-              summary: 'Khám phá giải pháp nhận diện rầy chổng cánh và sâu vẽ bùa tự động trên cây có múi bằng công nghệ quét hình ảnh học sâu hiện đại.',
-              thumbnailUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc',
-              status: '2', // Instruction
-              tags: 'AI, Pest, Citrus',
-              createdAt: '2026-05-25T08:00:00Z'
-            },
-            {
-              id: '2',
-              title: 'Ưu đãi cực lớn: Giảm 20% các dòng chế phẩm Bacillus hữu cơ tháng này',
-              content: 'Nhằm đồng hành cùng bà con nông dân chuẩn bị vào mùa vụ mới, BioPestControl tưng bừng khuyến mãi 20% các chế phẩm sinh học...',
-              summary: 'Nhận ngay khuyến mãi ưu đãi 20% và miễn phí vận chuyển tận vườn cho các hộ nông dân đặt mua chế phẩm diệt rầy sinh học trong tháng này.',
-              thumbnailUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc',
-              status: '3', // Promotion
-              tags: 'Promotion, Discount',
-              createdAt: '2026-05-26T09:15:00Z'
-            },
-            {
-              id: '3',
-              title: 'Hội thảo Nông nghiệp hữu cơ bền vững tại Cần Thơ năm 2026',
-              content: 'Ngày 24/05 vừa qua, hội thảo chia sẻ giải pháp bảo vệ cây trồng sinh học thế hệ mới đã thu hút hơn 300 kỹ sư và chủ trang trại...',
-              summary: 'Điểm lại những công bố giải pháp Nano sinh học đột phá bảo vệ rễ cây ăn trái tại sự kiện hội thảo khoa học lớn nhất Đồng bằng Sông Cửu Long.',
-              thumbnailUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc',
-              status: '1', // News
-              tags: 'Seminar, CanTho, Organic',
-              createdAt: '2026-05-24T14:00:00Z'
-            }
-          ];
-          setArticles(mockList);
-        } else {
-          setArticles(data);
-        }
+        setArticles(data);
       } catch (err) {
         console.error('Error fetching articles', err);
       } finally {

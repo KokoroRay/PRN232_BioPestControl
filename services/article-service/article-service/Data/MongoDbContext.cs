@@ -16,8 +16,6 @@ namespace article_service.Data
 
             var client = new MongoClient(connectionString);
             _database = client.GetDatabase(databaseName);
-
-            SeedData();
         }
 
         public IMongoCollection<Article> Articles =>
@@ -32,9 +30,9 @@ namespace article_service.Data
         /// <summary>
         /// Insert seed articles if the collection is empty.
         /// </summary>
-        private void SeedData()
+        public async Task InitSeedDataAsync()
         {
-            if (Articles.CountDocuments(FilterDefinition<Article>.Empty) > 0)
+            if (await Articles.CountDocumentsAsync(FilterDefinition<Article>.Empty) > 0)
                 return;
 
             var seedArticles = new List<Article>
@@ -74,7 +72,7 @@ namespace article_service.Data
                 }
             };
 
-            Articles.InsertMany(seedArticles);
+            await Articles.InsertManyAsync(seedArticles);
         }
     }
 }

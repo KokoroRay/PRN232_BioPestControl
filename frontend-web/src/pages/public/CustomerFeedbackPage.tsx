@@ -18,6 +18,7 @@ const CustomerFeedbackPage: React.FC = () => {
   const [formRating, setFormRating] = useState(5);
   const [formComment, setFormComment] = useState('');
   const [formImagesPreviews, setFormImagesPreviews] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isAuthenticated) {
     navigate('/login');
@@ -38,6 +39,7 @@ const CustomerFeedbackPage: React.FC = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       await createFeedback({
         productId: Number(productId),
@@ -52,6 +54,8 @@ const CustomerFeedbackPage: React.FC = () => {
     } catch (err) {
       console.error('Failed to submit feedback', err);
       showToast('Có lỗi xảy ra khi gửi đánh giá, vui lòng thử lại.', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -140,8 +144,8 @@ const CustomerFeedbackPage: React.FC = () => {
             </div>
 
             <div className="flex justify-end pt-4 border-t border-outline-variant/10">
-              <button type="submit" className="bg-primary hover:bg-[#173901] text-white font-bold px-8 py-3 rounded-xl text-sm shadow-md transition-colors">
-                Lưu đánh giá
+              <button type="submit" disabled={isLoading} className={`bg-primary hover:bg-[#173901] text-white font-bold px-8 py-3 rounded-xl text-sm shadow-md transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                {isLoading ? 'Đang lưu...' : 'Lưu đánh giá'}
               </button>
             </div>
           </form>

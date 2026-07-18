@@ -20,51 +20,47 @@ const STATUSES = [
 const OrdersPage: React.FC = () => {
   const { isStaff } = usePageMode();
   const { showToast } = useToast();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('');
   const [detail, setDetail] = useState<Order | null>(null);
-  
-  // To keep global counts stable regardless of filter
-  const [globalCounts, setGlobalCounts] = useState<Record<string, number>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const fetch = isStaff ? orderService.getStaffOrders : orderService.getAdminOrders;
-      const res = await fetch({
-        search: search || undefined,
-        status: statusFilter || undefined,
-        pageSize: 50,
-      });
-      // Filter by payment if selected (since backend doesn't support payment filtering directly yet)
-      const finalItems = paymentFilter 
-        ? res.items.filter(o => o.paymentStatus === paymentFilter)
-        : res.items;
-      setOrders(finalItems);
-      
-      // If we don't have filters, update the global counts
-      if (!search && !statusFilter && !paymentFilter) {
-        const c: Record<string, number> = {};
-        for (const s of STATUSES) c[s] = 0;
-        for (const o of res.items) c[o.status] = (c[o.status] ?? 0) + 1;
-        setGlobalCounts(c);
-      }
+      // Lấy tổng thể trang (fetch all)
+      const res = await fetch({ pageSize: 500 });
+      setAllOrders(res.items);
     } catch {
       showToast('Failed to load orders', 'error');
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, paymentFilter, showToast, isStaff]);
+  }, [showToast, isStaff]);
 
   useEffect(() => {
-    const t = setTimeout(load, 300);
-    return () => clearTimeout(t);
+    load();
   }, [load]);
 
-  const counts = Object.keys(globalCounts).length > 0 ? globalCounts : orders.reduce((acc, o) => {
+  const displayed = useMemo(() => {
+    let list = allOrders;
+    if (statusFilter) list = list.filter(o => o.status === statusFilter);
+    if (paymentFilter) list = list.filter(o => o.paymentStatus === paymentFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      list = list.filter(o => 
+        String(o.id).toLowerCase().includes(q) || 
+        (o.shippingAddress && o.shippingAddress.toLowerCase().includes(q)) ||
+        (o.items && o.items.some(i => i.productName.toLowerCase().includes(q)))
+      );
+    }
+    return list;
+  }, [allOrders, statusFilter, paymentFilter, search]);
+
+  const counts = allOrders.reduce((acc, o) => {
     acc[o.status] = (acc[o.status] ?? 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -150,19 +146,25 @@ const OrdersPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td><code>#{String(o.id).slice(0, 8)}</code></td>
-                  <td>{parseShipping(o.shippingAddress).fullName || 'N/A'}</td>
-                  <td>{new Date(o.orderDate).toLocaleString('vi-VN')}</td>
-                  <td>{formatMoney(o.totalAmount)}</td>
-                  <td><span className={`pill ${o.status.toLowerCase()}`}>{o.status}</span></td>
-                  <td><span className={`pill ${o.paymentStatus.toLowerCase()}`}>{o.paymentStatus}</span></td>
-                  <td>
-                    <button type="button" className="btn-icon" onClick={() => setDetail(o)}><Eye size={18} /></button>
-                  </td>
+              {displayed.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-4">No orders found</td>
                 </tr>
-              ))}
+              ) : (
+                displayed.map((o) => (
+                  <tr key={o.id}>
+                    <td><code>#{String(o.id).slice(0, 8)}</code></td>
+                    <td>{parseShipping(o.shippingAddress).fullName || 'N/A'}</td>
+                    <td>{new Date(o.orderDate).toLocaleString('vi-VN')}</td>
+                    <td>{formatMoney(o.totalAmount)}</td>
+                    <td><span className={`pill ${o.status.toLowerCase()}`}>{o.status}</span></td>
+                    <td><span className={`pill ${o.paymentStatus.toLowerCase()}`}>{o.paymentStatus}</span></td>
+                    <td>
+                      <button type="button" className="btn-icon" onClick={() => setDetail(o)}><Eye size={18} /></button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -33,6 +33,7 @@ import PurchasePage from './pages/public/PurchasePage';
 import PaymentPage from './pages/public/PaymentPage';
 import CustomerOrdersPage from './pages/public/CustomerOrdersPage';
 import CustomerOrderDetailsPage from './pages/public/CustomerOrderDetailsPage';
+import CustomerFeedbackPage from './pages/public/CustomerFeedbackPage';
 import CustomerProfilePage from './pages/public/CustomerProfilePage';
 import ChangePasswordPage from './pages/public/ChangePasswordPage';
 import AgriCalculationsPage from './pages/public/AgriCalculationsPage';
@@ -112,6 +113,7 @@ function App() {
           <Route path="checkout/payment" element={<PaymentPage />} />
           <Route path="orders" element={<CustomerOrdersPage />} />
           <Route path="orders/:id" element={<CustomerOrderDetailsPage />} />
+          <Route path="customer-feedback" element={<CustomerFeedbackPage />} />
           <Route path="account/profile" element={<CustomerProfilePage />} />
           <Route path="account/change-password" element={<ChangePasswordPage />} />
         </Route>

@@ -133,6 +133,17 @@ const CustomerOrderDetailsPage: React.FC = () => {
                         <p className="order-detail-item-price">
                           Qty {item.quantity} × {formatPrice(item.unitPrice)}
                         </p>
+                        {order.status === 'Delivered' && (
+                          <div className="mt-2">
+                            <Link 
+                              to={`/customer-feedback?orderId=${order.id}&productId=${item.productId}&productName=${encodeURIComponent(item.productName)}`}
+                              className="text-xs text-primary font-bold hover:underline flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">rate_review</span>
+                              Đánh giá / Chỉnh sửa nhận xét
+                            </Link>
+                          </div>
+                        )}
                       </div>
                       <strong className="order-detail-item-total">
                         {formatPrice(item.quantity * item.unitPrice)}

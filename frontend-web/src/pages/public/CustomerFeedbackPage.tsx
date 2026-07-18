@@ -90,12 +90,20 @@ const CustomerFeedbackPage: React.FC = () => {
                     key={i}
                     type="button"
                     onClick={() => setFormRating(i)}
-                    className={`material-symbols-outlined text-4xl hover:scale-110 transition-transform ${
-                      i <= formRating ? 'text-amber-500' : 'text-slate-300'
-                    }`}
-                    style={{ fontVariationSettings: `'FILL' ${i <= formRating ? '1' : '0'}` }}
+                    className="hover:scale-110 transition-transform focus:outline-none"
                   >
-                    star
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 24 24" 
+                      fill={i <= formRating ? "currentColor" : "none"} 
+                      stroke="currentColor" 
+                      strokeWidth="1.5"
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      className={`w-10 h-10 ${i <= formRating ? 'text-amber-400 drop-shadow-md' : 'text-slate-300'}`}
+                    >
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
                   </button>
                 ))}
               </div>

@@ -20,11 +20,7 @@ builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy.WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:4000",
-                "http://localhost:5173",
-                "http://localhost:8080")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
@@ -48,8 +44,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 

@@ -86,6 +86,7 @@ services:
       - name: article-routes
         paths:
           - /api/articles
+          - /api/feedbacks
         strip_path: false
 
   # ----------------------------------------------------

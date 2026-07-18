@@ -60,14 +60,16 @@ jobs:
 
       - name: Deploy API Gateway
         shell: bash
+        env:
+          VM1_PASSWORD: ${{ secrets.VM1_PASSWORD }}
         run: |
           echo "--- Deploying API Gateway ---"
-          sudo mkdir -p /app/gateway
-          sudo cp -r infrastructure/gateway/* /app/gateway/
+          echo "$VM1_PASSWORD" | sudo -S mkdir -p /app/gateway
+          echo "$VM1_PASSWORD" | sudo -S cp -r infrastructure/gateway/* /app/gateway/
           cd /app/gateway
-          sudo docker-compose down || true
-          sudo docker-compose pull
-          sudo docker-compose up -d --force-recreate
+          echo "$VM1_PASSWORD" | sudo -S docker-compose down || true
+          echo "$VM1_PASSWORD" | sudo -S docker-compose pull
+          echo "$VM1_PASSWORD" | sudo -S docker-compose up -d --force-recreate
 
       - name: Build and Push Services
         shell: bash

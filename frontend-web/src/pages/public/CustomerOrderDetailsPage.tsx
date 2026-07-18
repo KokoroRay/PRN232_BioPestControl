@@ -8,6 +8,7 @@ import { orderStatusLabel, parseShippingAddress } from '../../lib/checkoutUtils'
 import { orderService } from '../../services/orderService';
 import type { Order } from '../../types/ordering';
 import { useCart } from '../../context/CartContext';
+import { useTranslation } from 'react-i18next';
 
 const formatPrice = (value: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
@@ -21,6 +22,7 @@ const CustomerOrderDetailsPage: React.FC = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const loadOrder = useCallback(async () => {
     try {
@@ -134,13 +136,13 @@ const CustomerOrderDetailsPage: React.FC = () => {
                           Qty {item.quantity} × {formatPrice(item.unitPrice)}
                         </p>
                         {order.status === 'Delivered' && (
-                          <div className="mt-2">
+                          <div className="mt-3">
                             <Link 
                               to={`/customer-feedback?orderId=${order.id}&productId=${item.productId}&productName=${encodeURIComponent(item.productName)}`}
-                              className="text-xs text-primary font-bold hover:underline flex items-center gap-1"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-primary rounded hover:bg-[#173901] transition-colors"
                             >
                               <span className="material-symbols-outlined text-[14px]">rate_review</span>
-                              Đánh giá / Chỉnh sửa nhận xét
+                              {t('leaveFeedback', 'Đánh giá / Chỉnh sửa nhận xét')}
                             </Link>
                           </div>
                         )}

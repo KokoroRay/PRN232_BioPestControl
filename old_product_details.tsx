@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import type { Product } from '../../types/catalog';
-
+import { useAuth } from '../../context/AuthContext';
 import { useAddToCart } from '../../hooks/useAddToCart';
 
-import { getFeedbacksByProductId } from '../../services/feedbackService';
+import { getFeedbacksByProductId, createFeedback as createFeedbackApi } from '../../services/feedbackService';
 
 interface Feedback {
   id: string;
@@ -28,7 +28,7 @@ interface RatingFilter {
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  // auth not needed here anymore
+  const { isAuthenticated, user } = useAuth();
   const { handleAddToCart } = useAddToCart();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -42,6 +42,12 @@ const ProductDetailsPage: React.FC = () => {
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>({ minRating: null, showWithImages: false });
   const [addingToCart, setAddingToCart] = useState(false);
 
+  // Review submission state
+  const [formRating, setFormRating] = useState(5);
+  const [formComment, setFormComment] = useState('');
+  const [formImagesPreviews, setFormImagesPreviews] = useState<string[]>([]);
+  const [formOrderId, setFormOrderId] = useState('');
+  
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({ show: false, msg: '', type: 'success' });
 
@@ -87,6 +93,13 @@ const ProductDetailsPage: React.FC = () => {
     }, 3000);
   };
 
+  const handleImagePreviews = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files).slice(0, 5);
+
+    const previews = files.map(file => URL.createObjectURL(file));
+    setFormImagesPreviews(previews);
+  };
 
   const handleHelpfulClick = (feedbackId: string) => {
     setFeedbacks(prev => prev.map(f => {
@@ -98,6 +111,49 @@ const ProductDetailsPage: React.FC = () => {
     showToastMsg('Cảm ơn bạn đã phản hồi review này hữu ích!');
   };
 
+  const handleAddReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      showToastMsg('Vui lòng đăng nhập để gửi đánh giá!', 'error');
+      return;
+    }
+    if (!formOrderId) {
+      showToastMsg('Vui lòng chọn đơn hàng chứa sản phẩm này!', 'error');
+      return;
+    }
+
+    try {
+      const created = await createFeedbackApi({
+        productId: product?.id,
+        userId: user?.id || '00000000-0000-0000-0000-000000000000',
+        userName: user?.fullName || user?.email || 'Khách hàng',
+        rating: formRating,
+        comment: formComment
+      });
+
+      // Optimistic UI update or fetch from server again, here we do optimistic:
+      const newFeedback: Feedback = {
+        id: created.id,
+        userName: created.userName,
+        rating: created.rating,
+        comment: created.comment,
+        createdAt: created.createdAt,
+        helpfulCount: 0,
+        images: formImagesPreviews.length > 0 ? formImagesPreviews : undefined
+      };
+
+      setFeedbacks(prev => [newFeedback, ...prev]);
+      showToastMsg('Gửi đánh giá thành công! Cảm ơn đóng góp của bạn.');
+      
+      // Clear form state
+      setFormComment('');
+      setFormImagesPreviews([]);
+      setFormOrderId('');
+    } catch (err) {
+      console.error('Failed to submit feedback', err);
+      showToastMsg('Có lỗi xảy ra khi gửi đánh giá, vui lòng thử lại.', 'error');
+    }
+  };
 
   const handleCartAdd = async (isBuyNow: boolean) => {
     if (!product) return;
@@ -584,6 +640,86 @@ const ProductDetailsPage: React.FC = () => {
           </div>
         )}
 
+        {/* Submit Review Form */}
+        <div className="mt-10 border-t border-outline-variant/10 pt-8">
+          <h4 className="font-h3 text-xl font-bold text-primary mb-4">Gửi đánh giá của bạn</h4>
+
+          {!isAuthenticated ? (
+            <div className="bg-background dark:bg-surface p-6 rounded-xl border border-outline-variant/10 flex flex-col items-center text-center gap-4">
+              <p className="text-sm text-on-surface-variant font-light">Bạn cần đăng nhập để gửi đánh giá cho sản phẩm này.</p>
+              <Link to="/login" className="bg-primary text-white font-bold px-6 py-2.5 rounded-lg text-xs shadow-md">Đăng nhập ngay</Link>
+            </div>
+          ) : (
+            <form onSubmit={handleAddReview} className="space-y-5 max-w-2xl">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Chọn đơn hàng đã giao</label>
+                <select
+                  value={formOrderId}
+                  onChange={(e) => setFormOrderId(e.target.value)}
+                  className="w-full border border-outline-variant/30 rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary/20 bg-background dark:bg-surface focus:outline-none cursor-pointer"
+                  required
+                >
+                  <option value="">Chọn đơn hàng chứa sản phẩm này...</option>
+                  <option value="90012">Đơn hàng #90012 - Đã giao ngày 15/05/2026</option>
+                  <option value="90054">Đơn hàng #90054 - Đã giao ngày 22/05/2026</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Đánh giá sao</label>
+                <div className="flex gap-1" id="starRating">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setFormRating(i)}
+                      className={`material-symbols-outlined text-4xl hover:scale-110 transition-transform ${
+                        i <= formRating ? 'text-amber-500' : 'text-slate-300'
+                      }`}
+                      style={{ fontVariationSettings: `'FILL' ${i <= formRating ? '1' : '0'}` }}
+                    >
+                      star
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Bình luận nhận xét</label>
+                <textarea
+                  value={formComment}
+                  onChange={(e) => setFormComment(e.target.value)}
+                  rows={4}
+                  className="w-full border border-outline-variant/30 rounded-xl p-4 text-sm focus:ring-1 focus:ring-primary/20 bg-background dark:bg-surface focus:outline-none"
+                  placeholder="Chia sẻ trải nghiệm thực tế sử dụng sản phẩm..."
+                  required
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Hình ảnh đính kèm (tối đa 5 hình)</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImagePreviews}
+                  className="w-full border border-outline-variant/30 rounded-xl p-3 text-xs bg-background dark:bg-surface"
+                />
+                {formImagesPreviews.length > 0 && (
+                  <div className="flex gap-2.5 mt-3 flex-wrap">
+                    {formImagesPreviews.map((preview, index) => (
+                      <img key={index} src={preview} alt="Form preview" className="w-16 h-16 object-cover rounded-xl border" />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end">
+                <button type="submit" className="bg-primary hover:bg-[#173901] text-white font-bold px-8 py-3 rounded-xl text-sm shadow-md">Gửi nhận xét</button>
+              </div>
+            </form>
+          )}
+        </div>
       </section>
     </div>
   );

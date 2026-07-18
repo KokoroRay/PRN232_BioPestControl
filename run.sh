@@ -1,1 +1,0 @@
-kubectl exec deployment/ordering-service -n biopest -- sh -c "TOKEN=\$(curl -sS -X POST http://identity-service/api/auth/login -H 'Content-Type: application/json' -d '{\"email\": \"admin@biopest.com\", \"password\": \"Admin@123\"}' | grep -o '\"token\":\"[^\"]*' | cut -d'\"' -f4) && curl -v -sS -X GET http://ordering-service/api/cart -H \"Authorization: Bearer \$TOKEN\""

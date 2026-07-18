@@ -9,4 +9,5 @@ export const API = {
   article: import.meta.env.VITE_ARTICLE_API || (isProd ? '' : 'http://localhost:5286'),
   agriExpert: import.meta.env.VITE_AGRI_API || (isProd ? '' : 'http://localhost:5050'),
   inventory: import.meta.env.VITE_INVENTORY_API || (isProd ? '' : 'http://localhost:5256'),
+  payment: import.meta.env.VITE_PAYMENT_API || (isProd ? '' : 'http://localhost:5241'),
 } as const;

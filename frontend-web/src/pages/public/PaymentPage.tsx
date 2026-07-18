@@ -8,6 +8,7 @@ import { useToast } from '../../context/ToastContext';
 import { checkoutStorage } from '../../lib/checkoutStorage';
 import { buildShippingAddress, filterSelectedCartItems } from '../../lib/checkoutUtils';
 import { orderService } from '../../services/orderService';
+import { paymentService } from '../../services/paymentService';
 
 type PaymentMethod = 'COD' | 'PayOS';
 
@@ -65,7 +66,17 @@ const PaymentPage: React.FC = () => {
       await refreshCart();
 
       if (paymentMethod === 'PayOS') {
-        showToast('PayOS online payment is not configured yet. Order was created as unpaid.', 'error');
+        const paymentRes = await paymentService.createPaymentLink(
+          order.totalAmount, 
+          order.id,
+          window.location.origin
+        );
+        if (paymentRes.success && paymentRes.checkoutUrl) {
+          window.location.href = paymentRes.checkoutUrl;
+          return;
+        } else {
+          showToast('Failed to initialize PayOS payment. Order was created as unpaid.', 'error');
+        }
       } else {
         showToast('Order placed successfully!');
       }

@@ -22,15 +22,15 @@ namespace payment_service.Controllers
         {
             try
             {
-                var domain = "http://localhost:5173"; // Replace with your actual frontend domain
+                var domain = string.IsNullOrEmpty(request.Domain) ? "http://localhost:5173" : request.Domain;
                 var paymentData = new CreatePaymentLinkRequest
                 {
                     OrderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
                     Amount = (long)request.Amount,
                     Description = "Thanh toán đơn hàng",
                     Items = new List<PaymentLinkItem>(), // Option to add items here
-                    CancelUrl = $"{domain}/checkout/payment?status=cancel",
-                    ReturnUrl = $"{domain}/checkout/payment?status=success"
+                    CancelUrl = $"{domain}/orders/{request.OrderId}?status=cancel",
+                    ReturnUrl = $"{domain}/orders/{request.OrderId}?status=success"
                 };
 
                 var createPayment = await _payOsClient.PaymentRequests.CreateAsync(paymentData);
@@ -62,5 +62,7 @@ namespace payment_service.Controllers
     public class PaymentRequest
     {
         public decimal Amount { get; set; }
+        public string? Domain { get; set; }
+        public Guid OrderId { get; set; }
     }
 }

@@ -202,11 +202,18 @@ const CustomerOrdersPage: React.FC = () => {
                     <div className="orders-card-body">
                       <div className="orders-card-product">
                         <div className="orders-card-thumb">
-                          <span className="material-symbols-outlined">inventory_2</span>
+                          {order.items.length > 0 && order.items[0].productImageUrl ? (
+                            <img src={order.items[0].productImageUrl} alt={order.items[0].productName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                          ) : (
+                            <span className="material-symbols-outlined">inventory_2</span>
+                          )}
                         </div>
                         <div className="orders-card-meta">
+                          <p className="font-semibold text-gray-800" style={{ fontSize: '15px' }}>
+                            {order.items.length > 0 ? order.items[0].productName : 'No products'}
+                          </p>
                           <p className={`orders-card-items ${isCancelled(order.status) ? 'orders-card-cancelled' : ''}`}>
-                            {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                            {order.items.length > 1 ? `và ${order.items.length - 1} sản phẩm khác` : '1 sản phẩm'}
                           </p>
                           <p className="orders-card-date">
                             {new Date(order.orderDate).toLocaleDateString('en-US', {

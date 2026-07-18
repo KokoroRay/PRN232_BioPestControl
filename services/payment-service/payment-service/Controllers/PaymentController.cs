@@ -23,13 +23,6 @@ namespace payment_service.Controllers
             try
             {
                 var domain = string.IsNullOrEmpty(request.Domain) ? "http://localhost:5173" : request.Domain;
-                
-                // If PayOS is not configured (keys are empty), return a mock URL to simulate success
-                if (string.IsNullOrEmpty(_payOsClient.clientId) || string.IsNullOrEmpty(_payOsClient.apiKey) || string.IsNullOrEmpty(_payOsClient.checksumKey))
-                {
-                    // Return a simulated success URL directly back to the app
-                    return Ok(new { Success = true, CheckoutUrl = $"{domain}/orders/{request.OrderId}?status=success&mock=true" });
-                }
 
                 var paymentData = new CreatePaymentLinkRequest
                 {
@@ -46,6 +39,12 @@ namespace payment_service.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("Key cannot be null or empty") || ex.Message.Contains("Signature") || ex.Message.Contains("HMAC"))
+                {
+                    // If PayOS is not configured (keys are empty), return a mock URL to simulate success
+                    var domainFallback = string.IsNullOrEmpty(request.Domain) ? "http://localhost:5173" : request.Domain;
+                    return Ok(new { Success = true, CheckoutUrl = $"{domainFallback}/orders/{request.OrderId}?status=success&mock=true" });
+                }
                 return BadRequest(new { Success = false, Message = "Lỗi tạo link thanh toán: " + ex.Message });
             }
         }

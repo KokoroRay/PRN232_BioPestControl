@@ -12,6 +12,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // ── Database ──────────────────────────────────────────────────
 builder.Services.AddDbContext<OrderingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -43,6 +45,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer           = true,
@@ -152,3 +155,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

@@ -16,9 +16,9 @@ namespace inventory_service.Repositories.Implements
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(string? searchQuery, string? sortBy, bool ascending = true)
+        public async Task<inventory_service.DTOs.Responses.PagedResult<Product>> GetAllProductsAsync(string? searchQuery, string? sortBy, bool ascending = true, int page = 1, int pageSize = 10)
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
@@ -41,7 +41,16 @@ namespace inventory_service.Repositories.Implements
                 query = query.OrderBy(p => p.Id); // Default sort
             }
 
-            return await query.ToListAsync();
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            return new inventory_service.DTOs.Responses.PagedResult<Product>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<Product?> GetProductBySkuAsync(string sku)

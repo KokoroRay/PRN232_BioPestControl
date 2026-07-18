@@ -10,14 +10,25 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // Add services to the container.
 builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var redisConn = builder.Configuration.GetConnectionString("RedisConnection") ?? "redis:6379";
+    // Tối ưu hóa timeout để tránh treo (LCP chậm) khi Redis sập
+    options.Configuration = $"{redisConn},abortConnect=false,connectTimeout=2000,syncTimeout=2000";
+});
+
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICropRepository, CropRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICropService, CropService>();
 builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
 {
     // Cấu hình BaseAddress của IdentityService qua config hoặc hardcode
@@ -101,3 +112,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

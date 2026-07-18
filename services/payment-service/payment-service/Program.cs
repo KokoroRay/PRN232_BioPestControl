@@ -11,6 +11,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // ── Database ──────────────────────────────────────────────────
 builder.Services.AddDbContext<PaymentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -130,10 +132,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 // ── Code First: Auto-apply migrations on startup ─────────────
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
-    db.Database.Migrate();
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
+//     db.Database.Migrate();
+// }
+
+// using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<PaymentDbContext>(); dbContext.Database.EnsureCreated(); }
 
 app.Run();
+

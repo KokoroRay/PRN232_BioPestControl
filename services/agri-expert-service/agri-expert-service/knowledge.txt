@@ -1,0 +1,21 @@
+# BioPestControl Project Knowledge Base
+
+BioPestControl is a smart platform for agricultural pest and disease management.
+It allows users (farmers, agricultural engineers) to diagnose crop diseases, buy bio-pesticides, and read articles about agriculture.
+
+Key Features:
+- Disease Recognition: AI-powered image analysis to detect plant diseases.
+- E-commerce: Buy and sell organic pesticides and fertilizers.
+- Agri Calculators: Calculate fertilizer needed for crops.
+- News/Articles: Read the latest agricultural techniques and news.
+
+Roles:
+- Customer: Buys products, uses AI features.
+- Expert: Approves products, writes articles.
+- Admin: Manages the system.
+- Staff: Handles orders and inventory.
+
+Tech Stack:
+- Frontend: React, Vite, TypeScript.
+- Backend: ASP.NET Core 8 Microservices (Identity, Catalog, Ordering, Trading, AgriExpert, etc.).
+- Database: SQL Server.

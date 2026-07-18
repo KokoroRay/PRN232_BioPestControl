@@ -14,6 +14,8 @@ builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 
 // Register Services
 builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 builder.Services.AddCors(options =>
 {

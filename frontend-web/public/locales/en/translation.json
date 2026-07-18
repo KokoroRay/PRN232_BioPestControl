@@ -1,0 +1,19 @@
+{
+  "home": "Home",
+  "products": "Products",
+  "cart": "Cart",
+  "login": "Login",
+  "orders": "Orders",
+  "admin": "Admin",
+  "language": "Language",
+  "english": "English",
+  "vietnamese": "Vietnamese",
+  "crops": "Crops",
+  "about": "About Us",
+  "contact": "Contact",
+  "news": "News / Articles",
+  "aiAssistant": "AI Assistant",
+  "agriCalculators": "Agri Calculators",
+  "profile": "Profile",
+  "logout": "Logout"
+}

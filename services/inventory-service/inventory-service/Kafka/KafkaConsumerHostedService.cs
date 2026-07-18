@@ -27,6 +27,8 @@ namespace inventory_service.Kafka
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             var bootstrapServers = _config["Kafka:BootstrapServers"] ?? "localhost:9092";
             var topic            = _config["Kafka:OrderPlacedTopic"]  ?? "order.placed";
             var groupId          = _config["Kafka:ConsumerGroupId"]    ?? "inventory-consumer-group";
@@ -128,3 +130,4 @@ namespace inventory_service.Kafka
         }
     }
 }
+

@@ -23,10 +23,10 @@ namespace inventory_service.Controllers
         /// </summary>
         [HttpGet("stock")]
         [Authorize(Roles = "Admin,Staff")]
-        public async Task<IActionResult> GetStock([FromQuery] string? search, [FromQuery] string? sortBy, [FromQuery] bool ascending = true)
+        public async Task<IActionResult> GetStock([FromQuery] string? search, [FromQuery] string? sortBy, [FromQuery] bool ascending = true, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _inventoryService.GetProductStocksAsync(search, sortBy, ascending);
-            return Ok(ApiResponse<IEnumerable<ProductStockResponse>>.Ok(result));
+            var result = await _inventoryService.GetProductStocksAsync(search, sortBy, ascending, page, pageSize);
+            return Ok(ApiResponse<PagedResult<ProductStockResponse>>.Ok(result));
         }
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace inventory_service.Controllers
         /// </summary>
         [HttpGet("details")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetDetails([FromQuery] string? search, [FromQuery] string? sortBy, [FromQuery] bool ascending = true)
+        public async Task<IActionResult> GetDetails([FromQuery] string? search, [FromQuery] string? sortBy, [FromQuery] bool ascending = true, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _inventoryService.GetProductDetailsAsync(search, sortBy, ascending);
-            return Ok(ApiResponse<IEnumerable<ProductDetailResponse>>.Ok(result));
+            var result = await _inventoryService.GetProductDetailsAsync(search, sortBy, ascending, page, pageSize);
+            return Ok(ApiResponse<PagedResult<ProductDetailResponse>>.Ok(result));
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using article_service.Models;
+using article_service.Models;
 using MongoDB.Driver;
 
 namespace article_service.Data
@@ -22,6 +22,12 @@ namespace article_service.Data
 
         public IMongoCollection<Article> Articles =>
             _database.GetCollection<Article>("Articles");
+
+        public IMongoCollection<Feedback> Feedbacks =>
+            _database.GetCollection<Feedback>("Feedbacks");
+
+        public IMongoCollection<Contact> Contacts =>
+            _database.GetCollection<Contact>("Contacts");
 
         /// <summary>
         /// Insert seed articles if the collection is empty.

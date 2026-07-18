@@ -5,6 +5,7 @@ import { StaffLayout } from './layouts/StaffLayout';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
 import StaffLogin from './pages/StaffLogin';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -18,6 +19,7 @@ import StaffPage from './pages/admin/StaffPage';
 import CustomersPage from './pages/admin/CustomersPage';
 import ChemicalSafetyPage from './pages/admin/ChemicalSafetyPage';
 import WarehousePage from './pages/admin/WarehousePage';
+import AdminCropsPage from './pages/admin/AdminCropsPage';
 import FeedbacksPage from './pages/staff/FeedbacksPage';
 import HomePage from './pages/public/HomePage';
 import PublicAboutPage from './pages/public/AboutPage';
@@ -35,6 +37,8 @@ import CustomerProfilePage from './pages/public/CustomerProfilePage';
 import ChangePasswordPage from './pages/public/ChangePasswordPage';
 import AgriCalculationsPage from './pages/public/AgriCalculationsPage';
 import AgriSupportPage from './pages/public/AgriSupportPage';
+import { CropFilterPage } from './pages/public/CropFilterPage';
+import { CropProfilePage } from './pages/public/CropProfilePage';
 
 
 function App() {
@@ -43,6 +47,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/Login" element={<AdminLogin />} />
         <Route path="/staff/login" element={<StaffLogin />} />
@@ -59,6 +64,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="warehouse" element={<WarehousePage />} />
           <Route path="products" element={<ProductsPage />} />
+          <Route path="crops" element={<AdminCropsPage />} />
           <Route path="category" element={<CategoryPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="discounts" element={<DiscountsPage />} />
@@ -97,6 +103,8 @@ function App() {
           <Route path="products/:id" element={<PublicProductDetailsPage />} />
           <Route path="articles" element={<PublicArticlesPage />} />
           <Route path="articles/:id" element={<PublicArticleDetailsPage />} />
+          <Route path="crops" element={<CropFilterPage />} />
+          <Route path="crops/:id" element={<CropProfilePage />} />
           <Route path="agri-calculations" element={<AgriCalculationsPage />} />
           <Route path="agri-support" element={<AgriSupportPage />} />
           <Route path="cart" element={<CartPage />} />

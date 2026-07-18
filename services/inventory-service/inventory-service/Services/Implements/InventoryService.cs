@@ -15,10 +15,10 @@ namespace inventory_service.Services.Implements
             _repository = repository;
         }
 
-        public async Task<IEnumerable<ProductStockResponse>> GetProductStocksAsync(string? searchQuery, string? sortBy, bool ascending)
+        public async Task<PagedResult<ProductStockResponse>> GetProductStocksAsync(string? searchQuery, string? sortBy, bool ascending, int page = 1, int pageSize = 10)
         {
-            var products = await _repository.GetAllProductsAsync(searchQuery, sortBy, ascending);
-            return products.Select(p => new ProductStockResponse
+            var pagedProducts = await _repository.GetAllProductsAsync(searchQuery, sortBy, ascending, page, pageSize);
+            var responses = pagedProducts.Items.Select(p => new ProductStockResponse
             {
                 Id = p.Id,
                 SKU = p.SKU,
@@ -31,14 +31,21 @@ namespace inventory_service.Services.Implements
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             });
+            return new PagedResult<ProductStockResponse>
+            {
+                Items = responses,
+                TotalCount = pagedProducts.TotalCount,
+                Page = pagedProducts.Page,
+                PageSize = pagedProducts.PageSize
+            };
         }
 
-        public async Task<IEnumerable<ProductDetailResponse>> GetProductDetailsAsync(string? searchQuery, string? sortBy, bool ascending)
+        public async Task<PagedResult<ProductDetailResponse>> GetProductDetailsAsync(string? searchQuery, string? sortBy, bool ascending, int page = 1, int pageSize = 10)
         {
-            var products = await _repository.GetAllProductsAsync(searchQuery, sortBy, ascending);
+            var pagedProducts = await _repository.GetAllProductsAsync(searchQuery, sortBy, ascending, page, pageSize);
             // Cần query thêm lịch sử nếu trả về list. Nhưng thường list chỉ cần tồn kho.
             // Để đơn giản, map từ Entity sang DTO, có thể chưa bao gồm lịch sử chi tiết ở dạng List.
-            return products.Select(p => new ProductDetailResponse
+            var responses = pagedProducts.Items.Select(p => new ProductDetailResponse
             {
                 Id = p.Id,
                 SKU = p.SKU,
@@ -65,6 +72,14 @@ namespace inventory_service.Services.Implements
                     ImportedAt = wi.ImportedAt
                 }).ToList()
             });
+
+            return new PagedResult<ProductDetailResponse>
+            {
+                Items = responses,
+                TotalCount = pagedProducts.TotalCount,
+                Page = pagedProducts.Page,
+                PageSize = pagedProducts.PageSize
+            };
         }
 
         public async Task<ProductDetailResponse?> GetProductDetailByIdAsync(int id)

@@ -5,17 +5,24 @@ import type { Product } from '../../types/catalog';
 import { useAuth } from '../../context/AuthContext';
 import { useAddToCart } from '../../hooks/useAddToCart';
 
+import { getFeedbacksByProductId, createFeedback as createFeedbackApi } from '../../services/feedbackService';
+
 interface Feedback {
-  id: number;
-  customerName: string;
+  id: string;
+  userName: string;
   customerAvatar?: string;
   rating: number;
   comment: string;
   createdAt: string;
-  helpfulCount: number;
+  helpfulCount?: number;
   images?: string[];
-  staffReply?: string;
-  replyAt?: string;
+  replyMessage?: string;
+  repliedAt?: string;
+}
+
+interface RatingFilter {
+  minRating: number | null;
+  showWithImages: boolean;
 }
 
 const ProductDetailsPage: React.FC = () => {
@@ -23,17 +30,17 @@ const ProductDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { handleAddToCart } = useAddToCart();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Gallery state
   const [selectedImage, setSelectedImage] = useState<string>('');
-  
+
   // Order selection for reviews
   const [qty, setQty] = useState(1);
-  const [activeRatingFilter, setActiveRatingFilter] = useState<number | null>(null);
-  const [showOnlyWithImages, setShowOnlyWithImages] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState<RatingFilter>({ minRating: null, showWithImages: false });
+  const [addingToCart, setAddingToCart] = useState(false);
 
   // Review submission state
   const [formRating, setFormRating] = useState(5);
@@ -56,42 +63,19 @@ const ProductDetailsPage: React.FC = () => {
           setSelectedImage(data.imageUrl);
         }
         
-        // Load mock feedbacks
-        const mockFeedbacks: Feedback[] = [
-          {
-            id: 101,
-            customerName: 'Nguyễn Văn Hải',
-            rating: 5,
-            comment: 'Sản phẩm rất tốt! Tôi đã sử dụng cho vườn cam nhà mình, sâu vẽ bùa giảm hẳn sau 2 lần xịt. Đặc biệt là không có mùi hôi như thuốc hóa học.',
-            createdAt: '2026-05-10T14:30:00Z',
-            helpfulCount: 24,
-            images: [
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc'
-            ],
-            staffReply: 'Cảm ơn chú Hải đã tin dùng sản phẩm sinh học của BioPestControl! Chúc vườn cam nhà mình trúng mùa trúng giá ạ.',
-            replyAt: '2026-05-11T08:15:00Z'
-          },
-          {
-            id: 102,
-            customerName: 'Trần Thị Mai',
-            rating: 4,
-            comment: 'Giao hàng nhanh, đóng gói cẩn thận. Thuốc phun có hiệu quả cao đối với rệp sáp trên cây hoa hồng. Sẽ tiếp tục mua ủng hộ.',
-            createdAt: '2026-05-18T09:20:00Z',
-            helpfulCount: 8,
-          },
-          {
-            id: 103,
-            customerName: 'Lê Hoàng Nam',
-            rating: 5,
-            comment: 'Tuyệt vời! Chế phẩm sinh học cực kỳ an toàn, có thể thu hoạch quả chỉ sau 1 ngày phun. An tâm sử dụng cho vườn rau sạch gia đình.',
-            createdAt: '2026-05-22T16:45:00Z',
-            helpfulCount: 15,
-            images: [
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuD1v5QtMLjXFjj9tiYQpdFudr4bUHPkjnN15jmWWr9kIk6dVkb96F7NOkQBADgCQ3gpxQb657Jh27EEBWwqj_F7rQ6vYoh01kN9o_NuwHI14uPk_-aeFA99mlMqz2qfWSOaEP6i6n_KyWYPNqYa3QuctpslYEJshjA5W0ZuryVfxkz_Tif_fswotI6HwqQj9xB6AFD3TurhjQw-A1L3HtibASM3hd7ITGWIJ63mlfyICxrUFBwQ9IqWatDp5zDPezvULUkM-MxFPIc'
-            ]
+        // Load feedbacks from API
+        try {
+          const apiFeedbacks = await getFeedbacksByProductId(Number(id));
+          if (Array.isArray(apiFeedbacks)) {
+            setFeedbacks(apiFeedbacks);
+          } else {
+            console.error('API returned non-array for feedbacks:', apiFeedbacks);
+            setFeedbacks([]);
           }
-        ];
-        setFeedbacks(mockFeedbacks);
+        } catch (error) {
+          console.error('Failed to load feedbacks:', error);
+          setFeedbacks([]);
+        }
       } catch (err) {
         console.error('Error loading product details', err);
         navigate('/products');
@@ -117,17 +101,17 @@ const ProductDetailsPage: React.FC = () => {
     setFormImagesPreviews(previews);
   };
 
-  const handleHelpfulClick = (feedbackId: number) => {
+  const handleHelpfulClick = (feedbackId: string) => {
     setFeedbacks(prev => prev.map(f => {
       if (f.id === feedbackId) {
-        return { ...f, helpfulCount: f.helpfulCount + 1 };
+        return { ...f, helpfulCount: (f.helpfulCount || 0) + 1 };
       }
       return f;
     }));
     showToastMsg('Cảm ơn bạn đã phản hồi review này hữu ích!');
   };
 
-  const handleAddReview = (e: React.FormEvent) => {
+  const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
       showToastMsg('Vui lòng đăng nhập để gửi đánh giá!', 'error');
@@ -138,40 +122,60 @@ const ProductDetailsPage: React.FC = () => {
       return;
     }
 
-    const newFeedback: Feedback = {
-      id: Date.now(),
-      customerName: user?.fullName || user?.email || 'Khách hàng',
-      rating: formRating,
-      comment: formComment,
-      createdAt: new Date().toISOString(),
-      helpfulCount: 0,
-      images: formImagesPreviews.length > 0 ? formImagesPreviews : undefined
-    };
+    try {
+      const created = await createFeedbackApi({
+        productId: product?.id,
+        userId: user?.id || '00000000-0000-0000-0000-000000000000',
+        userName: user?.fullName || user?.email || 'Khách hàng',
+        rating: formRating,
+        comment: formComment
+      });
 
-    setFeedbacks(prev => [newFeedback, ...prev]);
-    showToastMsg('Gửi đánh giá thành công! Cảm ơn đóng góp của bạn.');
-    
-    // Clear form state
-    setFormComment('');
-    setFormImagesPreviews([]);
-    setFormOrderId('');
+      // Optimistic UI update or fetch from server again, here we do optimistic:
+      const newFeedback: Feedback = {
+        id: created.id,
+        userName: created.userName,
+        rating: created.rating,
+        comment: created.comment,
+        createdAt: created.createdAt,
+        helpfulCount: 0,
+        images: formImagesPreviews.length > 0 ? formImagesPreviews : undefined
+      };
+
+      setFeedbacks(prev => [newFeedback, ...prev]);
+      showToastMsg('Gửi đánh giá thành công! Cảm ơn đóng góp của bạn.');
+      
+      // Clear form state
+      setFormComment('');
+      setFormImagesPreviews([]);
+      setFormOrderId('');
+    } catch (err) {
+      console.error('Failed to submit feedback', err);
+      showToastMsg('Có lỗi xảy ra khi gửi đánh giá, vui lòng thử lại.', 'error');
+    }
   };
 
   const handleCartAdd = async (isBuyNow: boolean) => {
     if (!product) return;
-    await handleAddToCart(product, { quantity: qty, buyNow: isBuyNow });
+    setAddingToCart(true);
+    try {
+      await handleAddToCart(product, { quantity: qty, buyNow: isBuyNow });
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   const filteredFeedbacks = useMemo(() => {
     let result = [...feedbacks];
-    if (activeRatingFilter !== null) {
-      result = result.filter(f => f.rating === activeRatingFilter);
+    // Filter by minimum rating (e.g., 4 stars = show 4 and 5 stars)
+    if (ratingFilter.minRating !== null) {
+      result = result.filter(f => f.rating >= ratingFilter.minRating!);
     }
-    if (showOnlyWithImages) {
+    if (ratingFilter.showWithImages) {
       result = result.filter(f => f.images && f.images.length > 0);
     }
     return result;
-  }, [feedbacks, activeRatingFilter, showOnlyWithImages]);
+  }, [feedbacks, ratingFilter]);
 
   const ratingSummary = useMemo(() => {
     const total = feedbacks.length;
@@ -256,11 +260,13 @@ const ProductDetailsPage: React.FC = () => {
             )}
             <div className="absolute top-4 left-4 z-20 flex gap-2">
               <span className="bg-primary text-white text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full shadow-md border border-white/10">
-                {product.categoryName || 'ACTIVE'}
+                {product.categoryName || 'Uncategorized'}
               </span>
-              <span className="bg-white text-primary text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full shadow-md border border-outline-variant/20">
-                Eco Safe
-              </span>
+              {product.chemicalName && (
+                <span className="bg-white text-primary text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full shadow-md border border-outline-variant/20">
+                  {product.chemicalName}
+                </span>
+              )}
             </div>
           </div>
 
@@ -311,7 +317,7 @@ const ProductDetailsPage: React.FC = () => {
               {formatPrice(product.unitPrice)}
             </span>
             <span className="text-xs text-on-surface-variant font-medium">
-              Đơn vị: {product.unit || 'Chai 500ml'}
+              Đơn vị: {product.unit || 'Chai'}
             </span>
           </div>
 
@@ -363,8 +369,9 @@ const ProductDetailsPage: React.FC = () => {
                 <div className="flex items-center border border-outline-variant/30 rounded-lg overflow-hidden bg-background">
                   <button
                     onClick={() => setQty(q => Math.max(1, q - 1))}
+                    disabled={addingToCart}
                     type="button"
-                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm disabled:opacity-50"
                   >
                     -
                   </button>
@@ -376,8 +383,9 @@ const ProductDetailsPage: React.FC = () => {
                   />
                   <button
                     onClick={() => setQty(q => q + 1)}
+                    disabled={addingToCart}
                     type="button"
-                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-surface-container transition-colors font-bold text-sm disabled:opacity-50"
                   >
                     +
                   </button>
@@ -387,19 +395,21 @@ const ProductDetailsPage: React.FC = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => handleCartAdd(true)}
+                  disabled={addingToCart}
                   type="button"
-                  className="flex-1 h-12 border-2 border-primary text-primary hover:bg-primary/5 active:scale-[0.98] transition-all font-bold rounded-xl flex items-center justify-center gap-2 text-sm"
+                  className="flex-1 h-12 border-2 border-primary text-primary hover:bg-primary/5 active:scale-[0.98] transition-all font-bold rounded-xl flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-lg">shopping_bag</span>
-                  Mua ngay
+                  <span className="material-symbols-outlined text-lg">{addingToCart ? 'hourglass_empty' : 'shopping_bag'}</span>
+                  {addingToCart ? 'Đang xử lý...' : 'Mua ngay'}
                 </button>
                 <button
                   onClick={() => handleCartAdd(false)}
+                  disabled={addingToCart}
                   type="button"
-                  className="flex-1 h-12 bg-primary hover:bg-[#173901] text-white active:scale-[0.98] transition-all font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm"
+                  className="flex-1 h-12 bg-primary hover:bg-[#173901] text-white active:scale-[0.98] transition-all font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-lg">add_shopping_cart</span>
-                  Thêm vào giỏ
+                  <span className="material-symbols-outlined text-lg">{addingToCart ? 'hourglass_empty' : 'add_shopping_cart'}</span>
+                  {addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ'}
                 </button>
               </div>
             </div>
@@ -470,32 +480,32 @@ const ProductDetailsPage: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-outline-variant/10 pb-4">
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={() => { setActiveRatingFilter(null); setShowOnlyWithImages(false); }}
+              onClick={() => setRatingFilter({ minRating: null, showWithImages: false })}
               className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                activeRatingFilter === null && !showOnlyWithImages
+                ratingFilter.minRating === null && !ratingFilter.showWithImages
                   ? 'bg-primary border-primary text-white shadow-md'
                   : 'bg-background dark:bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/50'
               }`}
             >
               Tất cả
             </button>
-            {[5, 4, 3, 2, 1].map(r => (
+            {[4, 3, 2, 1].map(r => (
               <button
                 key={r}
-                onClick={() => { setActiveRatingFilter(r); setShowOnlyWithImages(false); }}
+                onClick={() => setRatingFilter({ minRating: r, showWithImages: false })}
                 className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                  activeRatingFilter === r
+                  ratingFilter.minRating === r && !ratingFilter.showWithImages
                     ? 'bg-primary border-primary text-white shadow-md'
                     : 'bg-background dark:bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/50'
                 }`}
               >
-                {r} ★
+                {r}+ ★
               </button>
             ))}
             <button
-              onClick={() => { setActiveRatingFilter(null); setShowOnlyWithImages(true); }}
+              onClick={() => setRatingFilter(prev => ({ ...prev, showWithImages: !prev.showWithImages, minRating: null }))}
               className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all flex items-center gap-1 ${
-                showOnlyWithImages
+                ratingFilter.showWithImages
                   ? 'bg-primary border-primary text-white shadow-md'
                   : 'bg-background dark:bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/50'
               }`}
@@ -560,7 +570,7 @@ const ProductDetailsPage: React.FC = () => {
                   </div>
                   <div className="flex-grow">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-bold text-primary text-sm">{fb.customerName}</span>
+                      <span className="font-bold text-primary text-sm">{fb.userName}</span>
                       <span className="text-[10px] text-on-surface-variant font-medium">
                         {new Date(fb.createdAt).toLocaleDateString('vi-VN')}
                       </span>
@@ -594,10 +604,17 @@ const ProductDetailsPage: React.FC = () => {
                       </div>
                     )}
 
-                    {fb.staffReply && (
+                    {fb.replyMessage && (
                       <div className="mt-5 bg-background dark:bg-surface p-4 rounded-xl border border-outline-variant/10 border-l-4 border-l-primary space-y-1">
-                        <div className="text-[10px] font-bold text-primary uppercase tracking-wider">BioPestControl Phản hồi</div>
-                        <p className="text-sm text-on-surface-variant font-light leading-relaxed">{fb.staffReply}</p>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-[10px] font-bold text-primary uppercase tracking-wider">BioPestControl Phản hồi</div>
+                          {fb.repliedAt && (
+                            <span className="text-[10px] text-on-surface-variant/70">
+                              {new Date(fb.repliedAt).toLocaleDateString('vi-VN')}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-on-surface-variant font-light leading-relaxed">{fb.replyMessage}</p>
                       </div>
                     )}
 

@@ -21,6 +21,10 @@ using identity_service.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load .env file
+DotNetEnv.Env.Load();
+DotNetEnv.Env.TraversePath().Load();
+
 // Setup CORS: Cho phép frontend/test page gọi API
 builder.Services.AddCors(options =>
 {
@@ -85,6 +89,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,                  // Kiểm tra Issuer (Người phát hành Token) có đúng không
@@ -186,5 +191,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 app.Run();

@@ -20,5 +20,6 @@ namespace catalog_service.DTOs.Responses
         public string? CreatedByAdminName { get; set; }
         public int? ManagedByStaffId { get; set; }
         public string? ManagedByStaffName { get; set; }
+        public List<int> CropIds { get; set; } = new List<int>();
     }
 }

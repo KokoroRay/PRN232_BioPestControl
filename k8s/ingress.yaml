@@ -8,13 +8,199 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: biopest.local
-      http:
+    - http:
         paths:
-          - path: /
+          # Identity Service
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+          - path: /api/admin/staffs
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+          - path: /api/admin/permissions
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+          - path: /api/admin/customers
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+          - path: /api/staff/customers
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+          - path: /api/profile
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service
+                port:
+                  number: 80
+
+          # Agri-Expert Service
+          - path: /api/ai
             pathType: Prefix
             backend:
               service:
                 name: agri-expert-service
+                port:
+                  number: 80
+          - path: /api/chemicals
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
+          - path: /api/staff/chemicals
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
+          - path: /api/admin/chemicals
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
+          - path: /api/AgriCalculations
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
+          - path: /api/AgriSupport
+            pathType: Prefix
+            backend:
+              service:
+                name: agri-expert-service
+                port:
+                  number: 80
+
+          # Article Service
+          - path: /api/articles
+            pathType: Prefix
+            backend:
+              service:
+                name: article-service
+                port:
+                  number: 80
+          - path: /api/feedbacks
+            pathType: Prefix
+            backend:
+              service:
+                name: article-service
+                port:
+                  number: 80
+
+          # Catalog Service
+          - path: /api/categories
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 80
+          - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 80
+          - path: /api/crops
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 80
+
+          # Inventory Service
+          - path: /api/inventory
+            pathType: Prefix
+            backend:
+              service:
+                name: inventory-service
+                port:
+                  number: 80
+
+          # Ordering Service
+          - path: /api/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
+          - path: /api/statistics
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
+
+          # Trading Service
+          - path: /api/discounts
+            pathType: Prefix
+            backend:
+              service:
+                name: trading-service
+                port:
+                  number: 80
+
+          # Catch-all for API that might overlap (like /api/cart)
+          - path: /api/cart
+            pathType: Prefix
+            backend:
+              service:
+                name: ordering-service
+                port:
+                  number: 80
+
+          # Payment Service
+          - path: /api/payment
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service
+                port:
+                  number: 80
+
+          # Frontend Web (Catch-all for root)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-web-service
                 port:
                   number: 80

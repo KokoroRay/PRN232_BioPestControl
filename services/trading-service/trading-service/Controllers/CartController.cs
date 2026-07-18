@@ -10,7 +10,7 @@ namespace trading_service.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Customer,Admin")] // Chỉ Customer và Admin mới truy cập được
+    [Authorize(Roles = "Customer,Admin,Staff")] // Thêm Staff để không bị lỗi 403 khi load layout
     public class CartController : ControllerBase
     {
         private readonly TradingDbContext _context;
@@ -118,9 +118,6 @@ namespace trading_service.Controllers
 
             cart.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
-
-            // Reload cart với items mới nhất để trả về
-            await _context.Entry(cart).Collection(c => c.Items).LoadAsync();
 
             var responseData = new ApiResponse<CartDto>
             {

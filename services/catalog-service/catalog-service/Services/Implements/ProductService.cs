@@ -3,6 +3,8 @@ using catalog_service.DTOs.Responses;
 using catalog_service.Models;
 using catalog_service.Repositories.Interfaces;
 using catalog_service.Services.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace catalog_service.Services.Implements
 {
@@ -11,28 +13,81 @@ namespace catalog_service.Services.Implements
         private readonly IProductRepository _repository;
         private readonly IIdentityServiceClient _identityServiceClient;
         private readonly IAgriExpertServiceClient _agriExpertServiceClient;
+        private readonly IDistributedCache _cache;
 
         public ProductService(
             IProductRepository repository,
             IIdentityServiceClient identityServiceClient,
-            IAgriExpertServiceClient agriExpertServiceClient)
+            IAgriExpertServiceClient agriExpertServiceClient,
+            IDistributedCache cache)
         {
             _repository = repository;
             _identityServiceClient = identityServiceClient;
             _agriExpertServiceClient = agriExpertServiceClient;
+            _cache = cache;
         }
 
-        public async Task<IEnumerable<ProductResponse>> GetAllAsync()
+        public async Task<PagedResult<ProductResponse>> GetAllAsync(ProductFilterRequest? filter = null)
         {
-            var products = await _repository.GetAllAsync();
+            var cacheKey = $"Products_GetAll_{JsonSerializer.Serialize(filter)}";
+            string? cachedData = null;
+
+            try
+            {
+                cachedData = await _cache.GetStringAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                // Log exception if possible, or just ignore to fallback to DB
+                Console.WriteLine($"Redis Cache Error (Get): {ex.Message}");
+            }
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                try
+                {
+                    var resultFromCache = JsonSerializer.Deserialize<PagedResult<ProductResponse>>(cachedData);
+                    if (resultFromCache != null)
+                    {
+                        return resultFromCache;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Redis Cache Deserialize Error: {ex.Message}");
+                }
+            }
+
+            var pagedProducts = await _repository.GetAllAsync(filter);
             var responses = new List<ProductResponse>();
 
-            foreach (var product in products)
+            foreach (var product in pagedProducts.Items)
             {
                 responses.Add(await MapToResponseAsync(product));
             }
 
-            return responses;
+            var result = new PagedResult<ProductResponse>
+            {
+                Items = responses,
+                TotalCount = pagedProducts.TotalCount,
+                Page = pagedProducts.Page,
+                PageSize = pagedProducts.PageSize
+            };
+
+            try
+            {
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis Cache Error (Set): {ex.Message}");
+            }
+
+            return result;
         }
 
         public async Task<IEnumerable<ProductResponse>> SearchByNameAsync(string name)
@@ -50,13 +105,56 @@ namespace catalog_service.Services.Implements
 
         public async Task<ProductResponse?> GetByIdAsync(int id)
         {
+            var cacheKey = $"Product_GetById_{id}";
+            string? cachedData = null;
+
+            try
+            {
+                cachedData = await _cache.GetStringAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis Cache Error (Get): {ex.Message}");
+            }
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                try
+                {
+                    var resultFromCache = JsonSerializer.Deserialize<ProductResponse>(cachedData);
+                    if (resultFromCache != null)
+                    {
+                        return resultFromCache;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Redis Cache Deserialize Error: {ex.Message}");
+                }
+            }
+
             var product = await _repository.GetByIdAsync(id);
             if (product == null)
             {
                 return null;
             }
 
-            return await MapToResponseAsync(product);
+            var response = await MapToResponseAsync(product);
+
+            try
+            {
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(response), cacheOptions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis Cache Error (Set): {ex.Message}");
+            }
+
+            return response;
         }
 
         public async Task<ProductCommandResult> AddAsync(CreateProductRequest request)
@@ -91,7 +189,8 @@ namespace catalog_service.Services.Implements
                 CategoryId = request.CategoryId,
                 ChemicalProfileId = request.ChemicalProfileId,
                 IsActive = request.IsActive,
-                CreatedByAdminId = request.CreatedByAdminId
+                CreatedByAdminId = request.CreatedByAdminId,
+                ProductCrops = request.CropIds?.Select(cId => new ProductCrop { CropId = cId }).ToList() ?? new List<ProductCrop>()
             };
 
             var added = await _repository.AddAsync(product);
@@ -144,6 +243,16 @@ namespace catalog_service.Services.Implements
             existing.ManagedByStaffId = request.ManagedByStaffId;
             existing.UpdatedAt = DateTime.UtcNow;
 
+            // Update ProductCrops
+            existing.ProductCrops.Clear();
+            if (request.CropIds != null && request.CropIds.Any())
+            {
+                foreach (var cropId in request.CropIds)
+                {
+                    existing.ProductCrops.Add(new ProductCrop { CropId = cropId, ProductId = id });
+                }
+            }
+
             await _repository.UpdateAsync(existing);
             return ProductCommandResult.Ok();
         }
@@ -193,7 +302,8 @@ namespace catalog_service.Services.Implements
                 CreatedByAdminId = product.CreatedByAdminId,
                 CreatedByAdminName = adminName,
                 ManagedByStaffId = product.ManagedByStaffId,
-                ManagedByStaffName = staffName
+                ManagedByStaffName = staffName,
+                CropIds = product.ProductCrops?.Select(pc => pc.CropId).ToList() ?? new List<int>()
             };
         }
     }

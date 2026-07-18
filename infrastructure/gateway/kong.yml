@@ -1,0 +1,130 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  # ----------------------------------------------------
+  # 1. Identity Service
+  # ----------------------------------------------------
+  - name: identity-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: identity-routes
+        paths:
+          - /api/auth
+          - /api/admin/staffs
+          - /api/admin/permissions
+          - /api/admin/customers
+          - /api/staff/customers
+          - /api/profile
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 2. Catalog Service
+  # ----------------------------------------------------
+  - name: catalog-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: catalog-routes
+        paths:
+          - /api/products
+          - /api/categories
+          - /api/crops
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 3. Ordering Service
+  # ----------------------------------------------------
+  - name: ordering-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: ordering-routes
+        paths:
+          - /api/cart
+          - /api/orders
+          - /api/statistics
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 4. Inventory Service
+  # ----------------------------------------------------
+  - name: inventory-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: inventory-routes
+        paths:
+          - /api/inventory
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 5. Trading Service
+  # ----------------------------------------------------
+  - name: trading-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: trading-routes
+        paths:
+          - /api/discounts
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 6. Payment Service
+  # ----------------------------------------------------
+  - name: payment-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: payment-routes
+        paths:
+          - /api/payment
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 7. Article Service
+  # ----------------------------------------------------
+  - name: article-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: article-routes
+        paths:
+          - /api/articles
+        strip_path: false
+
+  # ----------------------------------------------------
+  # 8. Agri-Expert Service
+  # ----------------------------------------------------
+  - name: agri-expert-service
+    url: http://10.0.0.2:80
+    routes:
+      - name: agri-expert-routes
+        paths:
+          - /api/ai
+          - /api/chemicals
+          - /api/staff/chemicals
+          - /api/admin/chemicals
+          - /api/AgriCalculations
+          - /api/AgriSupport
+        strip_path: false
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+      exposed_headers:
+        - Authorization
+      credentials: true
+      max_age: 3600

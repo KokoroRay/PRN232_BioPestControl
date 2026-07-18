@@ -28,14 +28,15 @@ const CartContext = createContext<CartContextValue | null>(null);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const refreshCart = useCallback(async () => {
+    setLoading(true);
     if (!isAuthenticated) {
       setCart(null);
+      setLoading(false);
       return;
     }
-    setLoading(true);
     try {
       const data = await cartService.getCart();
       setCart(data);

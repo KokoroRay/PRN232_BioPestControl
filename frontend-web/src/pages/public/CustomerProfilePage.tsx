@@ -16,7 +16,7 @@ export default function CustomerProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const [form, setForm] = useState({ fullName: '', phoneNumber: '' });
+  const [form, setForm] = useState({ fullName: '', phoneNumber: '', address: '' });
   const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +28,7 @@ export default function CustomerProfilePage() {
     }
     profileService.getProfile().then((p) => {
       setProfile(p);
-      setForm({ fullName: p.fullName ?? '', phoneNumber: p.phoneNumber ?? '' });
+      setForm({ fullName: p.fullName ?? '', phoneNumber: p.phoneNumber ?? '', address: p.address ?? '' });
       setAvatarUrl(p.avatarUrl ?? '');
       setLoading(false);
     }).catch(() => {
@@ -74,6 +74,7 @@ export default function CustomerProfilePage() {
       const updated = await profileService.updateProfile({
         fullName: form.fullName || undefined,
         phoneNumber: form.phoneNumber || undefined,
+        address: form.address || undefined,
         avatarUrl: avatarUrl || undefined,
       });
       refreshUser({ fullName: updated.fullName, avatarUrl: updated.avatarUrl });
@@ -201,6 +202,17 @@ export default function CustomerProfilePage() {
                     type="tel"
                     placeholder="+84 ..."
                     value={form.phoneNumber}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="profile-field" style={{ gridColumn: '1 / -1' }}>
+                  <label htmlFor="address">Address (Tỉnh/Thành phố, Quận/Huyện, Phường/Xã, Số nhà)</label>
+                  <input
+                    id="address"
+                    name="address"
+                    type="text"
+                    placeholder="e.g. 123 Green Way, Phường X, Quận Y, TP Z"
+                    value={form.address}
                     onChange={handleChange}
                   />
                 </div>

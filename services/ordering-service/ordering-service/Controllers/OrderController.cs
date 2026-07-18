@@ -523,10 +523,12 @@ namespace ordering_service.Controllers
 
             if (!string.IsNullOrWhiteSpace(filter.Search))
             {
-                // Tìm theo OrderId (prefix) hoặc tên sản phẩm trong đơn
+                // Tìm theo OrderId (chỉ khi parse được) hoặc tên sản phẩm trong đơn
                 var searchLower = filter.Search.ToLower();
+                bool isGuid = Guid.TryParse(filter.Search, out var searchGuid);
+                
                 query = query.Where(o =>
-                    o.Id.ToString().Contains(searchLower) ||
+                    (isGuid && o.Id == searchGuid) ||
                     o.OrderItems.Any(i => i.ProductName.ToLower().Contains(searchLower)));
             }
 

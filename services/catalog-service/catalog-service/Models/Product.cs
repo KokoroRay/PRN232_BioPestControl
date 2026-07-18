@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace catalog_service.Models
@@ -53,5 +53,7 @@ namespace catalog_service.Models
 
         [ForeignKey(nameof(CategoryId))]
         public virtual Category Category { get; set; } = null!;
+
+        public virtual ICollection<ProductCrop> ProductCrops { get; set; } = new List<ProductCrop>();
     }
 }

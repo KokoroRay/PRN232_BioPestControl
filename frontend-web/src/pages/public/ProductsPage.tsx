@@ -1,35 +1,77 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
 import { useAddToCart } from '../../hooks/useAddToCart';
 import type { Product, Category } from '../../types/catalog';
 
+const ITEMS_PER_PAGE = 12;
+
 const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
   const { handleAddToCart } = useAddToCart();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   // Get filter state from query parameters
   const searchQuery = searchParams.get('search') || '';
   const selectedCategoryId = searchParams.get('categoryId') ? Number(searchParams.get('categoryId')) : null;
   const currentSort = searchParams.get('sort') || 'relevance';
+  const currentPage = Number(searchParams.get('page') || '1');
 
-  // Load products and categories on mount
+  // Real-time search state
+  const [realtimeSearch, setRealtimeSearch] = useState(searchQuery);
+
+  // Debounce timer for real-time search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (realtimeSearch !== searchQuery) {
+        const params = new URLSearchParams(searchParams);
+        if (realtimeSearch.trim()) {
+          params.set('search', realtimeSearch);
+        } else {
+          params.delete('search');
+        }
+        params.delete('page'); // Reset to page 1 when search changes
+        setSearchParams(params);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [realtimeSearch, searchQuery, searchParams, setSearchParams]);
+
+  // Load products and categories on mount or when filters change
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
+        let sortBy = '';
+        let ascending = true;
+        if (currentSort === 'price-low-to-high') {
+          sortBy = 'price';
+          ascending = true;
+        } else if (currentSort === 'price-high-to-low') {
+          sortBy = 'price';
+          ascending = false;
+        }
+
         const [cList, pList] = await Promise.all([
           categoryService.getAll(),
-          productService.getAll()
+          productService.getAll({
+            name: searchQuery || undefined,
+            categoryId: selectedCategoryId || undefined,
+            sortBy: sortBy || undefined,
+            ascending,
+            page: currentPage,
+            pageSize: ITEMS_PER_PAGE
+          })
         ]);
         setCategories(cList);
-        setProducts(pList);
+        setProducts(pList.items.filter(p => p.isActive));
+        setTotalProducts(pList.totalCount);
       } catch (err) {
         console.error('Error loading catalog data', err);
       } finally {
@@ -37,54 +79,25 @@ const ProductsPage: React.FC = () => {
       }
     };
     loadData();
-  }, []);
+  }, [searchQuery, selectedCategoryId, currentSort, currentPage]);
 
-  // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    // Filter by active status
-    result = result.filter(p => p.isActive);
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        (p.description && p.description.toLowerCase().includes(q)) ||
-        p.sku.toLowerCase().includes(q)
-      );
-    }
-
-    // Filter by category
-    if (selectedCategoryId !== null) {
-      result = result.filter(p => p.categoryId === selectedCategoryId);
-    }
-
-    // Sort products
-    if (currentSort === 'price-low-to-high') {
-      result.sort((a, b) => a.unitPrice - b.unitPrice);
-    } else if (currentSort === 'price-high-to-low') {
-      result.sort((a, b) => b.unitPrice - a.unitPrice);
-    } else if (currentSort === 'top-rated') {
-      result.sort((a, b) => (b.id % 5) - (a.id % 5)); // simulated rating sorting based on id
-    }
-
-    return result;
-  }, [products, searchQuery, selectedCategoryId, currentSort]);
+  const paginatedProducts = products;
+  const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const searchVal = data.get('search') as string;
-    
+
     const params = new URLSearchParams(searchParams);
     if (searchVal.trim()) {
       params.set('search', searchVal);
     } else {
       params.delete('search');
     }
+    params.delete('page'); // Reset to page 1
     setSearchParams(params);
+    setRealtimeSearch(searchVal);
   };
 
   const handleCategorySelect = (catId: number | null) => {
@@ -94,17 +107,27 @@ const ProductsPage: React.FC = () => {
     } else {
       params.delete('categoryId');
     }
+    params.delete('page'); // Reset to page 1
     setSearchParams(params);
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams);
     params.set('sort', e.target.value);
+    params.delete('page'); // Reset to page 1
     setSearchParams(params);
+  };
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', String(page));
+    setSearchParams(params);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleClearAll = () => {
     setSearchParams({});
+    setRealtimeSearch('');
   };
 
   const handleBuyNow = async (e: React.MouseEvent, p: Product) => {
@@ -134,7 +157,8 @@ const ProductsPage: React.FC = () => {
             </div>
             <input
               name="search"
-              defaultValue={searchQuery}
+              value={realtimeSearch}
+              onChange={(e) => setRealtimeSearch(e.target.value)}
               className="block w-full pl-11 pr-24 py-4 bg-background dark:bg-surface border border-outline-variant/30 focus:border-primary focus:bg-white dark:focus:bg-black/30 rounded-xl text-on-background placeholder-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all text-base"
               placeholder="Search by product name, target pest, or SKU code..."
               type="text"
@@ -210,7 +234,7 @@ const ProductsPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-outline-variant/10 pb-4">
             <p className="text-sm text-on-surface-variant">
               Showing{' '}
-              <span className="font-bold text-primary">{filteredProducts.length}</span>{' '}
+              <span className="font-bold text-primary">{totalProducts}</span>{' '}
               results
             </p>
             <div className="flex items-center gap-2">
@@ -237,92 +261,140 @@ const ProductsPage: React.FC = () => {
                 hourglass_empty
               </span>
             </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredProducts.map(p => {
-                const simulatedRating = ((p.id % 5) / 10 + 4.5).toFixed(1);
-                const simulatedReviews = (p.id * 17) % 150 + 10;
-                
-                return (
-                  <div
-                    key={p.id}
-                    onClick={() => navigate(`/products/${p.id}`)}
-                    className="group bg-white dark:bg-surface-container rounded-xl border border-outline-variant/10 overflow-hidden hover:shadow-2xl hover:border-primary/40 transition-all duration-300 flex flex-col h-full cursor-pointer shadow-sm"
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container-low border-b border-outline-variant/5">
-                      <div className="absolute inset-0 organic-gradient opacity-40"></div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        {p.imageUrl ? (
-                          <img
-                            src={p.imageUrl}
-                            alt={p.name}
-                            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-                          />
-                        ) : (
-                          <span className="material-symbols-outlined text-6xl text-primary/10 select-none">
-                            science
+          ) : paginatedProducts.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {paginatedProducts.map(p => {
+                  const simulatedRating = ((p.id % 5) / 10 + 4.5).toFixed(1);
+                  const simulatedReviews = (p.id * 17) % 150 + 10;
+
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => navigate(`/products/${p.id}`)}
+                      className="group bg-white dark:bg-surface-container rounded-xl border border-outline-variant/10 overflow-hidden hover:shadow-2xl hover:border-primary/40 transition-all duration-300 flex flex-col h-full cursor-pointer shadow-sm"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-container-low border-b border-outline-variant/5">
+                        <div className="absolute inset-0 organic-gradient opacity-40"></div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {p.imageUrl ? (
+                            <img
+                              src={p.imageUrl}
+                              alt={p.name}
+                              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                            />
+                          ) : (
+                            <span className="material-symbols-outlined text-6xl text-primary/10 select-none">
+                              science
+                            </span>
+                          )}
+                        </div>
+                        <span className="absolute top-3.5 left-3.5 bg-white/90 px-2 py-0.5 rounded text-[9px] font-bold tracking-tight text-primary shadow-sm uppercase border border-outline-variant/10">
+                          {p.categoryName || 'ACTIVE'}
+                        </span>
+                      </div>
+
+                      {/* Meta Body */}
+                      <div className="p-5 flex flex-col flex-grow">
+                        <h3 className="font-h3 text-base font-bold text-primary mb-1.5 leading-tight line-clamp-1">
+                          {p.name}
+                        </h3>
+
+                        {/* Rating */}
+                        <div className="flex items-center gap-0.5 mb-3">
+                          <span
+                            className="material-symbols-outlined text-amber-500 text-sm"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            star
                           </span>
-                        )}
-                      </div>
-                      <span className="absolute top-3.5 left-3.5 bg-white/90 px-2 py-0.5 rounded text-[9px] font-bold tracking-tight text-primary shadow-sm uppercase border border-outline-variant/10">
-                        {p.categoryName || 'ACTIVE'}
-                      </span>
-                    </div>
+                          <span className="text-[11px] text-on-surface-variant font-medium">
+                            {simulatedRating} ({simulatedReviews} reviews)
+                          </span>
+                        </div>
 
-                    {/* Meta Body */}
-                    <div className="p-5 flex flex-col flex-grow">
-                      <h3 className="font-h3 text-base font-bold text-primary mb-1.5 leading-tight line-clamp-1">
-                        {p.name}
-                      </h3>
-                      
-                      {/* Rating */}
-                      <div className="flex items-center gap-0.5 mb-3">
-                        <span
-                          className="material-symbols-outlined text-amber-500 text-sm"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          star
-                        </span>
-                        <span className="text-[11px] text-on-surface-variant font-medium">
-                          {simulatedRating} ({simulatedReviews} reviews)
-                        </span>
-                      </div>
+                        {/* Description */}
+                        <p className="text-on-surface-variant text-xs mb-4 leading-relaxed line-clamp-2 font-light">
+                          {p.description || 'Chế phẩm sinh học giúp tiêu diệt sâu hại, tăng sức đề kháng tự nhiên cho các loại rau ăn lá và cây công nghiệp.'}
+                        </p>
 
-                      {/* Description */}
-                      <p className="text-on-surface-variant text-xs mb-4 leading-relaxed line-clamp-2 font-light">
-                        {p.description || 'Chế phẩm sinh học giúp tiêu diệt sâu hại, tăng sức đề kháng tự nhiên cho các loại rau ăn lá và cây công nghiệp.'}
-                      </p>
-
-                      {/* Price Action Footer */}
-                      <div className="mt-auto pt-4 border-t border-dashed border-outline-variant/20 flex items-center justify-between gap-3">
-                        <span className="text-lg font-bold text-primary">
-                          {formatPrice(p.unitPrice)}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={(e) => handleBuyNow(e, p)}
-                            type="button"
-                            className="border border-primary text-primary hover:bg-primary/5 active:scale-[0.97] font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
-                          >
-                            <span className="material-symbols-outlined text-sm">shopping_bag</span>
-                            Buy
-                          </button>
-                          <button
-                            onClick={(e) => handleAddToCartClick(e, p)}
-                            type="button"
-                            className="bg-primary hover:bg-[#173901] text-white font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 active:scale-[0.97] transition-all text-xs shadow-md"
-                          >
-                            <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
-                            Add
-                          </button>
+                        {/* Price Action Footer */}
+                        <div className="mt-auto pt-4 border-t border-dashed border-outline-variant/20 flex items-center justify-between gap-3">
+                          <span className="text-lg font-bold text-primary">
+                            {formatPrice(p.unitPrice)}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => handleBuyNow(e, p)}
+                              type="button"
+                              className="border border-primary text-primary hover:bg-primary/5 active:scale-[0.97] font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
+                            >
+                              <span className="material-symbols-outlined text-sm">shopping_bag</span>
+                              Buy
+                            </button>
+                            <button
+                              onClick={(e) => handleAddToCartClick(e, p)}
+                              type="button"
+                              className="bg-primary hover:bg-[#173901] text-white font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 active:scale-[0.97] transition-all text-xs shadow-md"
+                            >
+                              <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
+                              Add
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-10">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-lg border border-outline-variant/30 bg-white dark:bg-surface-container text-primary font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/5 transition-colors"
+                  >
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`w-10 h-10 rounded-lg font-semibold transition-colors ${
+                            page === currentPage
+                              ? 'bg-primary text-white shadow-md'
+                              : 'border border-outline-variant/30 bg-white dark:bg-surface-container text-primary hover:bg-primary/5'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (page === currentPage - 2 || page === currentPage + 2) {
+                      return <span key={page}>...</span>;
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-lg border border-outline-variant/30 bg-white dark:bg-surface-container text-primary font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/5 transition-colors"
+                  >
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-20 text-on-surface-variant font-light bg-white dark:bg-surface-container rounded-2xl border border-outline-variant/10 shadow-sm flex flex-col items-center">
               <span className="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-3">

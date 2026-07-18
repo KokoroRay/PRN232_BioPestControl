@@ -8,7 +8,7 @@ namespace agri_expert_service.Controllers
 {
     [Route("api/admin/chemicals")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Staff")]
     public class AdminChemicalsController : ControllerBase
     {
         private readonly IChemicalService _chemicalService;

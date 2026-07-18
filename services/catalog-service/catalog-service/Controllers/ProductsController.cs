@@ -19,15 +19,9 @@ namespace catalog_service.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Get([FromQuery] string? name)
+        public async Task<IActionResult> Get([FromQuery] ProductFilterRequest filter)
         {
-            if (!string.IsNullOrEmpty(name))
-            {
-                var searchResults = await _productService.SearchByNameAsync(name);
-                return Ok(searchResults);
-            }
-
-            var products = await _productService.GetAllAsync();
+            var products = await _productService.GetAllAsync(filter);
             return Ok(products);
         }
 

@@ -18,6 +18,12 @@ using agri_expert_service.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+// Load .env file
+DotNetEnv.Env.Load();
+DotNetEnv.Env.TraversePath().Load();
+
 // ── CORS ──────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
@@ -47,6 +53,9 @@ builder.Services.AddDbContext<AgriDbContext>(options =>
 // ── DI: Repositories + Services ───────────────────────────────
 builder.Services.AddScoped<IChemicalRepository, ChemicalRepository>();
 builder.Services.AddScoped<IChemicalService, ChemicalService>();
+
+builder.Services.AddHttpClient<agri_expert_service.Services.Interfaces.IDeepSeekService, agri_expert_service.Services.Implements.DeepSeekService>();
+builder.Services.AddScoped<agri_expert_service.Services.Interfaces.IDeepSeekService, agri_expert_service.Services.Implements.DeepSeekService>();
 
 // ── JWT Authentication ────────────────────────────────────────
 // Dùng chung JwtSettings với identity-service
@@ -175,4 +184,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+using (var scope = app.Services.CreateScope()) { var dbContext = scope.ServiceProvider.GetRequiredService<AgriDbContext>(); dbContext.Database.EnsureCreated(); }
+
 app.Run();
+

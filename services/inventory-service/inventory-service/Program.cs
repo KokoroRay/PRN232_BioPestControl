@@ -16,6 +16,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 // Add services to the container.
 builder.Services.AddDbContext<InventoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -150,3 +152,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

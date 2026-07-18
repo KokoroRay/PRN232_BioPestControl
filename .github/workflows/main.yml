@@ -16,6 +16,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Cleanup previous Prometheus config
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM3_HOST }}
+          username: ${{ secrets.VM3_USERNAME }}
+          key: ${{ secrets.VM3_SSH_KEY }}
+          password: ${{ secrets.VM3_PASSWORD }}
+          proxy_host: ${{ secrets.VM1_HOST }}
+          proxy_username: ${{ secrets.VM1_USERNAME }}
+          proxy_password: ${{ secrets.VM1_PASSWORD }}
+          script: |
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S rm -rf ~/infra/redis-kafka/prometheus || true
+
       - name: Copy Files to VM3
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -23,9 +36,12 @@ jobs:
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
-          source: "infrastructure/docker-compose.yml,infrastructure/kong.yml"
-          target: "~/infra"
-          strip_components: 1
+          proxy_host: ${{ secrets.VM1_HOST }}
+          proxy_username: ${{ secrets.VM1_USERNAME }}
+          proxy_password: ${{ secrets.VM1_PASSWORD }}
+          source: "infrastructure/redis-kafka/docker-compose.yml,infrastructure/redis-kafka/prometheus/prometheus.yml"
+          target: "~/infra/redis-kafka"
+          strip_components: 2
 
       - name: Deploy Kafka & Redis to VM3
         uses: appleboy/ssh-action@v1.0.3
@@ -34,20 +50,33 @@ jobs:
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
+          proxy_host: ${{ secrets.VM1_HOST }}
+          proxy_username: ${{ secrets.VM1_USERNAME }}
+          proxy_password: ${{ secrets.VM1_PASSWORD }}
           script: |
-            cd ~/infra
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka kong-gateway || true
+            cd ~/infra/redis-kafka
+            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka prometheus grafana || true
             echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose up -d
 
       - name: Build and Push Services
         shell: bash
+        env:
+          AGRI_EXPERT_DB_CONNECTION: ${{ secrets.AGRI_EXPERT_DB_CONNECTION }}
+          CATALOG_DB_CONNECTION: ${{ secrets.CATALOG_DB_CONNECTION }}
+          ARTICLE_DB_CONNECTION: ${{ secrets.ARTICLE_DB_CONNECTION }}
+          IDENTITY_DB_CONNECTION: ${{ secrets.IDENTITY_DB_CONNECTION }}
+          INVENTORY_DB_CONNECTION: ${{ secrets.INVENTORY_DB_CONNECTION }}
+          ORDERING_DB_CONNECTION: ${{ secrets.ORDERING_DB_CONNECTION }}
+          PAYMENT_DB_CONNECTION: ${{ secrets.PAYMENT_DB_CONNECTION }}
+          TRADING_DB_CONNECTION: ${{ secrets.TRADING_DB_CONNECTION }}
         run: |
           set -euo pipefail
+          FAILED_SERVICES=()
 
           SERVICES=(
             "agri-expert-service"
             "catalog-service"
-            "engagement-service"
+            "article-service"
             "identity-service"
             "inventory-service"
             "ordering-service"
@@ -56,34 +85,101 @@ jobs:
           )
 
           for SVC in "${SERVICES[@]}"; do
+            SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
+            PREFIX="${SVC_UPPER%_SERVICE}"
+            ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
+            DB_CONN="${!ENV_VAR_NAME:-}"
+            
+            if [ -z "$DB_CONN" ]; then
+              echo "--- Skipping build for ${SVC} because ${ENV_VAR_NAME} is empty ---"
+              FAILED_SERVICES+=("${SVC}:missing-db-connection")
+              continue
+            fi
+
             if [ -f "services/${SVC}/Dockerfile" ]; then
               CONTEXT="services/${SVC}"
             elif [ -f "${SVC}/Dockerfile" ]; then
               CONTEXT="${SVC}"
             else
               echo "Dockerfile not found for ${SVC} in services/${SVC} or ${SVC}"
-              exit 1
+              FAILED_SERVICES+=("${SVC}:missing-dockerfile")
+              continue
             fi
 
             echo "--- Building ${SVC} ---"
-            docker build -t "${REGISTRY}/${SVC}:${IMAGE_TAG}" "${CONTEXT}"
+            if ! docker build --network=host -t "${REGISTRY}/${SVC}:${IMAGE_TAG}" "${CONTEXT}"; then
+              echo "--- Build failed for ${SVC}; skipping push ---"
+              FAILED_SERVICES+=("${SVC}:build-failed")
+              continue
+            fi
 
             echo "--- Pushing ${SVC} ---"
-            docker push "${REGISTRY}/${SVC}:${IMAGE_TAG}"
+            if ! docker push "${REGISTRY}/${SVC}:${IMAGE_TAG}"; then
+              echo "--- Push failed for ${SVC} ---"
+              FAILED_SERVICES+=("${SVC}:push-failed")
+              continue
+            fi
           done
+
+          if [ ${#FAILED_SERVICES[@]} -gt 0 ]; then
+            echo "--- Build step completed with skipped services: ${FAILED_SERVICES[*]} ---"
+          fi
+
+          echo "--- Building frontend-web ---"
+          if docker build --network=host -t "${REGISTRY}/frontend-web:${IMAGE_TAG}" "frontend-web"; then
+            echo "--- Pushing frontend-web ---"
+            docker push "${REGISTRY}/frontend-web:${IMAGE_TAG}"
+          else
+            echo "--- Build failed for frontend-web ---"
+            exit 1
+          fi
 
       - name: Deploy to K3s
         shell: bash
+        env:
+          AGRI_EXPERT_DB_CONNECTION: ${{ secrets.AGRI_EXPERT_DB_CONNECTION }}
+          CATALOG_DB_CONNECTION: ${{ secrets.CATALOG_DB_CONNECTION }}
+          ARTICLE_DB_CONNECTION: ${{ secrets.ARTICLE_DB_CONNECTION }}
+          IDENTITY_DB_CONNECTION: ${{ secrets.IDENTITY_DB_CONNECTION }}
+          INVENTORY_DB_CONNECTION: ${{ secrets.INVENTORY_DB_CONNECTION }}
+          ORDERING_DB_CONNECTION: ${{ secrets.ORDERING_DB_CONNECTION }}
+          PAYMENT_DB_CONNECTION: ${{ secrets.PAYMENT_DB_CONNECTION }}
+          TRADING_DB_CONNECTION: ${{ secrets.TRADING_DB_CONNECTION }}
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+          JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_APP_NAME: ${{ secrets.SMTP_APP_NAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
+          KAFKA_ORDER_PLACED_TOPIC: ${{ secrets.KAFKA_ORDER_PLACED_TOPIC }}
+          KAFKA_CONSUMER_GROUP_ID: ${{ secrets.KAFKA_CONSUMER_GROUP_ID }}
+          PAYOS_CLIENT_ID: ${{ secrets.PAYOS_CLIENT_ID }}
+          PAYOS_API_KEY: ${{ secrets.PAYOS_API_KEY }}
+          PAYOS_CHECKSUM_KEY: ${{ secrets.PAYOS_CHECKSUM_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          OPENAI_MODEL_NAME: ${{ secrets.OPENAI_MODEL_NAME }}
         run: |
           set -euo pipefail
+          FAILED_SERVICES=()
 
           echo "--- Applying Manifests ---"
-          kubectl apply -f k8s/namespace.yaml
+          if ! kubectl apply -f k8s/namespace.yaml; then
+            echo "--- Failed to apply namespace manifest ---"
+            exit 1
+          fi
+          
+          if ! kubectl apply -f k8s/ingress.yaml; then
+            echo "--- Failed to apply ingress manifest ---"
+            exit 1
+          fi
 
           SERVICES=(
             "agri-expert-service"
             "catalog-service"
-            "engagement-service"
+            "article-service"
             "identity-service"
             "inventory-service"
             "ordering-service"
@@ -92,15 +188,79 @@ jobs:
           )
 
           for SVC in "${SERVICES[@]}"; do
-            kubectl create configmap "${SVC}-env" \
-              --from-env-file="deploy/env/${SVC}.env" \
+            SVC_UPPER=$(echo "$SVC" | tr 'a-z-' 'A-Z_')
+            PREFIX="${SVC_UPPER%_SERVICE}"
+            ENV_VAR_NAME="${PREFIX}_DB_CONNECTION"
+            
+            # Dùng bash indirect expansion để lấy giá trị biến động
+            DB_CONN="${!ENV_VAR_NAME:-}"
+            
+            if [ -z "$DB_CONN" ]; then
+              echo "--- Skipping deploy for ${SVC} because ${ENV_VAR_NAME} is empty ---"
+              FAILED_SERVICES+=("${SVC}:missing-db-connection")
+              continue
+            fi
+            
+            if ! kubectl create configmap "${SVC}-env" \
+              --from-literal=ConnectionStrings__DefaultConnection="${DB_CONN}" \
+              --from-literal=MongoDB__ConnectionString="${DB_CONN}" \
+              --from-literal=MongoDB__DatabaseName="BioPestControlDb_ArticleService_Db" \
+              --from-literal=JwtSettings__Issuer="${JWT_ISSUER}" \
+              --from-literal=JwtSettings__Audience="${JWT_AUDIENCE}" \
+              --from-literal=Kafka__BootstrapServers="${KAFKA_BOOTSTRAP_SERVERS}" \
+              --from-literal=Kafka__OrderPlacedTopic="${KAFKA_ORDER_PLACED_TOPIC}" \
+              --from-literal=Kafka__ConsumerGroupId="${KAFKA_CONSUMER_GROUP_ID}" \
+              --from-literal=SmtpSettings__Host="smtp.gmail.com" \
+              --from-literal=SmtpSettings__Username="${SMTP_EMAIL}" \
+              --from-literal=SmtpSettings__Password="${SMTP_PASSWORD}" \
+              --from-literal=SmtpSettings__FromEmail="${SMTP_EMAIL}" \
+              --from-literal=SmtpSettings__FromName="${SMTP_APP_NAME}" \
+              --from-literal=GoogleOptions__ClientId="${GOOGLE_CLIENT_ID}" \
+              --from-literal=PayOS__ClientId="${PAYOS_CLIENT_ID}" \
+              --from-literal=PayOS__ApiKey="${PAYOS_API_KEY}" \
+              --from-literal=PayOS__ChecksumKey="${PAYOS_CHECKSUM_KEY}" \
+              --from-literal=IdentityServiceUrl="http://identity-service" \
+              --from-literal=AgriExpertServiceUrl="http://agri-expert-service" \
+              --from-literal=OpenAI__ApiKey="${OPENAI_API_KEY}" \
+              --from-literal=OpenAI__BaseUrl="${OPENAI_BASE_URL}" \
+              --from-literal=OpenAI__ModelName="${OPENAI_MODEL_NAME:-llama3.3-70b-instruct}" \
               -n biopest \
-              --dry-run=client -o yaml | kubectl apply -f -
+              --dry-run=client -o yaml | kubectl apply -f -; then
+              echo "--- Failed to create/apply configmap for ${SVC}; skipping deploy ---"
+              FAILED_SERVICES+=("${SVC}:configmap-failed")
+              continue
+            fi
+              
+            if [ -d "k8s/${SVC}" ]; then
+              if ! kubectl apply -f "k8s/${SVC}/"; then
+                echo "--- Failed to apply Kubernetes manifests for ${SVC}; skipping rollout ---"
+                FAILED_SERVICES+=("${SVC}:manifest-apply-failed")
+                continue
+              fi
+            fi
+            
+            if ! kubectl set image deployment/"${SVC}" "${SVC}"="${REGISTRY}/${SVC}:${IMAGE_TAG}" -n biopest; then
+              echo "--- Failed to set image for ${SVC}; skipping rollout ---"
+              FAILED_SERVICES+=("${SVC}:set-image-failed")
+              continue
+            fi
+
+            if ! kubectl rollout status deployment/"${SVC}" -n biopest --timeout=180s; then
+              echo "--- Rollout failed for ${SVC}; continuing with other services ---"
+              FAILED_SERVICES+=("${SVC}:rollout-failed")
+              continue
+            fi
           done
 
-          kubectl apply -f k8s/
+          if [ ${#FAILED_SERVICES[@]} -gt 0 ]; then
+            echo "--- Deploy step completed with skipped services: ${FAILED_SERVICES[*]} ---"
+          fi
 
-          for SVC in "${SERVICES[@]}"; do
-            kubectl set image deployment/"${SVC}" "${SVC}"="${REGISTRY}/${SVC}:${IMAGE_TAG}" -n biopest
-            kubectl rollout status deployment/"${SVC}" -n biopest --timeout=180s
-          done
+          echo "--- Deploying frontend-web ---"
+          if kubectl apply -f k8s/frontend-web/; then
+            if kubectl set image deployment/frontend-web frontend-web="${REGISTRY}/frontend-web:${IMAGE_TAG}" -n biopest; then
+              kubectl rollout status deployment/frontend-web -n biopest --timeout=180s || echo "--- Rollout failed for frontend-web ---"
+            fi
+          else
+            echo "--- Failed to apply Kubernetes manifests for frontend-web ---"
+          fi

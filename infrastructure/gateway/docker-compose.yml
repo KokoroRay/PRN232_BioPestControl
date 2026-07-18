@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  kong:
+    image: kong:3.6
+    container_name: kong-gateway
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
+      - KONG_LOG_LEVEL=info
+      - KONG_PLUGINS=bundled
+    volumes:
+      - ./kong.yml:/usr/local/kong/declarative/kong.yml
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kong.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.kong.entrypoints=web"
+      - "traefik.http.services.kong.loadbalancer.server.port=8000"
+    restart: on-failure
+    networks:
+      - kong-net
+
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/dynamic.yml"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik-dynamic.yml:/etc/traefik/dynamic.yml
+    restart: on-failure
+    networks:
+      - kong-net
+
+networks:
+  kong-net:
+    driver: bridge

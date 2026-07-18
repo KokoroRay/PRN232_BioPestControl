@@ -406,6 +406,10 @@ namespace identity_service.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("nvarchar(max)");
 

@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import { orderStatusLabel, parseShippingAddress } from '../../lib/checkoutUtils';
 import { orderService } from '../../services/orderService';
 import type { Order } from '../../types/ordering';
+import { useCart } from '../../context/CartContext';
 
 const formatPrice = (value: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
@@ -16,6 +17,7 @@ const CustomerOrderDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
+  const { addToCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -124,9 +126,28 @@ const CustomerOrderDetailsPage: React.FC = () => {
                   <p className="order-detail-label">Order Total</p>
                   <p className="order-detail-grand-total">{formatPrice(order.totalAmount)}</p>
                 </div>
-                <Link to="/products" className="public-cta">
+                <button 
+                  type="button"
+                  className="public-cta"
+                  onClick={async () => {
+                    if (!order) return;
+                    try {
+                      await Promise.all(order.items.map(item => 
+                        addToCart({
+                          id: item.productId,
+                          name: item.productName,
+                          unitPrice: item.unitPrice,
+                          imageUrl: item.productImageUrl || ''
+                        }, item.quantity)
+                      ));
+                      navigate('/cart');
+                    } catch {
+                      showToast('Could not add items to cart', 'error');
+                    }
+                  }}
+                >
                   Buy Again
-                </Link>
+                </button>
               </div>
             </div>
           )}

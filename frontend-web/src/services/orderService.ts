@@ -83,4 +83,9 @@ export const orderService = {
 
   cancel: (id: string, reason: string, asStaff = false) =>
     client.delete(`${asStaff ? staffPrefix : adminPrefix}/${id}/cancel`, { data: { reason } }),
+
+  markAsPaid: async (id: string) => {
+    const { data } = await client.put(`${customerPrefix}/${id}/mark-paid`);
+    return mapOrder(unwrap(data));
+  },
 };

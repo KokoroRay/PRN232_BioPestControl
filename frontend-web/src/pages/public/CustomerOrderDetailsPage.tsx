@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { AccountSidebar } from '../../components/public/AccountSidebar';
 import { useAuth } from '../../context/AuthContext';
@@ -20,6 +20,35 @@ const CustomerOrderDetailsPage: React.FC = () => {
   const { addToCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const loadOrder = useCallback(async () => {
+    try {
+      const data = await orderService.getMyOrder(id!);
+      
+      // If payment was just successful and we are redirected back
+      if (searchParams.get('status') === 'success' && data.paymentStatus === 'Unpaid') {
+        try {
+          const updated = await orderService.markAsPaid(data.id);
+          setOrder(updated);
+          showToast('Payment successful!', 'success');
+          // Clear query params
+          searchParams.delete('status');
+          searchParams.delete('mock');
+          setSearchParams(searchParams);
+          return;
+        } catch (err) {
+          console.error('Failed to mark as paid', err);
+        }
+      }
+      
+      setOrder(data);
+    } catch (err) {
+      showToast('Failed to load order', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, searchParams, setSearchParams, showToast]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,15 +57,8 @@ const CustomerOrderDetailsPage: React.FC = () => {
     }
     if (!id) return;
 
-    orderService
-      .getMyOrder(id)
-      .then(setOrder)
-      .catch(() => {
-        showToast('Failed to load order', 'error');
-        setLoading(false);
-      })
-      .finally(() => setLoading(false));
-  }, [id, isAuthenticated, navigate, showToast]);
+    loadOrder();
+  }, [id, isAuthenticated, navigate, loadOrder]);
 
   if (!isAuthenticated) return null;
 

@@ -443,13 +443,13 @@ namespace ordering_service.Controllers
                     Message = $"Đơn hàng ở trạng thái '{order.Status}' không thể cập nhật thêm."
                 });
 
-            // Kiểm tra tịnh tuyến: newStatus phải là trạng thái tiếp theo hợp lệ
-            if (!_nextStatusMap.TryGetValue(order.Status, out var expectedNext) || expectedNext != newStatus)
-                return BadRequest(new ApiResponse<object>
-                {
-                    Success = false,
-                    Message = $"Không thể chuyển từ '{order.Status}' sang '{newStatus}'. Trạng thái tiếp theo hợp lệ là '{(_nextStatusMap.TryGetValue(order.Status, out var next) ? next : "không có")}' ."
-                });
+            // Bỏ kiểm tra tịnh tuyến nghiêm ngặt để Admin/Staff có thể chuyển đổi trạng thái linh hoạt hơn
+            // if (!_nextStatusMap.TryGetValue(order.Status, out var expectedNext) || expectedNext != newStatus)
+            //     return BadRequest(new ApiResponse<object>
+            //     {
+            //         Success = false,
+            //         Message = $"Không thể chuyển từ '{order.Status}' sang '{newStatus}'. Trạng thái tiếp theo hợp lệ là '{(_nextStatusMap.TryGetValue(order.Status, out var next) ? next : "không có")}' ."
+            //     });
 
             order.Status    = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
@@ -539,6 +539,34 @@ namespace ordering_service.Controllers
                 query = query.Where(o => o.OrderDate <= filter.ToDate.Value);
 
             return query;
+        }
+
+        /// <summary>
+        /// [PUT] /api/orders/{id}/mark-paid
+        /// Dùng để frontend gọi khi PayOS redirect về báo thành công
+        /// </summary>
+        [HttpPut("api/orders/{id:guid}/mark-paid")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> MarkOrderAsPaid(Guid id)
+        {
+            var customerId = GetUserId();
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id && o.CustomerId == customerId);
+            if (order == null)
+                return NotFound(new ApiResponse<object> { Success = false, Message = "Không tìm thấy đơn hàng." });
+
+            if (order.PaymentStatus != PaymentStatus.Paid)
+            {
+                order.PaymentStatus = PaymentStatus.Paid;
+                order.PaidAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new ApiResponse<OrderResponse>
+            {
+                Success = true,
+                Message = "Đã cập nhật trạng thái thanh toán thành công.",
+                Data = MapToOrderResponse(order)
+            });
         }
 
         // ─────────────────────────────────────────────

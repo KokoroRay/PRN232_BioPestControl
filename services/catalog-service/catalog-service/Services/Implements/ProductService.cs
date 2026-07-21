@@ -59,12 +59,9 @@ namespace catalog_service.Services.Implements
             }
 
             var pagedProducts = await _repository.GetAllAsync(filter);
-            var responses = new List<ProductResponse>();
 
-            foreach (var product in pagedProducts.Items)
-            {
-                responses.Add(await MapToResponseAsync(product));
-            }
+            var mapTasks = pagedProducts.Items.Select(product => MapToResponseAsync(product));
+            var responses = (await Task.WhenAll(mapTasks)).ToList();
 
             var result = new PagedResult<ProductResponse>
             {
@@ -93,12 +90,9 @@ namespace catalog_service.Services.Implements
         public async Task<IEnumerable<ProductResponse>> SearchByNameAsync(string name)
         {
             var products = await _repository.SearchByNameAsync(name);
-            var responses = new List<ProductResponse>();
 
-            foreach (var product in products)
-            {
-                responses.Add(await MapToResponseAsync(product));
-            }
+            var mapTasks = products.Select(product => MapToResponseAsync(product));
+            var responses = (await Task.WhenAll(mapTasks)).ToList();
 
             return responses;
         }

@@ -23,9 +23,6 @@ jobs:
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
-          proxy_host: ${{ secrets.VM1_HOST }}
-          proxy_username: ${{ secrets.VM1_USERNAME }}
-          proxy_password: ${{ secrets.VM1_PASSWORD }}
           script: |
             echo "${{ secrets.VM3_PASSWORD }}" | sudo -S rm -rf ~/infra/redis-kafka/prometheus || true
 
@@ -36,9 +33,6 @@ jobs:
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
-          proxy_host: ${{ secrets.VM1_HOST }}
-          proxy_username: ${{ secrets.VM1_USERNAME }}
-          proxy_password: ${{ secrets.VM1_PASSWORD }}
           source: "infrastructure/redis-kafka/docker-compose.yml,infrastructure/redis-kafka/prometheus/prometheus.yml"
           target: "~/infra/redis-kafka"
           strip_components: 2
@@ -50,9 +44,6 @@ jobs:
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
-          proxy_host: ${{ secrets.VM1_HOST }}
-          proxy_username: ${{ secrets.VM1_USERNAME }}
-          proxy_password: ${{ secrets.VM1_PASSWORD }}
           script: |
             cd ~/infra/redis-kafka
             echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka prometheus grafana || true

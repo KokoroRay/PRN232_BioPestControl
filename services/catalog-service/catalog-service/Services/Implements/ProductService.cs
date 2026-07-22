@@ -265,17 +265,23 @@ namespace catalog_service.Services.Implements
 
         private async Task<ProductResponse> MapToResponseAsync(Product product)
         {
-            var adminName = product.CreatedByAdminId.HasValue
-                ? await _identityServiceClient.GetUserNameAsync(product.CreatedByAdminId.Value)
-                : null;
+            var adminNameTask = product.CreatedByAdminId.HasValue
+                ? _identityServiceClient.GetUserNameAsync(product.CreatedByAdminId.Value)
+                : Task.FromResult<string?>(null);
 
-            var staffName = product.ManagedByStaffId.HasValue
-                ? await _identityServiceClient.GetUserNameAsync(product.ManagedByStaffId.Value)
-                : null;
+            var staffNameTask = product.ManagedByStaffId.HasValue
+                ? _identityServiceClient.GetUserNameAsync(product.ManagedByStaffId.Value)
+                : Task.FromResult<string?>(null);
 
-            var chemicalName = product.ChemicalProfileId.HasValue
-                ? await _agriExpertServiceClient.GetChemicalNameAsync(product.ChemicalProfileId.Value)
-                : null;
+            var chemicalNameTask = product.ChemicalProfileId.HasValue
+                ? _agriExpertServiceClient.GetChemicalNameAsync(product.ChemicalProfileId.Value)
+                : Task.FromResult<string?>(null);
+
+            await Task.WhenAll(adminNameTask, staffNameTask, chemicalNameTask);
+
+            var adminName = adminNameTask.Result;
+            var staffName = staffNameTask.Result;
+            var chemicalName = chemicalNameTask.Result;
 
             return new ProductResponse
             {

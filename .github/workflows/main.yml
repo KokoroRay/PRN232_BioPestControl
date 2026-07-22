@@ -38,8 +38,9 @@ jobs:
           VM3_PASSWORD: ${{ secrets.VM3_PASSWORD }}
           VM3_USERNAME: ${{ secrets.VM3_USERNAME }}
         run: |
-          sshpass -p "$VM3_PASSWORD" ssh -o StrictHostKeyChecking=no $VM3_USERNAME@10.0.0.3 "mkdir -p ~/infra/redis-kafka"
-          sshpass -p "$VM3_PASSWORD" scp -o StrictHostKeyChecking=no infrastructure/redis-kafka/docker-compose.yml infrastructure/redis-kafka/prometheus/prometheus.yml $VM3_USERNAME@10.0.0.3:~/infra/redis-kafka/
+          sshpass -p "$VM3_PASSWORD" ssh -o StrictHostKeyChecking=no $VM3_USERNAME@10.0.0.3 "mkdir -p ~/infra/redis-kafka/prometheus"
+          sshpass -p "$VM3_PASSWORD" scp -o StrictHostKeyChecking=no infrastructure/redis-kafka/docker-compose.yml $VM3_USERNAME@10.0.0.3:~/infra/redis-kafka/
+          sshpass -p "$VM3_PASSWORD" scp -o StrictHostKeyChecking=no infrastructure/redis-kafka/prometheus/prometheus.yml $VM3_USERNAME@10.0.0.3:~/infra/redis-kafka/prometheus/
 
       - name: Deploy Kafka & Redis to VM3
         shell: bash

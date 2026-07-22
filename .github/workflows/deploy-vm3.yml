@@ -16,46 +16,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Cleanup previous Prometheus config
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM3_HOST }}
-          username: ${{ secrets.VM3_USERNAME }}
-          key: ${{ secrets.VM3_SSH_KEY }}
-          password: ${{ secrets.VM3_PASSWORD }}
-          proxy_host: ${{ secrets.VM1_HOST }}
-          proxy_username: ${{ secrets.VM1_USERNAME }}
-          proxy_password: ${{ secrets.VM1_PASSWORD }}
-          script: |
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S rm -rf ~/infra/redis-kafka/prometheus || true
+        shell: bash
+        env:
+          VM3_PASSWORD: ${{ secrets.VM3_PASSWORD }}
+          VM3_USERNAME: ${{ secrets.VM3_USERNAME }}
+        run: |
+          sshpass -p "$VM3_PASSWORD" ssh -o StrictHostKeyChecking=no $VM3_USERNAME@10.0.0.3 "echo \"$VM3_PASSWORD\" | sudo -S rm -rf ~/infra/redis-kafka/prometheus || true"
 
       - name: Copy Files to VM3
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VM3_HOST }}
-          username: ${{ secrets.VM3_USERNAME }}
-          key: ${{ secrets.VM3_SSH_KEY }}
-          password: ${{ secrets.VM3_PASSWORD }}
-          proxy_host: ${{ secrets.VM1_HOST }}
-          proxy_username: ${{ secrets.VM1_USERNAME }}
-          proxy_password: ${{ secrets.VM1_PASSWORD }}
-          source: "infrastructure/redis-kafka/docker-compose.yml,infrastructure/redis-kafka/prometheus/prometheus.yml"
-          target: "~/infra/redis-kafka"
-          strip_components: 2
+        shell: bash
+        env:
+          VM3_PASSWORD: ${{ secrets.VM3_PASSWORD }}
+          VM3_USERNAME: ${{ secrets.VM3_USERNAME }}
+        run: |
+          sshpass -p "$VM3_PASSWORD" ssh -o StrictHostKeyChecking=no $VM3_USERNAME@10.0.0.3 "mkdir -p ~/infra/redis-kafka/prometheus"
+          sshpass -p "$VM3_PASSWORD" scp -o StrictHostKeyChecking=no infrastructure/redis-kafka/docker-compose.yml $VM3_USERNAME@10.0.0.3:~/infra/redis-kafka/
+          sshpass -p "$VM3_PASSWORD" scp -o StrictHostKeyChecking=no infrastructure/redis-kafka/prometheus/prometheus.yml $VM3_USERNAME@10.0.0.3:~/infra/redis-kafka/prometheus/
 
       - name: Deploy to VM3
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM3_HOST }}
-          username: ${{ secrets.VM3_USERNAME }}
-          key: ${{ secrets.VM3_SSH_KEY }}
-          password: ${{ secrets.VM3_PASSWORD }}
-          proxy_host: ${{ secrets.VM1_HOST }}
-          proxy_username: ${{ secrets.VM1_USERNAME }}
-          proxy_password: ${{ secrets.VM1_PASSWORD }}
-          script: |
-            cd ~/infra/redis-kafka
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker rm -f zookeeper redis kafka prometheus grafana || true
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose pull
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker-compose up -d
-            echo "--- Deployment Complete. Services running: ---"
-            echo "${{ secrets.VM3_PASSWORD }}" | sudo -S docker ps | grep -E 'redis|kafka|zookeeper' || true
+        shell: bash
+        env:
+          VM3_PASSWORD: ${{ secrets.VM3_PASSWORD }}
+          VM3_USERNAME: ${{ secrets.VM3_USERNAME }}
+        run: |
+          sshpass -p "$VM3_PASSWORD" ssh -o StrictHostKeyChecking=no $VM3_USERNAME@10.0.0.3 "cd ~/infra/redis-kafka && echo \"$VM3_PASSWORD\" | sudo -S docker rm -f zookeeper redis kafka prometheus grafana mongodb || true && echo \"$VM3_PASSWORD\" | sudo -S docker-compose pull && echo \"$VM3_PASSWORD\" | sudo -S docker-compose up -d && echo \"--- Deployment Complete. Services running: ---\" && echo \"$VM3_PASSWORD\" | sudo -S docker ps | grep -E 'redis|kafka|zookeeper|mongodb' || true"

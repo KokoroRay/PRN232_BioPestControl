@@ -60,8 +60,18 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - mongodb_data:/data/db
+
 volumes:
   redis_data:
   kafka_data:
   prometheus_data:
   grafana_data:
+  mongodb_data:

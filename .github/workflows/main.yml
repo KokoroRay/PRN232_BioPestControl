@@ -19,7 +19,7 @@ jobs:
       - name: Cleanup previous Prometheus config
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VM3_HOST }}
+          host: 10.0.0.3
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
@@ -29,7 +29,7 @@ jobs:
       - name: Copy Files to VM3
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.VM3_HOST }}
+          host: 10.0.0.3
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}
@@ -40,7 +40,7 @@ jobs:
       - name: Deploy Kafka & Redis to VM3
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VM3_HOST }}
+          host: 10.0.0.3
           username: ${{ secrets.VM3_USERNAME }}
           key: ${{ secrets.VM3_SSH_KEY }}
           password: ${{ secrets.VM3_PASSWORD }}

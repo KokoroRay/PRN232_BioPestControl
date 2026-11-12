@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'services/**'
   workflow_dispatch:
 
 env:
